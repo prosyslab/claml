@@ -1,0 +1,39 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "anonymous-struct0.c"
+struct {
+  struct {
+    unsigned int overload;
+  } com;
+  struct {
+    unsigned int shreg;
+  } bit;
+  struct {
+    unsigned int send;
+  } boo;
+};
+#line 11 "anonymous-struct0.c"
+typedef struct {
+  struct {
+    unsigned int overload;
+  } com;
+  struct {
+    unsigned int shreg;
+  } bit;
+  struct {
+    unsigned int send;
+  } boo;
+} cvsd_t;
+#line 13 "anonymous-struct0.c"
+typedef cvsd_t prev_t;
+#line 15 "anonymous-struct0.c"
+int main() {
+#line 16 "anonymous-struct0.c"
+  prev_t *a;
+
+  a = (prev_t *)0;
+  return 0;
+}

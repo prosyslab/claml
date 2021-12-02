@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "while1.c"
+void f(int x, ) {
+  while (x) {
+    x++;
+    break;
+  }
+}

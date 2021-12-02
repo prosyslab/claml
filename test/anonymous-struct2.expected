@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "anonymous-struct2.c"
+int main() {
+  return (int)sizeof(struct {
+    int a;
+    char b;
+  });
+}

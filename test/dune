@@ -1,0 +1,164 @@
+(executable
+ (name test)
+ (modules test)
+ (libraries clang))
+
+(rule
+ (deps decl0.c)
+ (targets decl0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff decl0.expected decl0.output)))
+
+(rule
+ (deps stmt0.c)
+ (targets stmt0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff stmt0.expected stmt0.output)))
+
+(rule
+ (deps long0.c)
+ (targets long0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff long0.expected long0.output)))
+
+(rule
+ (deps alignof0.c)
+ (targets alignof0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff alignof0.expected alignof0.output)))
+
+(rule
+ (deps anonymous-struct0.c)
+ (targets anonymous-struct0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff anonymous-struct0.expected anonymous-struct0.output)))
+
+(rule
+ (deps anonymous-struct1.c)
+ (targets anonymous-struct1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff anonymous-struct1.expected anonymous-struct1.output)))
+
+(rule
+ (deps anonymous-struct2.c)
+ (targets anonymous-struct2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff anonymous-struct2.expected anonymous-struct2.output)))
+
+(rule
+ (deps while0.c)
+ (targets while0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff while0.expected while0.output)))
+
+(rule
+ (deps while1.c)
+ (targets while1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff while1.expected while1.output)))
+
+(rule
+ (deps while2.c)
+ (targets while2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff while2.expected while2.output)))

@@ -1,0 +1,17 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "stmt0.c"
+int main() {
+#line 2 "stmt0.c"
+  int x = 1;
+#line 2 "stmt0.c"
+  int y = 0;
+
+  while (x < 10) {
+    y++;
+  }
+  return x + 1;
+}

@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "long0.c"
+int main() {
+#line 2 "long0.c"
+  int x = (int)9223372036854775807;
+
+  return 0;
+}

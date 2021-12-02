@@ -1,0 +1,24 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "decl0.c"
+char c = (char)1;
+#line 3 "decl0.c"
+int i = 10;
+#line 5 "decl0.c"
+int j = (int)2.400000;
+#line 7 "decl0.c"
+void f(int arg1, const int *arg2, ) { return; }
+#line 9 "decl0.c"
+int main() {
+#line 10 "decl0.c"
+  int x = 1;
+#line 10 "decl0.c"
+  int y;
+#line 10 "decl0.c"
+  int z;
+
+  return x + 1;
+}

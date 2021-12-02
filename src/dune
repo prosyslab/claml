@@ -1,0 +1,27 @@
+(library
+ (name clang)
+ (public_name clang)
+ (modules
+  clang
+  declKind
+  stmtKind
+  typeKind
+  builtinTypeKind
+  implicitCastKind
+  unaryOperatorKind
+  binaryOperatorKind
+  sig)
+ (foreign_stubs
+  (language cxx)
+  (flags
+   :standard
+   (:include ../config/cflags.sexp)
+   -fPIC)
+  (names clang_ocaml clang_type utils))
+ (c_library_flags
+  (:include ../config/archives.sexp)
+  (:include ../config/ldflags.sexp)
+  -lstdc++)
+ (flags :standard -w -32+34-40-37-27)
+ (preprocess
+  (pps ppx_deriving.show)))

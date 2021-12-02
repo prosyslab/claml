@@ -1,0 +1,25 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "anonymous-struct1.c"
+struct {
+  struct {
+    struct {
+    } a;
+  } b;
+};
+#line 6 "anonymous-struct1.c"
+struct {
+  struct {
+    struct {
+    } a;
+  } b;
+} c;
+#line 7 "anonymous-struct1.c"
+int d() {
+#line 7 "anonymous-struct1.c"
+  void *p = (void *)&c.b;
+  ;
+}

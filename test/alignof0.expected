@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "alignof0.c"
+int main() {
+#line 2 "alignof0.c"
+  int a;
+
+  a = (int)__alignof__(0);
+  return 0;
+}
