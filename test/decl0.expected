@@ -19,6 +19,5 @@ int main() {
   int y;
 #line 10 "decl0.c"
   int z;
-
   return x + 1;
 }

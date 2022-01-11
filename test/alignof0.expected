@@ -7,7 +7,6 @@
 int main() {
 #line 2 "alignof0.c"
   int a;
-
   a = (int)__alignof__(0);
   return 0;
 }

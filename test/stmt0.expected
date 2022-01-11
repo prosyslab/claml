@@ -9,7 +9,6 @@ int main() {
   int x = 1;
 #line 2 "stmt0.c"
   int y = 0;
-
   while (x < 10) {
     y++;
   }

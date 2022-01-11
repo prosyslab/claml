@@ -33,7 +33,6 @@ typedef cvsd_t prev_t;
 int main() {
 #line 16 "anonymous-struct0.c"
   prev_t *a;
-
   a = (prev_t *)0;
   return 0;
 }

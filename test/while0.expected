@@ -7,7 +7,6 @@
 void f() {
 #line 2 "while0.c"
   int x = 0;
-
   while (1) {
     x++;
   }

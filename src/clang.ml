@@ -252,8 +252,14 @@ and DeclStmt : (Sig.DECL_STMT with type t = Stmt.t) = struct
 
   external decl_list : Stmt.t -> Decl.t list = "clang_decl_stmt_decl_list"
 
-  let pp fmt cs =
-    List.iter (fun s -> F.fprintf fmt "%a\n" Decl.pp s) (decl_list cs)
+  let rec pp_list fmt = function
+    | [ h ] -> F.fprintf fmt "%a" Decl.pp h
+    | h :: t ->
+        F.fprintf fmt "%a\n" Decl.pp h;
+        pp_list fmt t
+    | [] -> ()
+
+  let pp fmt cs = decl_list cs |> pp_list fmt
 end
 
 and GotoStmt : (Sig.GOTO_STMT with type t = Stmt.t) = struct
