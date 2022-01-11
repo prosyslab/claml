@@ -210,7 +210,7 @@ type t =
   | Stmt208
   | UnaryExprOrTypeTraitExpr
   | UnaryOperator
-  | Stmt211
+  | VAArgExpr
   | LabelStmt
   | WhileStmt
   | Stmt214

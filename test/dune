@@ -194,3 +194,19 @@
  (alias runtest)
  (action
   (diff variable-array1.expected variable-array1.output)))
+
+(rule
+ (deps vaarg0.c)
+ (targets vaarg0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff vaarg0.expected vaarg0.output)))

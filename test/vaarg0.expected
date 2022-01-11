@@ -1,0 +1,9 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "vaarg0.c"
+__builtin_va_list a;
+#line 2 "vaarg0.c"
+int b() { *__builtin_va_arg(a, int *); }

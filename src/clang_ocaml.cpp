@@ -436,25 +436,12 @@ value clang_cast_sub_expr(value Expr) {
   CAMLreturn(R);
 }
 
-value clang_explicit_cast_get_type(value Expr) {
-  CAMLparam1(Expr);
-  LOG("begin clang_explicit_cast_get_type");
-  clang::ExplicitCastExpr *E =
-      *((clang::ExplicitCastExpr **)Data_abstract_val(Expr));
-  LOG("end clang_explicit_cast_get_type");
-  CAMLreturn(clang_to_qual_type(E->getTypeAsWritten()));
-}
-
 value clang_expr_get_type(value Expr) {
   CAMLparam1(Expr);
   LOG("begin clang_expr_get_type");
   clang::Expr *E = *((clang::ExplicitCastExpr **)Data_abstract_val(Expr));
   LOG("end clang_expr_get_type");
   CAMLreturn(clang_to_qual_type(E->getType()));
-}
-
-value clang_implicit_cast_get_type(value Expr) {
-  return clang_expr_get_type(Expr);
 }
 
 value clang_compound_stmt_body_begin(value Stmt) {
@@ -686,6 +673,15 @@ value clang_array_subscript_expr_get_idx(value Expr) {
       *((clang::ArraySubscriptExpr **)Data_abstract_val(Expr));
   R = caml_alloc(1, Abstract_tag);
   *((clang::Expr **)Data_abstract_val(R)) = S->getIdx();
+  CAMLreturn(R);
+}
+
+value clang_va_arg_expr_get_sub_expr(value Expr) {
+  CAMLparam1(Expr);
+  CAMLlocal1(R);
+  clang::VAArgExpr *E = *((clang::VAArgExpr **)Data_abstract_val(Expr));
+  R = caml_alloc(1, Abstract_tag);
+  *((clang::Expr **)Data_abstract_val(R)) = E->getSubExpr();
   CAMLreturn(R);
 }
 

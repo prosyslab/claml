@@ -205,6 +205,7 @@ and Stmt : Sig.STMT = struct
     | CompoundStmt -> CompoundStmt.pp fmt exp
     | DeclStmt -> DeclStmt.pp fmt exp
     | GotoStmt -> GotoStmt.pp fmt exp
+    | IfStmt -> IfStmt.pp fmt exp
     | NullStmt -> ()
     | ReturnStmt -> ReturnStmt.pp fmt exp
     | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
@@ -218,12 +219,19 @@ and Stmt : Sig.STMT = struct
     | MemberExpr -> MemberExpr.pp fmt exp
     | UnaryExprOrTypeTraitExpr -> UnaryExprOrTypeTraitExpr.pp fmt exp
     | UnaryOperator -> UnaryOperator.pp fmt exp
-    | IfStmt -> IfStmt.pp fmt exp
+    | VAArgExpr -> VAArgExpr.pp fmt exp
     | LabelStmt -> LabelStmt.pp fmt exp
     | WhileStmt -> WhileStmt.pp fmt exp
     | k ->
         F.fprintf fmt "%a (%s, %d)" pp_kind k (get_kind_name exp)
           (get_kind_enum exp)
+end
+
+and Expr : (Sig.EXPR with type t = Stmt.t) = struct
+  include Stmt
+  module QualType = QualType
+
+  external get_type : t -> QualType.t = "clang_expr_get_type"
 end
 
 and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
@@ -272,13 +280,11 @@ and GotoStmt : (Sig.GOTO_STMT with type t = Stmt.t) = struct
 end
 
 and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
-  type t = Stmt.t
+  include Expr
 
   type kind = ImplicitCastKind.t [@@deriving show]
 
   external sub_expr : Stmt.t -> Stmt.t = "clang_cast_sub_expr"
-
-  external get_type : Stmt.t -> QualType.t = "clang_implicit_cast_get_type"
 
   external get_kind : Stmt.t -> kind = "clang_cast_kind"
 
@@ -297,15 +303,13 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
           (Stmt.get_kind_name e) (get_kind_enum e)
 end
 
-and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Stmt.t) = struct
-  type t = Stmt.t
+and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct
+  include Expr
 
-  external sub_expr : Stmt.t -> Stmt.t = "clang_cast_sub_expr"
-
-  external get_type : Stmt.t -> QualType.t = "clang_explicit_cast_get_type"
+  external sub_expr : Expr.t -> Expr.t = "clang_cast_sub_expr"
 
   let pp fmt e =
-    F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
+    F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Expr.pp (sub_expr e)
 end
 
 and IntegerLiteral : (Sig.INTEGER_LITERAL with type t = Stmt.t) = struct
@@ -438,6 +442,7 @@ and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
     | PreInc -> F.fprintf fmt "++%a;" Stmt.pp (get_sub_expr i)
     | PreDec -> F.fprintf fmt "--%a;" Stmt.pp (get_sub_expr i)
     | AddrOf -> F.fprintf fmt "&%a;" Stmt.pp (get_sub_expr i)
+    | Deref -> F.fprintf fmt "*%a;" Stmt.pp (get_sub_expr i)
     | k -> pp_kind fmt k
 end
 
@@ -464,6 +469,16 @@ and IfStmt : (Sig.IF_STMT with type t = Stmt.t) = struct
     F.fprintf fmt "if (%a) %a" Stmt.pp (get_cond d) Stmt.pp (get_then d);
     if has_else_storage d then F.fprintf fmt " else %a" Stmt.pp (get_else d)
     else ()
+end
+
+and VAArgExpr : (Sig.VA_ARG_EXPR with type t = Stmt.t) = struct
+  include Expr
+
+  external get_sub_expr : t -> t = "clang_va_arg_expr_get_sub_expr"
+
+  let pp fmt s =
+    F.fprintf fmt "__builtin_va_arg(%a, %a)" Stmt.pp (get_sub_expr s)
+      QualType.pp (get_type s)
 end
 
 and LabelStmt : (Sig.LABEL_STMT with type t = Stmt.t) = struct

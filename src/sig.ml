@@ -77,6 +77,14 @@ module type STMT = sig
   val get_kind_name : t -> string
 end
 
+module type EXPR = sig
+  include STMT
+
+  module QualType : QUAL_TYPE
+
+  val get_type : t -> QualType.t
+end
+
 module type COMPOUND_STMT = NODE
 
 module type DECL_STMT = NODE
@@ -117,6 +125,12 @@ module type ARRAY_SUBSCRIPT_EXPR = sig
   val get_base : t -> t
 
   val get_idx : t -> t
+end
+
+module type VA_ARG_EXPR = sig
+  include EXPR
+
+  val get_sub_expr : t -> t
 end
 
 (* Type *)
