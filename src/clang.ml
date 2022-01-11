@@ -207,6 +207,7 @@ and Stmt : Sig.STMT = struct
     | GotoStmt -> GotoStmt.pp fmt exp
     | NullStmt -> ()
     | ReturnStmt -> ReturnStmt.pp fmt exp
+    | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
     | BinaryOperator -> BinaryOperator.pp fmt exp
     | CallExpr -> CallExpr.pp fmt exp
     | CStyleCast -> ExplicitCast.pp fmt exp
@@ -286,7 +287,7 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
   let pp fmt e =
     match get_kind e with
     | LValueToRValue -> F.fprintf fmt "%a" Stmt.pp (sub_expr e)
-    | FunctionToPointerDecay -> Stmt.pp fmt (sub_expr e)
+    | ArrayToPointerDecay | FunctionToPointerDecay -> Stmt.pp fmt (sub_expr e)
     | NullToPointer | IntegerToPointer ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | IntegralCast ->
@@ -332,6 +333,17 @@ and ReturnStmt : (Sig.RETURN_STMT with type t = Stmt.t) = struct
     match get_ret_value i with
     | None -> F.fprintf fmt "return;"
     | Some e -> F.fprintf fmt "return %a;" Stmt.pp e
+end
+
+and ArraySubscriptExpr : (Sig.ARRAY_SUBSCRIPT_EXPR with type t = Stmt.t) =
+struct
+  type t = Stmt.t
+
+  external get_base : t -> Stmt.t = "clang_array_subscript_expr_get_base"
+
+  external get_idx : t -> Stmt.t = "clang_array_subscript_expr_get_idx"
+
+  let pp fmt e = F.fprintf fmt "%a[%a]" Stmt.pp (get_base e) Stmt.pp (get_idx e)
 end
 
 and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct

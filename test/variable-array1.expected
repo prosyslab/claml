@@ -1,0 +1,16 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "variable-array1.c"
+int main() {
+#line 2 "variable-array1.c"
+  int x = 10;
+#line 3 "variable-array1.c"
+  int y = 20;
+#line 4 "variable-array1.c"
+  int[y] arr;
+  arr[0] = 1;
+  return 0;
+}

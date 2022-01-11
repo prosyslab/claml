@@ -669,6 +669,26 @@ value clang_call_expr_get_args(value T) {
   CAMLreturn(Tl);
 }
 
+value clang_array_subscript_expr_get_base(value Expr) {
+  CAMLparam1(Expr);
+  CAMLlocal1(R);
+  clang::ArraySubscriptExpr *S =
+      *((clang::ArraySubscriptExpr **)Data_abstract_val(Expr));
+  R = caml_alloc(1, Abstract_tag);
+  *((clang::Expr **)Data_abstract_val(R)) = S->getBase();
+  CAMLreturn(R);
+}
+
+value clang_array_subscript_expr_get_idx(value Expr) {
+  CAMLparam1(Expr);
+  CAMLlocal1(R);
+  clang::ArraySubscriptExpr *S =
+      *((clang::ArraySubscriptExpr **)Data_abstract_val(Expr));
+  R = caml_alloc(1, Abstract_tag);
+  *((clang::Expr **)Data_abstract_val(R)) = S->getIdx();
+  CAMLreturn(R);
+}
+
 #define CLANG_DECL_KIND(Kind)                                                  \
   value clang_decl_kind_##Kind() {                                             \
     CAMLparam0();                                                              \

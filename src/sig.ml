@@ -111,6 +111,14 @@ module type MEMBER_EXPR = NODE
 
 module type CALL_EXPR = NODE
 
+module type ARRAY_SUBSCRIPT_EXPR = sig
+  include NODE
+
+  val get_base : t -> t
+
+  val get_idx : t -> t
+end
+
 (* Type *)
 
 module type BUILTIN_TYPE = NODE

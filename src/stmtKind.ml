@@ -94,7 +94,7 @@ type t =
   | Stmt92
   | Stmt93
   | Stmt94
-  | Stmt95
+  | ArraySubscriptExpr
   | Stmt96
   | Stmt97
   | Stmt98

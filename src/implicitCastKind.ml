@@ -10,7 +10,7 @@ type t =
   | Cast8
   | Cast9
   | Cast10
-  | Cast11
+  | ArrayToPointerDecay
   | FunctionToPointerDecay
   | NullToPointer
   | Cast14
