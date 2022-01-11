@@ -1,0 +1,32 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "usertype-in-local0.c"
+int foo() {
+#line 2 "usertype-in-local0.c"
+  struct {
+    int a;
+  } A;
+#line 5 "usertype-in-local0.c"
+  struct {
+    int a;
+  } A sa = {
+      1,
+  };
+}
+#line 8 "usertype-in-local0.c"
+int main() {
+#line 9 "usertype-in-local0.c"
+  struct {
+    int a;
+  } A;
+#line 12 "usertype-in-local0.c"
+  struct {
+    int a;
+  } A sa = {
+      1,
+  };
+  foo()
+}

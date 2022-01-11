@@ -161,7 +161,7 @@ type t =
   | Stmt159
   | Stmt160
   | Stmt161
-  | Stmt162
+  | InitListExpr
   | IntegerLiteral
   | Stmt164
   | Stmt165

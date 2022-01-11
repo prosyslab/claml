@@ -196,8 +196,8 @@
   (diff variable-array1.expected variable-array1.output)))
 
 (rule
- (deps vaarg0.c)
- (targets vaarg0.output)
+ (deps usertype-in-local0.c)
+ (targets usertype-in-local0.output)
  (action
   (with-stdout-to
    %{targets}
@@ -209,4 +209,4 @@
 (rule
  (alias runtest)
  (action
-  (diff vaarg0.expected vaarg0.output)))
+  (diff usertype-in-local0.expected usertype-in-local0.output)))

@@ -685,6 +685,22 @@ value clang_va_arg_expr_get_sub_expr(value Expr) {
   CAMLreturn(R);
 }
 
+value clang_init_list_expr_get_inits(value T) {
+  CAMLparam1(T);
+  CAMLlocal4(Hd, Tl, AT, PT);
+  clang::InitListExpr *E = *((clang::InitListExpr **)Data_abstract_val(T));
+  Tl = Val_int(0);
+  for (unsigned int i = E->getNumInits(); i > 0; i--) {
+    Hd = caml_alloc(1, Abstract_tag);
+    *((const clang::Expr **)Data_abstract_val(Hd)) = E->getInit(i - 1);
+    value Tmp = caml_alloc(2, Abstract_tag);
+    Field(Tmp, 0) = Hd;
+    Field(Tmp, 1) = Tl;
+    Tl = Tmp;
+  }
+  CAMLreturn(Tl);
+}
+
 #define CLANG_DECL_KIND(Kind)                                                  \
   value clang_decl_kind_##Kind() {                                             \
     CAMLparam0();                                                              \

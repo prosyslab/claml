@@ -95,6 +95,8 @@ module type IMPLICIT_CAST = NODE
 
 module type EXPLICIT_CAST = NODE
 
+module type INIT_LIST_EXPR = NODE
+
 module type INTEGER_LITERAL = NODE
 
 module type FLOATING_LITERAL = NODE

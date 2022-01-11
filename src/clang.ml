@@ -215,6 +215,7 @@ and Stmt : Sig.STMT = struct
     | ImplicitCast -> ImplicitCast.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
+    | InitListExpr -> InitListExpr.pp fmt exp
     | IntegerLiteral -> IntegerLiteral.pp fmt exp
     | MemberExpr -> MemberExpr.pp fmt exp
     | UnaryExprOrTypeTraitExpr -> UnaryExprOrTypeTraitExpr.pp fmt exp
@@ -310,6 +311,17 @@ and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct
 
   let pp fmt e =
     F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Expr.pp (sub_expr e)
+end
+
+and InitListExpr : (Sig.INIT_LIST_EXPR with type t = Stmt.t) = struct
+  include Expr
+
+  external get_inits : t -> Expr.t list = "clang_init_list_expr_get_inits"
+
+  let pp fmt e =
+    F.fprintf fmt "{";
+    List.iter (F.fprintf fmt "%a," Expr.pp) (get_inits e);
+    F.fprintf fmt "}"
 end
 
 and IntegerLiteral : (Sig.INTEGER_LITERAL with type t = Stmt.t) = struct
