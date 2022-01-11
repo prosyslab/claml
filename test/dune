@@ -162,3 +162,19 @@
  (alias runtest)
  (action
   (diff while2.expected while2.output)))
+
+(rule
+ (deps variable-array0.c)
+ (targets variable-array0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff variable-array0.expected variable-array0.output)))

@@ -280,9 +280,10 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
   let pp fmt e =
     match get_kind e with
     | LValueToRValue -> F.fprintf fmt "%a" Stmt.pp (sub_expr e)
-    | IntegralCast ->
+    | FunctionToPointerDecay -> Stmt.pp fmt (sub_expr e)
+    | NullToPointer | IntegerToPointer ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
-    | NullToPointer ->
+    | IntegralCast ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->
         F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
@@ -358,7 +359,12 @@ and CallExpr : (Sig.CALL_EXPR with type t = Stmt.t) = struct
 
   external get_callee : t -> Stmt.t = "clang_call_expr_get_callee"
 
-  let pp fmt t = F.fprintf fmt "%a" Stmt.pp (get_callee t)
+  external get_args : t -> Stmt.t list = "clang_call_expr_get_args"
+
+  let pp fmt t =
+    F.fprintf fmt "%a(" Stmt.pp (get_callee t);
+    List.iter (F.fprintf fmt "%a, " Stmt.pp) (get_args t);
+    F.fprintf fmt ")"
 end
 
 and UnaryExprOrTypeTraitExpr :

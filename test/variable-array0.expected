@@ -1,0 +1,9 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "variable-array0.c"
+void f(int i, char[i] array, );
+#line 3 "variable-array0.c"
+int main() { f(1, (char *)2, ) }

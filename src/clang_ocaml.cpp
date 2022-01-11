@@ -108,6 +108,7 @@ value clang_decl_is_implicit(value Decl) {
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
   CAMLreturn(Val_bool(D->isImplicit()));
 }
+
 value clang_function_decl_get_params(value T) {
   CAMLparam1(T);
   CAMLlocal4(Hd, Tl, AT, PT);
@@ -650,6 +651,22 @@ value clang_call_expr_get_callee(value Expr) {
   R = caml_alloc(1, Abstract_tag);
   *((clang::Expr **)Data_abstract_val(R)) = S->getCallee();
   CAMLreturn(R);
+}
+
+value clang_call_expr_get_args(value T) {
+  CAMLparam1(T);
+  CAMLlocal4(Hd, Tl, AT, PT);
+  clang::CallExpr *CE = *((clang::CallExpr **)Data_abstract_val(T));
+  Tl = Val_int(0);
+  for (unsigned int i = CE->getNumArgs(); i > 0; i--) {
+    Hd = caml_alloc(1, Abstract_tag);
+    *((const clang::Expr **)Data_abstract_val(Hd)) = CE->getArg(i - 1);
+    value Tmp = caml_alloc(2, Abstract_tag);
+    Field(Tmp, 0) = Hd;
+    Field(Tmp, 1) = Tl;
+    Tl = Tmp;
+  }
+  CAMLreturn(Tl);
 }
 
 #define CLANG_DECL_KIND(Kind)                                                  \

@@ -11,7 +11,7 @@ type t =
   | Cast9
   | Cast10
   | Cast11
-  | Cast12
+  | FunctionToPointerDecay
   | NullToPointer
   | Cast14
   | Cast15
@@ -20,7 +20,7 @@ type t =
   | Cast18
   | Cast19
   | Cast20
-  | Cast21
+  | IntegerToPointer
   | Cast22
   | Cast23
   | Cast24
