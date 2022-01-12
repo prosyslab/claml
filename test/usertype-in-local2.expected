@@ -1,0 +1,27 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "usertype-in-local2.c"
+void foo() {
+#line 2 "usertype-in-local2.c"
+  struct {
+    int a;
+    int[3] arr;
+  } _A;
+#line 5 "usertype-in-local2.c"
+  typedef struct {
+    int a;
+    int[3] arr;
+  } _A A;
+#line 6 "usertype-in-local2.c"
+  A a = {
+      1,
+      {
+          2,
+          3,
+          4,
+      },
+  };
+}

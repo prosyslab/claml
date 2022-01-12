@@ -226,3 +226,35 @@
  (alias runtest)
  (action
   (diff usertype-in-local1.expected usertype-in-local1.output)))
+
+(rule
+ (deps usertype-in-local2.c)
+ (targets usertype-in-local2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff usertype-in-local2.expected usertype-in-local2.output)))
+
+(rule
+ (deps usertype-in-local3.c)
+ (targets usertype-in-local3.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff usertype-in-local3.expected usertype-in-local3.output)))

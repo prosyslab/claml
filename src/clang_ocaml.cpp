@@ -11,14 +11,6 @@
 
 #include "utils.h"
 
-#define DEBUG 0
-
-#ifdef DEBUG
-#define LOG(s) fprintf(stderr, "%s @ %s:%d\n", s, __FILE__, __LINE__);
-#else
-#define LOG(s)
-#endif
-
 extern "C" {
 value clang_parse_file(value args) {
   CAMLparam1(args);

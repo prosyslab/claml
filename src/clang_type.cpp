@@ -11,14 +11,6 @@
 
 #include "utils.h"
 
-// #define DEBUG 0
-
-#ifdef DEBUG
-#define LOG(s) fprintf(stderr, "%s @ %s:%d\n", s, __FILE__, __LINE__);
-#else
-#define LOG(s)
-#endif
-
 extern "C" {
 value clang_type_ptr(value QT) {
   CAMLparam1(QT);
@@ -143,6 +135,18 @@ value clang_array_type_get_element_type(value Type) {
   CAMLlocal1(R);
   clang::ArrayType *T = *((clang::ArrayType **)Data_abstract_val(Type));
   CAMLreturn(clang_to_qual_type(T->getElementType()));
+}
+
+value clang_constant_array_type_get_size_expr(value Type) {
+  CAMLparam1(Type);
+  LOG("begin clang_constant_array_type_get_size_expr");
+  CAMLlocal1(R);
+  clang::ConstantArrayType *T =
+      *((clang::ConstantArrayType **)Data_abstract_val(Type));
+  R = caml_alloc(1, Abstract_tag);
+  llvm::APInt V = T->getSize();
+  LOG("end clang_constant_array_type_get_size_expr");
+  CAMLreturn(clang_to_int64(V));
 }
 
 value clang_variable_array_type_get_size_expr(value Type) {

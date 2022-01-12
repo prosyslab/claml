@@ -577,6 +577,7 @@ and Type : Sig.TYPE = struct
     match kind t with
     | AdjustedType -> F.fprintf fmt "adjusted"
     | DecayedType -> F.fprintf fmt "%a" DecayedType.pp t
+    | ConstantArrayType -> F.fprintf fmt "%a" ConstantArrayType.pp t
     | VariableArrayType -> F.fprintf fmt "%a" VariableArrayType.pp t
     | BuiltinType -> F.fprintf fmt "%a" BuiltinType.pp t
     | FunctionNoProtoType ->
@@ -630,8 +631,19 @@ and ArrayType : (Sig.ARRAY_TYPE with type t = Type.t) = struct
   let pp fmt t = ()
 end
 
+and ConstantArrayType : (Sig.CONSTANT_ARRAY_TYPE with type t = Type.t) = struct
+  include ArrayType
+
+  external get_size : t -> Int64.t = "clang_constant_array_type_get_size_expr"
+
+  let pp fmt t =
+    F.fprintf fmt "%a [%d]" QualType.pp (get_element_type t)
+      (get_size t |> Int64.to_int)
+end
+
 and VariableArrayType : (Sig.VARIABLE_ARRAY_TYPE with type t = Type.t) = struct
   include ArrayType
+  module Expr = Expr
 
   external get_size_expr : t -> Stmt.t
     = "clang_variable_array_type_get_size_expr"

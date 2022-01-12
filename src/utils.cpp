@@ -23,4 +23,14 @@ value clang_to_qual_type(clang::QualType QT) {
   Store_field(R, 1, Val_bool(QT.isConstQualified()));
   CAMLreturn(R);
 }
+
+value clang_to_int64(llvm::APInt I) {
+  CAMLparam0();
+  unsigned int Bit = I.getBitWidth();
+  if (I.isSignedIntN(Bit)) {
+    CAMLreturn(caml_copy_int64(I.getSExtValue()));
+  } else {
+    CAMLreturn(caml_copy_int64(I.getZExtValue()));
+  }
+}
 }

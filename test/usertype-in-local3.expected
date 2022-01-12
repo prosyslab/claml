@@ -1,0 +1,31 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "usertype-in-local3.c"
+void foo() {
+#line 2 "usertype-in-local3.c"
+  struct {
+    int a;
+  } A;
+#line 5 "usertype-in-local3.c"
+  struct {
+    int a;
+  } A sa = {
+      1,
+  };
+}
+#line 8 "usertype-in-local3.c"
+void bar() {
+#line 9 "usertype-in-local3.c"
+  struct {
+    int b;
+  } B;
+#line 12 "usertype-in-local3.c"
+  struct {
+    int b;
+  } B sb = {
+      1,
+  };
+}

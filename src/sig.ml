@@ -159,7 +159,19 @@ module type ARRAY_TYPE = sig
   val get_element_type : t -> QualType.t
 end
 
-module type VARIABLE_ARRAY_TYPE = ARRAY_TYPE
+module type CONSTANT_ARRAY_TYPE = sig
+  include ARRAY_TYPE
+
+  val get_size : t -> Int64.t
+end
+
+module type VARIABLE_ARRAY_TYPE = sig
+  include ARRAY_TYPE
+
+  module Expr : EXPR
+
+  val get_size_expr : t -> Expr.t
+end
 
 module type FUNCTION_TYPE = sig
   include NODE
