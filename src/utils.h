@@ -15,6 +15,13 @@
 #define LOG(s)
 #endif
 
+#define WRAPPER_INT(fname, param_type, fun)                                    \
+  value fname(value Param) {                                                   \
+    CAMLparam1(Param);                                                         \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));               \
+    CAMLreturn(Val_int(P->fun()));                                         \
+  }
+
 #define WRAPPER_PTR(fname, param_type, return_type, fun)                       \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
@@ -36,6 +43,24 @@
       Hd = caml_alloc(1, Abstract_tag);                                        \
       *((const clang::elem_type **)Data_abstract_val(Hd)) =                    \
           P->fun_access(i - 1);                                                \
+      value Tmp = caml_alloc(2, Abstract_tag);                                 \
+      Field(Tmp, 0) = Hd;                                                      \
+      Field(Tmp, 1) = Tl;                                                      \
+      Tl = Tmp;                                                                \
+    }                                                                          \
+    CAMLreturn(Tl);                                                            \
+  }
+
+#define WRAPPER_LIST_WITH_REV_ITER(fname, param_type, elem_type, fun_rbegin,   \
+                                   fun_rend)                                   \
+  value fname(value Param) {                                                   \
+    CAMLparam1(Param);                                                         \
+    CAMLlocal4(Hd, Tl, AT, PT);                                                \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
+    Tl = Val_int(0);                                                           \
+    for (auto i = P->fun_rbegin(); i != P->fun_rend(); i++) {                  \
+      Hd = caml_alloc(1, Abstract_tag);                                        \
+      *((const clang::elem_type **)Data_abstract_val(Hd)) = *i;                \
       value Tmp = caml_alloc(2, Abstract_tag);                                 \
       Field(Tmp, 0) = Hd;                                                      \
       Field(Tmp, 1) = Tl;                                                      \

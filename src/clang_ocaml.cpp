@@ -81,11 +81,7 @@ value clang_decls_succ(value Decl) {
 // Begin Decl
 ////////////////////////////////////////////////////////////////////////////////
 
-value clang_decl_get_kind(value Decl) {
-  CAMLparam1(Decl);
-  clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
-  CAMLreturn(Val_int(D->getKind()));
-}
+WRAPPER_INT(clang_decl_get_kind, Decl, getKind)
 
 value clang_decl_get_kind_name(value Decl) {
   CAMLparam1(Decl);
@@ -107,22 +103,8 @@ value clang_decl_is_implicit(value Decl) {
   CAMLreturn(Val_bool(D->isImplicit()));
 }
 
-value clang_function_decl_get_params(value T) {
-  CAMLparam1(T);
-  CAMLlocal4(Hd, Tl, AT, PT);
-  clang::FunctionDecl *FD = *((clang::FunctionDecl **)Data_abstract_val(T));
-  Tl = Val_int(0);
-  for (unsigned int i = FD->getNumParams(); i > 0; i--) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((const clang::ParmVarDecl **)Data_abstract_val(Hd)) =
-        FD->getParamDecl(i - 1);
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, FunctionDecl, ParmVarDecl,
+                      getNumParams, getParamDecl)
 
 value clang_function_decl_return_type(value Decl) {
   CAMLparam1(Decl);
@@ -343,11 +325,7 @@ value clang_enum_decl_get_enums(value T) {
 // Expr
 ////////////////////////////////////////////////////////////////////////////////
 
-value clang_stmt_get_kind(value Expr) {
-  CAMLparam1(Expr);
-  clang::Expr *E = *((clang::Expr **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getStmtClass()));
-}
+WRAPPER_INT(clang_stmt_get_kind, Stmt, getStmtClass)
 
 value clang_stmt_get_kind_name(value Expr) {
   CAMLparam1(Expr);
@@ -368,12 +346,7 @@ value clang_integer_literal_to_int(value Expr) {
   }
 }
 
-value clang_character_literal_get_kind(value Expr) {
-  CAMLparam1(Expr);
-  clang::CharacterLiteral *E =
-      *((clang::CharacterLiteral **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getKind()));
-}
+WRAPPER_INT(clang_character_literal_get_kind, CharacterLiteral, getKind)
 
 value clang_string_literal_get_string(value Expr) {
   CAMLparam1(Expr);
@@ -381,12 +354,7 @@ value clang_string_literal_get_string(value Expr) {
   CAMLreturn(clang_to_string(E->getString().data()));
 }
 
-value clang_character_literal_get_value(value Expr) {
-  CAMLparam1(Expr);
-  clang::CharacterLiteral *E =
-      *((clang::CharacterLiteral **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getValue()));
-}
+WRAPPER_INT(clang_character_literal_get_value, CharacterLiteral, getValue)
 
 value clang_floating_literal_to_float(value Expr) {
   CAMLparam1(Expr);
@@ -396,11 +364,7 @@ value clang_floating_literal_to_float(value Expr) {
   CAMLreturn(caml_copy_double(V.convertToDouble()));
 }
 
-value clang_cast_kind(value Expr) {
-  CAMLparam1(Expr);
-  clang::CastExpr *E = *((clang::CastExpr **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getCastKind()));
-}
+WRAPPER_INT(clang_cast_kind, CastExpr, getCastKind)
 
 value clang_cast_kind_name(value Expr) {
   CAMLparam1(Expr);
@@ -438,39 +402,11 @@ value clang_compound_stmt_body_succ(value Stmt) {
   CAMLreturn(Val_none);
 }
 
-value clang_compound_stmt_body_list(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal3(Hd, Tl, R);
-  clang::CompoundStmt *S = *((clang::CompoundStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  Tl = Val_int(0);
-  for (auto i = S->body_rbegin(); i != S->body_rend(); i++) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((clang::Stmt **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_REV_ITER(clang_compound_stmt_body_list, CompoundStmt, Stmt,
+                           body_rbegin, body_rend)
 
-value clang_decl_stmt_decl_list(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal3(Hd, Tl, R);
-  clang::DeclStmt *S = *((clang::DeclStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  Tl = Val_int(0);
-  for (auto i = S->decl_rbegin(); i != S->decl_rend(); i++) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((clang::Decl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_REV_ITER(clang_decl_stmt_decl_list, DeclStmt, Decl,
+                           decl_rbegin, decl_rend)
 
 value clang_return_stmt_get_ret_value(value Stmt) {
   CAMLparam1(Stmt);
@@ -486,12 +422,7 @@ value clang_return_stmt_get_ret_value(value Stmt) {
   }
 }
 
-value clang_binary_operator_kind(value Expr) {
-  CAMLparam1(Expr);
-  clang::BinaryOperator *E =
-      *((clang::BinaryOperator **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getOpcode()));
-}
+WRAPPER_INT(clang_binary_operator_kind, BinaryOperator, getOpcode)
 
 value clang_binary_operator_kind_name(value Expr) {
   CAMLparam1(Expr);
@@ -504,22 +435,14 @@ WRAPPER_PTR(clang_binary_operator_get_lhs, BinaryOperator, Expr, getLHS)
 
 WRAPPER_PTR(clang_binary_operator_get_rhs, BinaryOperator, Expr, getRHS)
 
-value clang_unary_operator_kind(value Expr) {
-  CAMLparam1(Expr);
-  clang::UnaryOperator *E = *((clang::UnaryOperator **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getOpcode()));
-}
+WRAPPER_INT(clang_unary_operator_kind, UnaryOperator, getOpcode)
 
 WRAPPER_PTR(clang_unary_operator_get_sub_expr, UnaryOperator, Expr, getSubExpr)
 
 WRAPPER_PTR(clang_decl_ref_get_decl, DeclRefExpr, ValueDecl, getDecl)
 
-value clang_unary_expr_or_type_trait_expr_get_kind(value Expr) {
-  CAMLparam1(Expr);
-  clang::UnaryExprOrTypeTraitExpr *E =
-      *((clang::UnaryExprOrTypeTraitExpr **)Data_abstract_val(Expr));
-  CAMLreturn(Val_int(E->getKind()));
-}
+WRAPPER_INT(clang_unary_expr_or_type_trait_expr_get_kind,
+            UnaryExprOrTypeTraitExpr, getKind)
 
 value clang_unary_expr_or_type_trait_expr_is_argument_type(value Expr) {
   CAMLparam1(Expr);
