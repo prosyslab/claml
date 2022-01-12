@@ -15,6 +15,35 @@
 #define LOG(s)
 #endif
 
+#define WRAPPER_PTR(fname, param_type, return_type, fun)                       \
+  value fname(value Param) {                                                   \
+    CAMLparam1(Param);                                                         \
+    CAMLlocal1(R);                                                             \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
+    R = caml_alloc(1, Abstract_tag);                                           \
+    *((clang::return_type **)Data_abstract_val(R)) = P->fun();                 \
+    CAMLreturn(R);                                                             \
+  }
+
+#define WRAPPER_LIST_WITH_IDX(fname, param_type, elem_type, fun_size,          \
+                              fun_access)                                      \
+  value fname(value Param) {                                                   \
+    CAMLparam1(Param);                                                         \
+    CAMLlocal4(Hd, Tl, AT, PT);                                                \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
+    Tl = Val_int(0);                                                           \
+    for (unsigned int i = P->fun_size(); i > 0; i--) {                         \
+      Hd = caml_alloc(1, Abstract_tag);                                        \
+      *((const clang::elem_type **)Data_abstract_val(Hd)) =                    \
+          P->fun_access(i - 1);                                                \
+      value Tmp = caml_alloc(2, Abstract_tag);                                 \
+      Field(Tmp, 0) = Hd;                                                      \
+      Field(Tmp, 1) = Tl;                                                      \
+      Tl = Tmp;                                                                \
+    }                                                                          \
+    CAMLreturn(Tl);                                                            \
+  }
+
 extern "C" {
 value clang_to_string(const char *str);
 

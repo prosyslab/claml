@@ -286,43 +286,13 @@ value clang_vardecl_get_init(value VarDecl) {
   }
 }
 
-value clang_goto_stmt_get_label(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::GotoStmt *S = *((clang::GotoStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::LabelDecl **)Data_abstract_val(R)) = S->getLabel();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_goto_stmt_get_label, GotoStmt, LabelDecl, getLabel)
 
-value clang_if_stmt_get_cond(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::IfStmt *S = *((clang::IfStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::Expr **)Data_abstract_val(R)) = S->getCond();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_if_stmt_get_cond, IfStmt, Expr, getCond)
 
-value clang_if_stmt_get_then(value Stmt) {
-  LOG("begin clang_if_stmt_get_then");
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::IfStmt *S = *((clang::IfStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::Stmt **)Data_abstract_val(R)) = S->getThen();
-  LOG("end clang_if_stmt_get_then");
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_if_stmt_get_then, IfStmt, Stmt, getThen)
 
-value clang_if_stmt_get_else(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::IfStmt *S = *((clang::IfStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::Stmt **)Data_abstract_val(R)) = S->getElse();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_if_stmt_get_else, IfStmt, Stmt, getElse)
 
 value clang_if_stmt_has_else_storage(value Stmt) {
   LOG("begin clang_if_has_else_storage");
@@ -338,32 +308,11 @@ value clang_label_stmt_get_name(value Stmt) {
   CAMLreturn(clang_to_string(S->getName()));
 }
 
-value clang_label_stmt_get_sub_stmt(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::LabelStmt *S = *((clang::LabelStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::Stmt **)Data_abstract_val(R)) = S->getSubStmt();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_label_stmt_get_sub_stmt, LabelStmt, Stmt, getSubStmt)
 
-value clang_while_stmt_get_cond(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::WhileStmt *S = *((clang::WhileStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::Expr **)Data_abstract_val(R)) = S->getCond();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_while_stmt_get_cond, WhileStmt, Expr, getCond)
 
-value clang_while_stmt_get_body(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::WhileStmt *S = *((clang::WhileStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  *((const clang::Stmt **)Data_abstract_val(R)) = S->getBody();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_while_stmt_get_body, WhileStmt, Stmt, getBody)
 
 value clang_typedef_decl_get_underlying_type(value Decl) {
   CAMLparam1(Decl);
@@ -459,15 +408,7 @@ value clang_cast_kind_name(value Expr) {
   CAMLreturn(clang_to_string(E->getCastKindName()));
 }
 
-value clang_cast_sub_expr(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::CastExpr *E = *((clang::CastExpr **)Data_abstract_val(Expr));
-  clang::Expr *SE = E->getSubExpr();
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = SE;
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_cast_sub_expr, CastExpr, Expr, getSubExpr)
 
 value clang_expr_get_type(value Expr) {
   CAMLparam1(Expr);
@@ -559,27 +500,9 @@ value clang_binary_operator_kind_name(value Expr) {
   CAMLreturn(clang_to_string(E->getOpcodeStr().data()));
 }
 
-value clang_binary_operator_get_lhs(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::BinaryOperator *S =
-      *((clang::BinaryOperator **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  clang::Expr *D = S->getLHS();
-  *((clang::Stmt **)Data_abstract_val(R)) = D;
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_binary_operator_get_lhs, BinaryOperator, Expr, getLHS)
 
-value clang_binary_operator_get_rhs(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::BinaryOperator *S =
-      *((clang::BinaryOperator **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  clang::Expr *D = S->getRHS();
-  *((clang::Stmt **)Data_abstract_val(R)) = D;
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_binary_operator_get_rhs, BinaryOperator, Expr, getRHS)
 
 value clang_unary_operator_kind(value Expr) {
   CAMLparam1(Expr);
@@ -587,25 +510,9 @@ value clang_unary_operator_kind(value Expr) {
   CAMLreturn(Val_int(E->getOpcode()));
 }
 
-value clang_unary_operator_get_sub_expr(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::UnaryOperator *S = *((clang::UnaryOperator **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  clang::Expr *D = S->getSubExpr();
-  *((clang::Stmt **)Data_abstract_val(R)) = D;
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_unary_operator_get_sub_expr, UnaryOperator, Expr, getSubExpr)
 
-value clang_decl_ref_get_decl(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::DeclRefExpr *S = *((clang::DeclRefExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  clang::ValueDecl *D = S->getDecl();
-  *((clang::ValueDecl **)Data_abstract_val(R)) = D;
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_decl_ref_get_decl, DeclRefExpr, ValueDecl, getDecl)
 
 value clang_unary_expr_or_type_trait_expr_get_kind(value Expr) {
   CAMLparam1(Expr);
@@ -622,15 +529,8 @@ value clang_unary_expr_or_type_trait_expr_is_argument_type(value Expr) {
   CAMLreturn(Val_bool(E->isArgumentType()));
 }
 
-value clang_unary_expr_or_type_trait_expr_get_argument_expr(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::UnaryExprOrTypeTraitExpr *S =
-      *((clang::UnaryExprOrTypeTraitExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = S->getArgumentExpr();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_unary_expr_or_type_trait_expr_get_argument_expr,
+            UnaryExprOrTypeTraitExpr, Expr, getArgumentExpr)
 
 value clang_unary_expr_or_type_trait_expr_get_argument_type(value Expr) {
   CAMLparam1(Expr);
@@ -639,23 +539,10 @@ value clang_unary_expr_or_type_trait_expr_get_argument_type(value Expr) {
   CAMLreturn(clang_to_qual_type(S->getArgumentType()));
 }
 
-value clang_member_expr_get_base(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::MemberExpr *S = *((clang::MemberExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = S->getBase();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_member_expr_get_base, MemberExpr, Expr, getBase)
 
-value clang_member_expr_get_member_decl(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::MemberExpr *S = *((clang::MemberExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::ValueDecl **)Data_abstract_val(R)) = S->getMemberDecl();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_member_expr_get_member_decl, MemberExpr, ValueDecl,
+            getMemberDecl)
 
 value clang_member_expr_is_arrow(value Expr) {
   CAMLparam1(Expr);
@@ -664,84 +551,23 @@ value clang_member_expr_is_arrow(value Expr) {
   CAMLreturn(Val_bool(E->isArrow()));
 }
 
-value clang_paren_expr_get_sub_expr(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::ParenExpr *S = *((clang::ParenExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = S->getSubExpr();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_paren_expr_get_sub_expr, ParenExpr, Expr, getSubExpr)
 
-value clang_call_expr_get_callee(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::CallExpr *S = *((clang::CallExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = S->getCallee();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_call_expr_get_callee, CallExpr, Expr, getCallee)
 
-value clang_call_expr_get_args(value T) {
-  CAMLparam1(T);
-  CAMLlocal4(Hd, Tl, AT, PT);
-  clang::CallExpr *CE = *((clang::CallExpr **)Data_abstract_val(T));
-  Tl = Val_int(0);
-  for (unsigned int i = CE->getNumArgs(); i > 0; i--) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((const clang::Expr **)Data_abstract_val(Hd)) = CE->getArg(i - 1);
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_IDX(clang_call_expr_get_args, CallExpr, Expr, getNumArgs,
+                      getArg)
 
-value clang_array_subscript_expr_get_base(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::ArraySubscriptExpr *S =
-      *((clang::ArraySubscriptExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = S->getBase();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_array_subscript_expr_get_base, ArraySubscriptExpr, Expr,
+            getBase)
 
-value clang_array_subscript_expr_get_idx(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::ArraySubscriptExpr *S =
-      *((clang::ArraySubscriptExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = S->getIdx();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_array_subscript_expr_get_idx, ArraySubscriptExpr, Expr,
+            getIdx)
 
-value clang_va_arg_expr_get_sub_expr(value Expr) {
-  CAMLparam1(Expr);
-  CAMLlocal1(R);
-  clang::VAArgExpr *E = *((clang::VAArgExpr **)Data_abstract_val(Expr));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = E->getSubExpr();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_va_arg_expr_get_sub_expr, VAArgExpr, Expr, getSubExpr)
 
-value clang_init_list_expr_get_inits(value T) {
-  CAMLparam1(T);
-  CAMLlocal4(Hd, Tl, AT, PT);
-  clang::InitListExpr *E = *((clang::InitListExpr **)Data_abstract_val(T));
-  Tl = Val_int(0);
-  for (unsigned int i = E->getNumInits(); i > 0; i--) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((const clang::Expr **)Data_abstract_val(Hd)) = E->getInit(i - 1);
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_IDX(clang_init_list_expr_get_inits, InitListExpr, Expr,
+                      getNumInits, getInit)
 
 #define CLANG_DECL_KIND(Kind)                                                  \
   value clang_decl_kind_##Kind() {                                             \
