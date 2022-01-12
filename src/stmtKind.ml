@@ -138,7 +138,7 @@ type t =
   | Stmt136
   | Stmt137
   | ImplicitCast
-  | Stmt139
+  | CharacterLiteral
   | Stmt140
   | Stmt141
   | Stmt142

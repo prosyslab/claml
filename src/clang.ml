@@ -243,6 +243,7 @@ and Stmt : Sig.STMT = struct
     | CallExpr -> CallExpr.pp fmt exp
     | CStyleCast -> ExplicitCast.pp fmt exp
     | ImplicitCast -> ImplicitCast.pp fmt exp
+    | CharacterLiteral -> CharacterLiteral.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
     | InitListExpr -> InitListExpr.pp fmt exp
@@ -334,6 +335,18 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
     | k ->
         F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
           (Stmt.get_kind_name e) (get_kind_enum e)
+end
+
+and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
+  include Expr
+
+  type kind = CharacterKind.t
+
+  external get_kind : t -> kind = "clang_character_literal_get_kind"
+
+  external get_value : t -> int = "clang_character_literal_get_value"
+
+  let pp fmt e = F.fprintf fmt "%d" (get_value e)
 end
 
 and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct

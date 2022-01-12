@@ -99,6 +99,16 @@ module type EXPLICIT_CAST = NODE
 
 module type INIT_LIST_EXPR = NODE
 
+module type CHARACTER_LITERAL = sig
+  include EXPR
+
+  type kind
+
+  val get_kind : t -> kind
+
+  val get_value : t -> int
+end
+
 module type INTEGER_LITERAL = NODE
 
 module type FLOATING_LITERAL = NODE

@@ -10,6 +10,7 @@
   implicitCastKind
   unaryOperatorKind
   binaryOperatorKind
+  characterKind
   sig)
  (foreign_stubs
   (language cxx)
