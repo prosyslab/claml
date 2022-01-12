@@ -113,6 +113,12 @@ module type INTEGER_LITERAL = NODE
 
 module type FLOATING_LITERAL = NODE
 
+module type STRING_LITERAL = sig
+  include EXPR
+
+  val get_string : t -> string
+end
+
 module type RETURN_STMT = NODE
 
 module type BINARY_OPERATOR = NODE

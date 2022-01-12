@@ -418,11 +418,18 @@ value clang_integer_literal_to_int(value Expr) {
     CAMLreturn(caml_copy_int64(V.getZExtValue()));
   }
 }
+
 value clang_character_literal_get_kind(value Expr) {
   CAMLparam1(Expr);
   clang::CharacterLiteral *E =
       *((clang::CharacterLiteral **)Data_abstract_val(Expr));
   CAMLreturn(Val_int(E->getKind()));
+}
+
+value clang_string_literal_get_string(value Expr) {
+  CAMLparam1(Expr);
+  clang::StringLiteral *E = *((clang::StringLiteral **)Data_abstract_val(Expr));
+  CAMLreturn(clang_to_string(E->getString().data()));
 }
 
 value clang_character_literal_get_value(value Expr) {

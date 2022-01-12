@@ -258,3 +258,19 @@
  (alias runtest)
  (action
   (diff usertype-in-local3.expected usertype-in-local3.output)))
+
+(rule
+ (deps unicode0.c)
+ (targets unicode0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff unicode0.expected unicode0.output)))

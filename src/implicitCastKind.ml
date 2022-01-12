@@ -4,7 +4,7 @@ type t =
   | Cast2
   | Cast3
   | LValueToRValue
-  | Cast5
+  | NoOp
   | Cast6
   | Cast7
   | Cast8

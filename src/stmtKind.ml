@@ -203,7 +203,7 @@ type t =
   | Stmt201
   | Stmt202
   | Stmt203
-  | Stmt204
+  | StringLiteral
   | Stmt205
   | Stmt206
   | Stmt207

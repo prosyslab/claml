@@ -50,9 +50,7 @@ module rec Decl : Sig.DECL = struct
     | None -> ()
 
   let pp fmt decl =
-    ( match storage_class decl with
-    | NoneSC -> ()
-    | sc -> F.fprintf fmt "sc %a " pp_storage_class sc );
+    pp_storage_class fmt (storage_class decl);
     match get_kind decl with
     | TypedefDecl ->
         pp_loc fmt decl;
@@ -244,6 +242,7 @@ and Stmt : Sig.STMT = struct
     | CStyleCast -> ExplicitCast.pp fmt exp
     | ImplicitCast -> ImplicitCast.pp fmt exp
     | CharacterLiteral -> CharacterLiteral.pp fmt exp
+    | StringLiteral -> StringLiteral.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
     | InitListExpr -> InitListExpr.pp fmt exp
@@ -326,7 +325,7 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
 
   let pp fmt e =
     match get_kind e with
-    | LValueToRValue -> F.fprintf fmt "%a" Stmt.pp (sub_expr e)
+    | LValueToRValue | NoOp -> F.fprintf fmt "%a" Stmt.pp (sub_expr e)
     | ArrayToPointerDecay | FunctionToPointerDecay -> Stmt.pp fmt (sub_expr e)
     | NullToPointer | IntegerToPointer ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
@@ -347,6 +346,14 @@ and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
   external get_value : t -> int = "clang_character_literal_get_value"
 
   let pp fmt e = F.fprintf fmt "%d" (get_value e)
+end
+
+and StringLiteral : (Sig.STRING_LITERAL with type t = Stmt.t) = struct
+  include Expr
+
+  external get_string : t -> string = "clang_string_literal_get_string"
+
+  let pp fmt e = F.fprintf fmt "\"%s\"" (get_string e |> String.escaped)
 end
 
 and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct
