@@ -612,6 +612,7 @@ and Type : Sig.TYPE = struct
     | ElaboratedType -> F.fprintf fmt "%a" ElaboratedType.pp t
     | EnumType -> F.fprintf fmt "%a" EnumType.pp t
     | RecordType -> F.fprintf fmt "%a" RecordType.pp t
+    | TypeOfExprType -> F.fprintf fmt "%a" TypeOfExprType.pp t
     | TypedefType -> F.fprintf fmt "%a" TypedefType.pp t
     | k ->
         F.fprintf fmt "%a (%s, %d)" pp_kind k (get_kind_name t)
@@ -751,6 +752,16 @@ and RecordType : (Sig.RECORD_TYPE with type t = Type.t) = struct
   external get_decl : t -> RecordDecl.t = "clang_record_type_get_decl"
 
   let pp fmt t = F.fprintf fmt "%a" RecordDecl.pp (get_decl t)
+end
+
+and TypeOfExprType : (Sig.TYPE_OF_EXPR_TYPE with type t = Type.t) = struct
+  include Type
+  module Expr = Expr
+
+  external get_underlying_expr : t -> Expr.t
+    = "clang_type_of_expr_type_get_underlying_expr"
+
+  let pp fmt t = F.fprintf fmt "__typeof__(%a)" Expr.pp (get_underlying_expr t)
 end
 
 and TypedefType : (Sig.TYPEDEF_TYPE with type t = Type.t) = struct

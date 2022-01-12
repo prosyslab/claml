@@ -207,4 +207,12 @@ module type ENUM_TYPE = NODE
 
 module type RECORD_TYPE = NODE
 
+module type TYPE_OF_EXPR_TYPE = sig
+  include TYPE
+
+  module Expr : EXPR
+
+  val get_underlying_expr : t -> Expr.t
+end
+
 module type TYPEDEF_TYPE = NODE

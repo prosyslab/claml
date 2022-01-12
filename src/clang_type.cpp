@@ -109,6 +109,16 @@ value clang_record_type_get_decl(value Type) {
   CAMLreturn(R);
 }
 
+value clang_type_of_expr_type_get_underlying_expr(value Type) {
+  CAMLparam1(Type);
+  CAMLlocal1(R);
+  clang::TypeOfExprType *T =
+      *((clang::TypeOfExprType **)Data_abstract_val(Type));
+  R = caml_alloc(1, Abstract_tag);
+  *((clang::Expr **)Data_abstract_val(R)) = T->getUnderlyingExpr();
+  CAMLreturn(R);
+}
+
 value clang_typedef_type_get_decl(value Type) {
   CAMLparam1(Type);
   CAMLlocal1(R);
