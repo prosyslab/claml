@@ -60,6 +60,8 @@ module type LABEL_DECL = NAMED_DECL
 
 module type TYPEDEF_DECL = NAMED_DECL
 
+module type ENUM_DECL = NAMED_DECL
+
 module type RECORD_DECL = NAMED_DECL
 
 module type TYPEDEC_DECL = NAMED_DECL
@@ -172,6 +174,8 @@ end
 module type POINTER_TYPE = NODE
 
 module type ELABORATED_TYPE = NODE
+
+module type ENUM_TYPE = NODE
 
 module type RECORD_TYPE = NODE
 

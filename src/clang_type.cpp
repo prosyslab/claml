@@ -99,6 +99,15 @@ value clang_elaborated_type_desugar(value Type) {
   CAMLreturn(clang_to_qual_type(ET->desugar()));
 }
 
+value clang_enum_type_get_decl(value Type) {
+  CAMLparam1(Type);
+  CAMLlocal1(R);
+  clang::EnumType *T = *((clang::EnumType **)Data_abstract_val(Type));
+  R = caml_alloc(1, Abstract_tag);
+  *((clang::EnumDecl **)Data_abstract_val(R)) = T->getDecl();
+  CAMLreturn(R);
+}
+
 value clang_record_type_get_decl(value Type) {
   CAMLparam1(Type);
   CAMLlocal1(R);

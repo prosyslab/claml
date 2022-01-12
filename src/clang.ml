@@ -2,6 +2,8 @@ module F = Format
 
 let pp_semicolon fmt = F.fprintf fmt ";"
 
+let pp_endline fmt = F.fprintf fmt "\n"
+
 module rec Decl : Sig.DECL = struct
   type t
 
@@ -18,6 +20,10 @@ module rec Decl : Sig.DECL = struct
     | Register
 
   external get_kind : t -> kind = "clang_decl_get_kind"
+
+  external get_kind_name : t -> string = "clang_decl_get_kind_name"
+
+  external get_kind_enum : t -> int = "clang_decl_get_kind"
 
   external storage_class : t -> storage_class = "clang_decl_storage_class"
 
@@ -57,15 +63,20 @@ module rec Decl : Sig.DECL = struct
     | VarDecl ->
         pp_loc fmt decl;
         VarDecl.pp fmt decl
+    | EnumDecl ->
+        pp_loc fmt decl;
+        EnumDecl.pp fmt decl;
+        pp_semicolon fmt
     | RecordDecl ->
         pp_loc fmt decl;
         RecordDecl.pp fmt decl;
         pp_semicolon fmt
     | FieldDecl -> FieldDecl.pp fmt decl
+    | EnumConstantDecl -> EnumConstantDecl.pp fmt decl
     | _ when is_value_decl decl ->
         pp_loc fmt decl;
-        F.fprintf fmt "%a %s" QualType.pp (ValueDecl.get_type decl)
-          (NamedDecl.get_name decl)
+        F.fprintf fmt "%a %s (%s, %d)" QualType.pp (ValueDecl.get_type decl)
+          (NamedDecl.get_name decl) (get_kind_name decl) (get_kind_enum decl)
     | _ -> pp_kind fmt (get_kind decl)
 
   (* decl checker *)
@@ -96,6 +107,8 @@ and ValueDecl :
   let pp fmt decl =
     F.fprintf fmt "%a %s" QualType.pp (get_type decl) (get_name decl)
 end
+
+and EnumConstantDecl : (Sig.NAMED_DECL with type t = Decl.t) = NamedDecl
 
 and ParmVarDecl : (Sig.PARAM_VAR_DECL with type t = Decl.t) = struct
   include ValueDecl
@@ -130,8 +143,6 @@ and VarDecl : (Sig.VAR_DECL with type t = Decl.t) = struct
 
   external get_init : t -> Stmt.t option = "clang_vardecl_get_init"
 
-  let get_type = get_type
-
   let pp fmt vdecl =
     match get_init vdecl with
     | Some e ->
@@ -152,6 +163,25 @@ and TypedefDecl : (Sig.TYPEDEF_DECL with type t = Decl.t) = struct
     else
       F.fprintf fmt "typedef %a %s;" QualType.pp (get_underlying_type decl)
         (get_name decl)
+end
+
+and EnumDecl : (Sig.ENUM_DECL with type t = Decl.t) = struct
+  include NamedDecl
+
+  (* TODO: order *)
+  external get_enums : Decl.t -> Decl.t list = "clang_enum_decl_get_enums"
+
+  let rec pp_list fmt = function
+    | [ h ] -> F.fprintf fmt "%a" Decl.pp h
+    | h :: t ->
+        F.fprintf fmt "%a, " Decl.pp h;
+        pp_list fmt t
+    | [] -> ()
+
+  let pp fmt decl =
+    F.fprintf fmt "enum { ";
+    get_enums decl |> pp_list fmt;
+    F.fprintf fmt " } %s" (get_name decl)
 end
 
 and RecordDecl : (Sig.RECORD_DECL with type t = Decl.t) = struct
@@ -249,10 +279,12 @@ and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
     F.fprintf fmt "{\n";
     List.iter
       (fun s ->
-        F.fprintf fmt "%a\n" Stmt.pp s;
+        F.fprintf fmt "%a" Stmt.pp s;
         match Stmt.get_kind s with
-        | StmtKind.BinaryOperator -> pp_semicolon fmt
-        | _ -> ())
+        | StmtKind.BinaryOperator ->
+            pp_semicolon fmt;
+            pp_endline fmt
+        | _ -> pp_endline fmt)
       (body_list cs);
     F.fprintf fmt "}"
 end
@@ -557,6 +589,7 @@ and Type : Sig.TYPE = struct
         F.fprintf fmt ")"
     | PointerType -> F.fprintf fmt "%a" PointerType.pp t
     | ElaboratedType -> F.fprintf fmt "%a" ElaboratedType.pp t
+    | EnumType -> F.fprintf fmt "%a" EnumType.pp t
     | RecordType -> F.fprintf fmt "%a" RecordType.pp t
     | TypedefType -> F.fprintf fmt "%a" TypedefType.pp t
     | k ->
@@ -670,6 +703,14 @@ and ElaboratedType : (Sig.ELABORATED_TYPE with type t = Type.t) = struct
   external desugar : t -> QualType.t = "clang_elaborated_type_desugar"
 
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
+end
+
+and EnumType : (Sig.ENUM_TYPE with type t = Type.t) = struct
+  include Type
+
+  external get_decl : t -> EnumDecl.t = "clang_enum_type_get_decl"
+
+  let pp fmt t = F.fprintf fmt "%a" EnumDecl.pp (get_decl t)
 end
 
 and RecordType : (Sig.RECORD_TYPE with type t = Type.t) = struct

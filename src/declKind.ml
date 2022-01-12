@@ -63,6 +63,7 @@ type t =
   | OMPCapturedExprDecl
   | ParmVarDecl
   | VarTemplateSpecializationDecl
+  | TEMP
   | EnumConstantDecl
   | IndirectField
   | MSGuidDecl

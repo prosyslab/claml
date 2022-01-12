@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "usertype-in-local1.c"
+int foo() {
+#line 2 "usertype-in-local1.c"
+  enum { C, B, A };
+#line 2 "usertype-in-local1.c"
+  enum { C, B, A } alphabet;
+#line 3 "usertype-in-local1.c"
+  enum { Wed, Tue, Mon };
+#line 3 "usertype-in-local1.c"
+  enum { Wed, Tue, Mon } day;
+  day = (enum {Wed, Tue, Mon})Mon;
+  alphabet = (enum {C, B, A})A;
+  return (int)day;
+}

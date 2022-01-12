@@ -91,8 +91,14 @@ value clang_decls_succ(value Decl) {
 
 value clang_decl_get_kind(value Decl) {
   CAMLparam1(Decl);
-  clang::Decl *TTU = *((clang::Decl **)Data_abstract_val(Decl));
-  CAMLreturn(Val_int(TTU->getKind()));
+  clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
+  CAMLreturn(Val_int(D->getKind()));
+}
+
+value clang_decl_get_kind_name(value Decl) {
+  CAMLparam1(Decl);
+  clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
+  CAMLreturn(clang_to_string(D->getDeclKindName()));
 }
 
 void clang_decl_dump(value TU) {
@@ -373,6 +379,21 @@ value clang_typedef_decl_get_underlying_type(value Decl) {
   CAMLreturn(clang_to_qual_type(TD->getUnderlyingType()));
 }
 
+value clang_enum_decl_get_enums(value T) {
+  CAMLparam1(T);
+  CAMLlocal4(Hd, Tl, AT, PT);
+  clang::EnumDecl *D = *((clang::EnumDecl **)Data_abstract_val(T));
+  Tl = Val_int(0);
+  for (auto i = D->enumerator_begin(); i != D->enumerator_end(); i++) {
+    Hd = caml_alloc(1, Abstract_tag);
+    *((const clang::EnumConstantDecl **)Data_abstract_val(Hd)) = *i;
+    value Tmp = caml_alloc(2, Abstract_tag);
+    Field(Tmp, 0) = Hd;
+    Field(Tmp, 1) = Tl;
+    Tl = Tmp;
+  }
+  CAMLreturn(Tl);
+}
 ////////////////////////////////////////////////////////////////////////////////
 // End Decl
 ////////////////////////////////////////////////////////////////////////////////

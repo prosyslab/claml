@@ -210,3 +210,19 @@
  (alias runtest)
  (action
   (diff usertype-in-local0.expected usertype-in-local0.output)))
+
+(rule
+ (deps usertype-in-local1.c)
+ (targets usertype-in-local1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff usertype-in-local1.expected usertype-in-local1.output)))
