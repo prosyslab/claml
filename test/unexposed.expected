@@ -1,0 +1,15 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "unexposed.c"
+int a;
+#line 2 "unexposed.c"
+int b() {
+#line 3 "unexposed.c"
+  int c = (__typeof__(a))1;
+  return c;
+}
+#line 7 "unexposed.c"
+int main() { return b(); }
