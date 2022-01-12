@@ -137,6 +137,14 @@ module type WHILE_STMT = NODE
 
 module type MEMBER_EXPR = NODE
 
+module type PAREN_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_sub_expr : t -> Expr.t
+end
+
 module type CALL_EXPR = NODE
 
 module type ARRAY_SUBSCRIPT_EXPR = sig

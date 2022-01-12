@@ -242,12 +242,13 @@ and Stmt : Sig.STMT = struct
     | CStyleCast -> ExplicitCast.pp fmt exp
     | ImplicitCast -> ImplicitCast.pp fmt exp
     | CharacterLiteral -> CharacterLiteral.pp fmt exp
-    | StringLiteral -> StringLiteral.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
     | InitListExpr -> InitListExpr.pp fmt exp
     | IntegerLiteral -> IntegerLiteral.pp fmt exp
     | MemberExpr -> MemberExpr.pp fmt exp
+    | ParenExpr -> ParenExpr.pp fmt exp
+    | StringLiteral -> StringLiteral.pp fmt exp
     | UnaryExprOrTypeTraitExpr -> UnaryExprOrTypeTraitExpr.pp fmt exp
     | UnaryOperator -> UnaryOperator.pp fmt exp
     | VAArgExpr -> VAArgExpr.pp fmt exp
@@ -580,6 +581,15 @@ and MemberExpr : (Sig.MEMBER_EXPR with type t = Stmt.t) = struct
     F.fprintf fmt "%a%s%s" Stmt.pp (get_base e)
       (if is_arrow e then "->" else ".")
       (get_member_decl e |> NamedDecl.get_name)
+end
+
+and ParenExpr : (Sig.PAREN_EXPR with type t = Stmt.t) = struct
+  include Expr
+  module Expr = Expr
+
+  external get_sub_expr : t -> Expr.t = "clang_paren_expr_get_sub_expr"
+
+  let pp fmt e = F.fprintf fmt "%a" Expr.pp (get_sub_expr e)
 end
 
 and Type : Sig.TYPE = struct

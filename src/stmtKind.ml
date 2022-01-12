@@ -193,7 +193,7 @@ type t =
   | Stmt191
   | Stmt192
   | Stmt193
-  | Stmt194
+  | ParenExpr
   | Stmt195
   | Stmt196
   | Stmt197

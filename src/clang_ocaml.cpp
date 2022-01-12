@@ -664,6 +664,15 @@ value clang_member_expr_is_arrow(value Expr) {
   CAMLreturn(Val_bool(E->isArrow()));
 }
 
+value clang_paren_expr_get_sub_expr(value Expr) {
+  CAMLparam1(Expr);
+  CAMLlocal1(R);
+  clang::ParenExpr *S = *((clang::ParenExpr **)Data_abstract_val(Expr));
+  R = caml_alloc(1, Abstract_tag);
+  *((clang::Expr **)Data_abstract_val(R)) = S->getSubExpr();
+  CAMLreturn(R);
+}
+
 value clang_call_expr_get_callee(value Expr) {
   CAMLparam1(Expr);
   CAMLlocal1(R);

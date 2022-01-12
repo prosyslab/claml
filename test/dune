@@ -274,3 +274,19 @@
  (alias runtest)
  (action
   (diff unicode0.expected unicode0.output)))
+
+(rule
+ (deps unexposed.c)
+ (targets unexposed.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff unexposed.expected unexposed.output)))
