@@ -306,3 +306,51 @@
  (alias runtest)
  (action
   (diff unary_operator0.expected unary_operator0.output)))
+
+(rule
+ (deps type0.c)
+ (targets type0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff type0.expected type0.output)))
+
+(rule
+ (deps type1.c)
+ (targets type1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff type1.expected type1.output)))
+
+(rule
+ (deps type2.c)
+ (targets type2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff type2.expected type2.output)))

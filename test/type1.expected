@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "test/type1.c"
+enum { b } a;
+#line 2 "test/type1.c"
+struct {
+  enum { b } a d;
+} c;
+#line 5 "test/type1.c"
+typedef int c;
+#line 6 "test/type1.c"
+struct {
+  enum { b } a d;
+} c a;
+#line 7 "test/type1.c"
+int main() { return (int)a.d; }

@@ -1,0 +1,25 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "test/type2.c"
+enum { c, b } a;
+#line 2 "test/type2.c"
+typedef int f;
+#line 3 "test/type2.c"
+struct {
+  enum { c, b } a d;
+} f;
+#line 6 "test/type2.c"
+struct {
+  enum { c, b } a d;
+} f a = {
+    (enum {c, b} a)c,
+};
+#line 7 "test/type2.c"
+int main() {
+#line 8 "test/type2.c"
+  f x = (f)a.d;
+  return x;
+}

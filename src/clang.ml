@@ -50,29 +50,34 @@ module rec Decl : Sig.DECL = struct
     | None -> ()
 
   let pp fmt decl =
-    pp_storage_class fmt (storage_class decl);
     match get_kind decl with
     | TypedefDecl ->
         pp_loc fmt decl;
+        pp_storage_class fmt (storage_class decl);
         TypedefDecl.pp fmt decl
     | FunctionDecl ->
         pp_loc fmt decl;
+        pp_storage_class fmt (storage_class decl);
         FunctionDecl.pp fmt decl
     | VarDecl ->
         pp_loc fmt decl;
+        pp_storage_class fmt (storage_class decl);
         VarDecl.pp fmt decl
     | EnumDecl ->
         pp_loc fmt decl;
+        pp_storage_class fmt (storage_class decl);
         EnumDecl.pp fmt decl;
         pp_semicolon fmt
     | RecordDecl ->
         pp_loc fmt decl;
+        pp_storage_class fmt (storage_class decl);
         RecordDecl.pp fmt decl;
         pp_semicolon fmt
     | FieldDecl -> FieldDecl.pp fmt decl
     | EnumConstantDecl -> EnumConstantDecl.pp fmt decl
     | _ when is_value_decl decl ->
         pp_loc fmt decl;
+        pp_storage_class fmt (storage_class decl);
         F.fprintf fmt "%a %s (%s, %d)" QualType.pp (ValueDecl.get_type decl)
           (NamedDecl.get_name decl) (get_kind_name decl) (get_kind_enum decl)
     | _ -> pp_kind fmt (get_kind decl)

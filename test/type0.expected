@@ -1,0 +1,36 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "test/type0.c"
+struct {
+} _IO_FILE;
+#line 2 "test/type0.c"
+typedef struct {
+} _IO_FILE FILE;
+#line 3 "test/type0.c"
+externstruct {}
+_IO_FILE *stdout;
+#line 5 "test/type0.c"
+externint vprintf(
+    const char *, struct {
+      unsigned int gp_offset;
+      unsigned int fp_offset;
+      void *overflow_arg_area;
+      void *reg_save_area;
+    } __va_list_tag *, ) {
+  return vfprintf(stdout, __fmt, __arg, );
+}
+#line 5 "test/type0.c"
+externint vprintf(const char *__fmt, __builtin_va_list __arg, ) {
+  return vfprintf(stdout, __fmt, __arg, );
+}
+#line 6 "test/type0.c"
+externint vfprintf(
+    FILE *, const char *, struct {
+      unsigned int gp_offset;
+      unsigned int fp_offset;
+      void *overflow_arg_area;
+      void *reg_save_area;
+    } __va_list_tag *, );
