@@ -38,17 +38,9 @@ value clang_qual_type_to_string(value QT) {
   CAMLreturn(clang_to_string(qt->getAsString().c_str()));
 }
 
-value clang_type_kind(value type) {
-  CAMLparam1(type);
-  clang::Type *Ty = *((clang::Type **)Data_abstract_val(type));
-  CAMLreturn(Val_int(Ty->getTypeClass()));
-}
+WRAPPER_INT(clang_type_kind, Type, getTypeClass)
 
-value clang_type_get_kind_name(value Type) {
-  CAMLparam1(Type);
-  clang::Type *Ty = *((clang::Type **)Data_abstract_val(Type));
-  CAMLreturn(clang_to_string(Ty->getTypeClassName()));
-}
+WRAPPER_STR(clang_type_get_kind_name, Type, getTypeClassName)
 
 value clang_type_get_kind_enum(value Type) {
   CAMLparam1(Type);
@@ -78,94 +70,31 @@ value clang_function_type_get_param_types(value T) {
   CAMLreturn(Tl);
 }
 
-value clang_pointer_type_get_pointee_type(value PT) {
-  CAMLparam1(PT);
-  clang::PointerType *FT = *((clang::PointerType **)Data_abstract_val(PT));
-  CAMLreturn(clang_to_qual_type(FT->getPointeeType()));
-}
+WRAPPER_QUAL_TYPE(clang_pointer_type_get_pointee_type, PointerType,
+                  getPointeeType)
 
-value clang_elaborated_type_desugar(value Type) {
-  CAMLparam1(Type);
-  clang::ElaboratedType *ET =
-      *((clang::ElaboratedType **)Data_abstract_val(Type));
-  CAMLreturn(clang_to_qual_type(ET->desugar()));
-}
+WRAPPER_QUAL_TYPE(clang_elaborated_type_desugar, ElaboratedType, desugar)
 
-value clang_enum_type_get_decl(value Type) {
-  CAMLparam1(Type);
-  CAMLlocal1(R);
-  clang::EnumType *T = *((clang::EnumType **)Data_abstract_val(Type));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::EnumDecl **)Data_abstract_val(R)) = T->getDecl();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_enum_type_get_decl, EnumType, EnumDecl, getDecl)
 
-value clang_record_type_get_decl(value Type) {
-  CAMLparam1(Type);
-  CAMLlocal1(R);
-  clang::RecordType *T = *((clang::RecordType **)Data_abstract_val(Type));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::RecordDecl **)Data_abstract_val(R)) = T->getDecl();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_record_type_get_decl, RecordType, RecordDecl, getDecl)
 
-value clang_type_of_expr_type_get_underlying_expr(value Type) {
-  CAMLparam1(Type);
-  CAMLlocal1(R);
-  clang::TypeOfExprType *T =
-      *((clang::TypeOfExprType **)Data_abstract_val(Type));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = T->getUnderlyingExpr();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_type_of_expr_type_get_underlying_expr, TypeOfExprType, Expr,
+            getUnderlyingExpr)
 
-value clang_typedef_type_get_decl(value Type) {
-  CAMLparam1(Type);
-  CAMLlocal1(R);
-  clang::TypedefType *T = *((clang::TypedefType **)Data_abstract_val(Type));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::TypedefNameDecl **)Data_abstract_val(R)) = T->getDecl();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_typedef_type_get_decl, TypedefType, TypedefNameDecl, getDecl)
 
-value clang_decayed_type_get_decayed_type(value Type) {
-  CAMLparam1(Type);
-  clang::DecayedType *T = *((clang::DecayedType **)Data_abstract_val(Type));
-  CAMLreturn(clang_to_qual_type(T->getDecayedType()));
-}
+WRAPPER_QUAL_TYPE(clang_decayed_type_get_decayed_type, DecayedType,
+                  getDecayedType)
 
-value clang_adjusted_type_get_original_type(value Type) {
-  CAMLparam1(Type);
-  clang::AdjustedType *T = *((clang::AdjustedType **)Data_abstract_val(Type));
-  CAMLreturn(clang_to_qual_type(T->getOriginalType()));
-}
+WRAPPER_QUAL_TYPE(clang_adjusted_type_get_original_type, AdjustedType,
+                  getOriginalType)
 
-value clang_array_type_get_element_type(value Type) {
-  CAMLparam1(Type);
-  CAMLlocal1(R);
-  clang::ArrayType *T = *((clang::ArrayType **)Data_abstract_val(Type));
-  CAMLreturn(clang_to_qual_type(T->getElementType()));
-}
+WRAPPER_QUAL_TYPE(clang_array_type_get_element_type, ArrayType, getElementType)
 
-value clang_constant_array_type_get_size_expr(value Type) {
-  CAMLparam1(Type);
-  LOG("begin clang_constant_array_type_get_size_expr");
-  CAMLlocal1(R);
-  clang::ConstantArrayType *T =
-      *((clang::ConstantArrayType **)Data_abstract_val(Type));
-  R = caml_alloc(1, Abstract_tag);
-  llvm::APInt V = T->getSize();
-  LOG("end clang_constant_array_type_get_size_expr");
-  CAMLreturn(clang_to_int64(V));
-}
+WRAPPER_INT64(clang_constant_array_type_get_size_expr, ConstantArrayType,
+              getSize)
 
-value clang_variable_array_type_get_size_expr(value Type) {
-  CAMLparam1(Type);
-  CAMLlocal1(R);
-  clang::VariableArrayType *T =
-      *((clang::VariableArrayType **)Data_abstract_val(Type));
-  R = caml_alloc(1, Abstract_tag);
-  *((clang::Expr **)Data_abstract_val(R)) = T->getSizeExpr();
-  CAMLreturn(R);
-}
+WRAPPER_PTR(clang_variable_array_type_get_size_expr, VariableArrayType, Expr,
+            getSizeExpr)
 }

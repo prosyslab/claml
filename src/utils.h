@@ -22,6 +22,14 @@
     CAMLreturn(Val_int(P->fun()));                                         \
   }
 
+#define WRAPPER_INT64(fname, param_type, fun)                                  \
+  value fname(value Param) {                                                   \
+    CAMLparam1(Param);                                                         \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));   \
+    llvm::APInt V = P->fun();                                                  \
+    CAMLreturn(clang_to_int64(V));                                             \
+  }
+
 #define WRAPPER_STR(fname, param_type, fun)                                    \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
