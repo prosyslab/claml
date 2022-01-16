@@ -282,7 +282,7 @@ and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
       (fun s ->
         F.fprintf fmt "%a" Stmt.pp s;
         match Stmt.get_kind s with
-        | StmtKind.BinaryOperator ->
+        | StmtKind.UnaryOperator | StmtKind.BinaryOperator ->
             pp_semicolon fmt;
             pp_endline fmt
         | _ -> pp_endline fmt)
@@ -502,12 +502,15 @@ and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
 
   let pp fmt i =
     match get_kind i with
-    | PostInc -> F.fprintf fmt "%a++;" Stmt.pp (get_sub_expr i)
-    | PostDec -> F.fprintf fmt "%a--;" Stmt.pp (get_sub_expr i)
-    | PreInc -> F.fprintf fmt "++%a;" Stmt.pp (get_sub_expr i)
-    | PreDec -> F.fprintf fmt "--%a;" Stmt.pp (get_sub_expr i)
-    | AddrOf -> F.fprintf fmt "&%a;" Stmt.pp (get_sub_expr i)
-    | Deref -> F.fprintf fmt "*%a;" Stmt.pp (get_sub_expr i)
+    | PostInc -> F.fprintf fmt "%a++" Stmt.pp (get_sub_expr i)
+    | PostDec -> F.fprintf fmt "%a--" Stmt.pp (get_sub_expr i)
+    | PreInc -> F.fprintf fmt "++%a" Stmt.pp (get_sub_expr i)
+    | PreDec -> F.fprintf fmt "--%a" Stmt.pp (get_sub_expr i)
+    | AddrOf -> F.fprintf fmt "&%a" Stmt.pp (get_sub_expr i)
+    | Deref -> F.fprintf fmt "*%a" Stmt.pp (get_sub_expr i)
+    | Plus -> F.fprintf fmt "+%a" Stmt.pp (get_sub_expr i)
+    | Minus -> F.fprintf fmt "-%a" Stmt.pp (get_sub_expr i)
+    | Not | LNot -> F.fprintf fmt "!%a" Stmt.pp (get_sub_expr i)
     | k -> pp_kind fmt k
 end
 

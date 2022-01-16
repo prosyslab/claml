@@ -1,0 +1,11 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "unary_operator0.c"
+int main() {
+#line 2 "unary_operator0.c"
+  int x = +30;
+  return 0;
+}

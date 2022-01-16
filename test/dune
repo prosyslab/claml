@@ -290,3 +290,19 @@
  (alias runtest)
  (action
   (diff unexposed.expected unexposed.output)))
+
+(rule
+ (deps unary_operator0.c)
+ (targets unary_operator0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff unary_operator0.expected unary_operator0.output)))
