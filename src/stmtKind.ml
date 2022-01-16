@@ -89,7 +89,7 @@ type t =
   | Stmt87
   | Stmt88
   | Stmt89
-  | Stmt90
+  | BinaryConditionalOperator
   | ConditionalOperator
   | Stmt92
   | Stmt93
@@ -189,7 +189,7 @@ type t =
   | Stmt187
   | Stmt188
   | Stmt189
-  | Stmt190
+  | OpaqueValueExpr
   | Stmt191
   | Stmt192
   | Stmt193

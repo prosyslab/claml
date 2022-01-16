@@ -10,4 +10,4 @@ int main() {
   printf("%u\n", (int)x, ) return 0;
 }
 #line 3 "unicode0.c"
-externint printf(const char *, );
+extern int printf(const char *, );

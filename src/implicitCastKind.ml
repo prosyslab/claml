@@ -26,4 +26,41 @@ type t =
   | Cast24
   | Cast25
   | IntegralCast
+  | IntegralToBoolean
+  | IntegralToFloating
+  | FloatingToFixedPoint
+  | FixedPointToFloating
+  | FixedPointCast
+  | FixedPointToIntegral
+  | IntegralToFixedPoint
+  | FixedPointToBoolean
+  | FloatingToIntegral
+  | FloatingToBoolean
+  | BooleanToSignedIntegral
+  | FloatingCast
+  | CPointerToObjCPointerCast
+  | BlockPointerToObjCPointerCast
+  | AnyPointerToBlockPointerCast
+  | ObjCObjectLValueCast
+  | FloatingRealToComplex
+  | FloatingComplexToReal
+  | FloatingComplexToBoolean
+  | FloatingComplexCast
+  | FloatingComplexToIntegralComplex
+  | IntegralRealToComplex
+  | IntegralComplexToReal
+  | IntegralComplexToBoolean
+  | IntegralComplexCast
+  | IntegralComplexToFloatingComplex
+  | ARCProduceObject
+  | ARCConsumeObject
+  | ARCReclaimReturnedObject
+  | ARCExtendBlockObject
+  | AtomicToNonAtomic
+  | NonAtomicToAtomic
+  | CopyAndAutoreleaseBlockObject
+  | BuiltinFnToFnPtr
+  | ZeroToOCLOpaqueType
+  | AddressSpaceConversion
+  | IntToOCLSampler
 [@@deriving show]

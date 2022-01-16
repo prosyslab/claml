@@ -1,0 +1,9 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "ternop2.c"
+void a() { 0 ?: __builtin_unreachable() }
+#line 1 "ternop2.c"
+extern void __builtin_unreachable();

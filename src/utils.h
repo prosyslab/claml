@@ -7,8 +7,6 @@
 #include "caml/memory.h"
 #include "caml/mlvalues.h"
 
-#define DEBUG 0
-
 #ifdef DEBUG
 #define LOG(s) fprintf(stderr, "%s @ %s:%d\n", s, __FILE__, __LINE__);
 #else
@@ -55,6 +53,7 @@
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal1(R);                                                             \
+    LOG("" #fname ""); \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     R = caml_alloc(1, Abstract_tag);                                           \
     *((clang::return_type **)Data_abstract_val(R)) = P->fun();                 \

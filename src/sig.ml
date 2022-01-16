@@ -137,6 +137,14 @@ module type WHILE_STMT = NODE
 
 module type MEMBER_EXPR = NODE
 
+module type OPAQUE_VALUE_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_source_expr : t -> Expr.t
+end
+
 module type PAREN_EXPR = sig
   include EXPR
 
@@ -146,6 +154,26 @@ module type PAREN_EXPR = sig
 end
 
 module type CALL_EXPR = NODE
+
+module type BINARY_CONDITIONAL_OPERATOR = sig
+  include EXPR
+
+  val get_cond : t -> t
+
+  val get_true_expr : t -> t
+
+  val get_false_expr : t -> t
+end
+
+module type CONDITIONAL_OPERATOR = sig
+  include EXPR
+
+  val get_cond : t -> t
+
+  val get_true_expr : t -> t
+
+  val get_false_expr : t -> t
+end
 
 module type ARRAY_SUBSCRIPT_EXPR = sig
   include NODE

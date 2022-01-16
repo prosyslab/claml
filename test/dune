@@ -354,3 +354,51 @@
  (alias runtest)
  (action
   (diff type2.expected type2.output)))
+
+(rule
+ (deps ternop0.c)
+ (targets ternop0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ternop0.expected ternop0.output)))
+
+(rule
+ (deps ternop1.c)
+ (targets ternop1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ternop1.expected ternop1.output)))
+
+(rule
+ (deps ternop2.c)
+ (targets ternop2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ternop2.expected ternop2.output)))

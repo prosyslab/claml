@@ -10,10 +10,10 @@ struct {
 typedef struct {
 } _IO_FILE FILE;
 #line 3 "type0.c"
-externstruct {}
-_IO_FILE *stdout;
+extern struct {
+} _IO_FILE *stdout;
 #line 5 "type0.c"
-externint vprintf(
+extern int vprintf(
     const char *, struct {
       unsigned int gp_offset;
       unsigned int fp_offset;
@@ -23,11 +23,11 @@ externint vprintf(
   return vfprintf(stdout, __fmt, __arg, );
 }
 #line 5 "type0.c"
-externint vprintf(const char *__fmt, __builtin_va_list __arg, ) {
+extern int vprintf(const char *__fmt, __builtin_va_list __arg, ) {
   return vfprintf(stdout, __fmt, __arg, );
 }
 #line 6 "type0.c"
-externint vfprintf(
+extern int vfprintf(
     FILE *, const char *, struct {
       unsigned int gp_offset;
       unsigned int fp_offset;

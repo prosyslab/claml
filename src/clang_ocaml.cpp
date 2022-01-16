@@ -357,12 +357,33 @@ WRAPPER_PTR(clang_member_expr_get_member_decl, MemberExpr, ValueDecl,
 
 WRAPPER_BOOL(clang_member_expr_is_arrow, MemberExpr, isArrow)
 
+WRAPPER_PTR(clang_opaque_value_expr_get_source_expr, OpaqueValueExpr, Expr,
+            getSourceExpr)
+
 WRAPPER_PTR(clang_paren_expr_get_sub_expr, ParenExpr, Expr, getSubExpr)
 
 WRAPPER_PTR(clang_call_expr_get_callee, CallExpr, Expr, getCallee)
 
 WRAPPER_LIST_WITH_IDX(clang_call_expr_get_args, CallExpr, Expr, getNumArgs,
                       getArg)
+
+WRAPPER_PTR(clang_binary_conditional_operator_get_cond,
+            BinaryConditionalOperator, Expr, getCond)
+
+WRAPPER_PTR(clang_binary_conditional_operator_get_true_expr,
+            BinaryConditionalOperator, Expr, getTrueExpr)
+
+WRAPPER_PTR(clang_binary_conditional_operator_get_false_expr,
+            BinaryConditionalOperator, Expr, getFalseExpr)
+
+WRAPPER_PTR(clang_conditional_operator_get_cond, ConditionalOperator, Expr,
+            getCond)
+
+WRAPPER_PTR(clang_conditional_operator_get_true_expr, ConditionalOperator, Expr,
+            getTrueExpr)
+
+WRAPPER_PTR(clang_conditional_operator_get_false_expr, ConditionalOperator,
+            Expr, getFalseExpr)
 
 WRAPPER_PTR(clang_array_subscript_expr_get_base, ArraySubscriptExpr, Expr,
             getBase)

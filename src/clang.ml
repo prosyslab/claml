@@ -53,31 +53,31 @@ module rec Decl : Sig.DECL = struct
     match get_kind decl with
     | TypedefDecl ->
         pp_loc fmt decl;
-        pp_storage_class fmt (storage_class decl);
-        TypedefDecl.pp fmt decl
+        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl)
+          TypedefDecl.pp decl
     | FunctionDecl ->
         pp_loc fmt decl;
-        pp_storage_class fmt (storage_class decl);
-        FunctionDecl.pp fmt decl
+        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl)
+          FunctionDecl.pp decl
     | VarDecl ->
         pp_loc fmt decl;
-        pp_storage_class fmt (storage_class decl);
-        VarDecl.pp fmt decl
+        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl) VarDecl.pp
+          decl
     | EnumDecl ->
         pp_loc fmt decl;
-        pp_storage_class fmt (storage_class decl);
-        EnumDecl.pp fmt decl;
+        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl) EnumDecl.pp
+          decl;
         pp_semicolon fmt
     | RecordDecl ->
         pp_loc fmt decl;
-        pp_storage_class fmt (storage_class decl);
-        RecordDecl.pp fmt decl;
+        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl)
+          RecordDecl.pp decl;
         pp_semicolon fmt
     | FieldDecl -> FieldDecl.pp fmt decl
     | EnumConstantDecl -> EnumConstantDecl.pp fmt decl
     | _ when is_value_decl decl ->
         pp_loc fmt decl;
-        pp_storage_class fmt (storage_class decl);
+        F.fprintf fmt "%a " pp_storage_class (storage_class decl);
         F.fprintf fmt "%a %s (%s, %d)" QualType.pp (ValueDecl.get_type decl)
           (NamedDecl.get_name decl) (get_kind_name decl) (get_kind_enum decl)
     | _ -> pp_kind fmt (get_kind decl)
@@ -241,6 +241,8 @@ and Stmt : Sig.STMT = struct
     | IfStmt -> IfStmt.pp fmt exp
     | NullStmt -> ()
     | ReturnStmt -> ReturnStmt.pp fmt exp
+    | BinaryConditionalOperator -> BinaryConditionalOperator.pp fmt exp
+    | ConditionalOperator -> ConditionalOperator.pp fmt exp
     | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
     | BinaryOperator -> BinaryOperator.pp fmt exp
     | CallExpr -> CallExpr.pp fmt exp
@@ -252,6 +254,7 @@ and Stmt : Sig.STMT = struct
     | InitListExpr -> InitListExpr.pp fmt exp
     | IntegerLiteral -> IntegerLiteral.pp fmt exp
     | MemberExpr -> MemberExpr.pp fmt exp
+    | OpaqueValueExpr -> OpaqueValueExpr.pp fmt exp
     | ParenExpr -> ParenExpr.pp fmt exp
     | StringLiteral -> StringLiteral.pp fmt exp
     | UnaryExprOrTypeTraitExpr -> UnaryExprOrTypeTraitExpr.pp fmt exp
@@ -331,11 +334,10 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
 
   let pp fmt e =
     match get_kind e with
-    | LValueToRValue | NoOp -> F.fprintf fmt "%a" Stmt.pp (sub_expr e)
-    | ArrayToPointerDecay | FunctionToPointerDecay -> Stmt.pp fmt (sub_expr e)
-    | NullToPointer | IntegerToPointer ->
-        F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
-    | IntegralCast ->
+    | LValueToRValue | NoOp | ArrayToPointerDecay | FunctionToPointerDecay
+    | BuiltinFnToFnPtr ->
+        Stmt.pp fmt (sub_expr e)
+    | NullToPointer | IntegerToPointer | IntegralCast ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->
         F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
@@ -409,6 +411,37 @@ and ReturnStmt : (Sig.RETURN_STMT with type t = Stmt.t) = struct
     | Some e -> F.fprintf fmt "return %a;" Stmt.pp e
 end
 
+and BinaryConditionalOperator :
+  (Sig.BINARY_CONDITIONAL_OPERATOR with type t = Stmt.t) = struct
+  include Expr
+
+  external get_cond : t -> t = "clang_binary_conditional_operator_get_cond"
+
+  external get_true_expr : t -> t
+    = "clang_binary_conditional_operator_get_true_expr"
+
+  external get_false_expr : t -> t
+    = "clang_binary_conditional_operator_get_false_expr"
+
+  let pp fmt e =
+    F.fprintf fmt "%a ? : %a" Expr.pp (get_cond e) Expr.pp (get_false_expr e)
+end
+
+and ConditionalOperator : (Sig.CONDITIONAL_OPERATOR with type t = Stmt.t) =
+struct
+  include Expr
+
+  external get_cond : t -> t = "clang_conditional_operator_get_cond"
+
+  external get_true_expr : t -> t = "clang_conditional_operator_get_true_expr"
+
+  external get_false_expr : t -> t = "clang_conditional_operator_get_false_expr"
+
+  let pp fmt e =
+    F.fprintf fmt "%a ? %a : %a" Expr.pp (get_cond e) Expr.pp (get_true_expr e)
+      Expr.pp (get_false_expr e)
+end
+
 and ArraySubscriptExpr : (Sig.ARRAY_SUBSCRIPT_EXPR with type t = Stmt.t) =
 struct
   type t = Stmt.t
@@ -438,6 +471,16 @@ and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
   let pp_kind fmt = function
     | BinaryOperatorKind.Add -> F.fprintf fmt "+"
     | LT -> F.fprintf fmt "<"
+    | GT -> F.fprintf fmt ">"
+    | LE -> F.fprintf fmt "<="
+    | GE -> F.fprintf fmt ">="
+    | EQ -> F.fprintf fmt "=="
+    | NE -> F.fprintf fmt "!="
+    | And -> F.fprintf fmt "&"
+    | Xor -> F.fprintf fmt "^"
+    | Or -> F.fprintf fmt "|"
+    | LAnd -> F.fprintf fmt "&&"
+    | LOr -> F.fprintf fmt "||"
     | Assign -> F.fprintf fmt "="
     | k -> pp_kind fmt k
 
@@ -589,6 +632,16 @@ and MemberExpr : (Sig.MEMBER_EXPR with type t = Stmt.t) = struct
     F.fprintf fmt "%a%s%s" Stmt.pp (get_base e)
       (if is_arrow e then "->" else ".")
       (get_member_decl e |> NamedDecl.get_name)
+end
+
+and OpaqueValueExpr : (Sig.OPAQUE_VALUE_EXPR with type t = Stmt.t) = struct
+  include Expr
+  module Expr = Expr
+
+  external get_source_expr : t -> Expr.t
+    = "clang_opaque_value_expr_get_source_expr"
+
+  let pp fmt e = F.fprintf fmt "%a" Expr.pp (get_source_expr e)
 end
 
 and ParenExpr : (Sig.PAREN_EXPR with type t = Stmt.t) = struct

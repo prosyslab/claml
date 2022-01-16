@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "ternop0.c"
+int main() {
+#line 2 "ternop0.c"
+  int x = 0;
+#line 3 "ternop0.c"
+  int y = x ? 0 : 1;
+  return 0;
+}
