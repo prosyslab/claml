@@ -15,5 +15,6 @@ depexts: [
 ]
 depends: [
   "ocaml" {>="4.13.0"}
+  "dune"
   "ppx_deriving"
 ]

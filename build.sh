@@ -23,8 +23,6 @@ else
 fi
 
 eval $(SHELL=bash opam config env --switch=$CLAML_OPAM_SWITCH)
-echo -e "\e[31m[NOTE]\e[0m If you are not a sudo user, press Ctrl+D and skip installing system libraries. Contact the sysadmin, if they are not installed."
-opam install apron clangml || echo "Skip system library install"
 opam pin add claml . -n
 opam install -j $NCPU claml --deps-only
 opam pin remove claml
