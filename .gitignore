@@ -1,3 +1,7 @@
 _build
 compile_commands.json
 test-runner
+
+# auto-generated files
+src/binaryOperatorKind.ml
+src/unaryOperatorKind.ml
