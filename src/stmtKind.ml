@@ -85,9 +85,9 @@ type t =
   | Stmt83
   | Stmt84
   | Stmt85
-  | Stmt86
-  | Stmt87
-  | Stmt88
+  | CaseStmt
+  | DefaultStmt
+  | SwitchStmt
   | Stmt89
   | BinaryConditionalOperator
   | ConditionalOperator
@@ -154,7 +154,7 @@ type t =
   | Stmt152
   | Stmt153
   | FloatingLiteral
-  | Stmt155
+  | ConstantExpr
   | Stmt156
   | Stmt157
   | Stmt158

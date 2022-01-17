@@ -113,6 +113,12 @@ module type INTEGER_LITERAL = NODE
 
 module type FLOATING_LITERAL = NODE
 
+module type CONSTANT_EXPR = sig
+  include EXPR
+
+  val get_sub_expr : t -> t
+end
+
 module type STRING_LITERAL = sig
   include EXPR
 
@@ -154,6 +160,40 @@ module type PAREN_EXPR = sig
 end
 
 module type CALL_EXPR = NODE
+
+module type CASE_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  module Expr : EXPR
+
+  val get_lhs : t -> Expr.t
+
+  val get_rhs : t -> Expr.t
+
+  val get_sub_stmt : t -> Stmt.t
+end
+
+module type DEFAULT_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  val get_sub_stmt : t -> Stmt.t
+end
+
+module type SWITCH_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  module Expr : EXPR
+
+  val get_cond : t -> Expr.t
+
+  val get_body : t -> Stmt.t
+end
 
 module type BINARY_CONDITIONAL_OPERATOR = sig
   include EXPR

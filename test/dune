@@ -402,3 +402,35 @@
  (alias runtest)
  (action
   (diff ternop2.expected ternop2.output)))
+
+(rule
+ (deps switch0.c)
+ (targets switch0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff switch0.expected switch0.output)))
+
+(rule
+ (deps switch1.c)
+ (targets switch1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff switch1.expected switch1.output)))

@@ -239,8 +239,11 @@ and Stmt : Sig.STMT = struct
     | DeclStmt -> DeclStmt.pp fmt exp
     | GotoStmt -> GotoStmt.pp fmt exp
     | IfStmt -> IfStmt.pp fmt exp
-    | NullStmt -> ()
+    | NullStmt -> F.fprintf fmt ";"
     | ReturnStmt -> ReturnStmt.pp fmt exp
+    | CaseStmt -> CaseStmt.pp fmt exp
+    | DefaultStmt -> DefaultStmt.pp fmt exp
+    | SwitchStmt -> SwitchStmt.pp fmt exp
     | BinaryConditionalOperator -> BinaryConditionalOperator.pp fmt exp
     | ConditionalOperator -> ConditionalOperator.pp fmt exp
     | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
@@ -251,6 +254,7 @@ and Stmt : Sig.STMT = struct
     | CharacterLiteral -> CharacterLiteral.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
+    | ConstantExpr -> ConstantExpr.pp fmt exp
     | InitListExpr -> InitListExpr.pp fmt exp
     | IntegerLiteral -> IntegerLiteral.pp fmt exp
     | MemberExpr -> MemberExpr.pp fmt exp
@@ -289,11 +293,7 @@ and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
     List.iter
       (fun s ->
         F.fprintf fmt "%a" Stmt.pp s;
-        match Stmt.get_kind s with
-        | StmtKind.UnaryOperator | StmtKind.BinaryOperator ->
-            pp_semicolon fmt;
-            pp_endline fmt
-        | _ -> pp_endline fmt)
+        pp_endline fmt)
       (body_list cs);
     F.fprintf fmt "}"
 end
@@ -400,8 +400,16 @@ and FloatingLiteral : (Sig.FLOATING_LITERAL with type t = Stmt.t) = struct
   let pp fmt i = F.fprintf fmt "%f" (to_float i)
 end
 
+and ConstantExpr : (Sig.CONSTANT_EXPR with type t = Stmt.t) = struct
+  include Expr
+
+  external get_sub_expr : t -> t = "clang_constant_expr_get_sub_expr"
+
+  let pp fmt e = Expr.pp fmt (get_sub_expr e)
+end
+
 and ReturnStmt : (Sig.RETURN_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+  include Stmt
 
   external get_ret_value : t -> t option = "clang_return_stmt_get_ret_value"
 
@@ -409,6 +417,44 @@ and ReturnStmt : (Sig.RETURN_STMT with type t = Stmt.t) = struct
     match get_ret_value i with
     | None -> F.fprintf fmt "return;"
     | Some e -> F.fprintf fmt "return %a;" Stmt.pp e
+end
+
+and CaseStmt : (Sig.CASE_STMT with type t = Stmt.t) = struct
+  include Stmt
+  module Stmt = Stmt
+  module Expr = Expr
+
+  external get_lhs : t -> t = "clang_case_stmt_get_lhs"
+
+  external get_rhs : t -> t = "clang_case_stmt_get_rhs"
+
+  external get_sub_stmt : t -> t = "clang_case_stmt_get_sub_stmt"
+
+  let pp fmt s =
+    F.fprintf fmt "case %a:%a" Expr.pp (get_lhs s) Stmt.pp (get_sub_stmt s)
+end
+
+and DefaultStmt : (Sig.DEFAULT_STMT with type t = Stmt.t) = struct
+  include Stmt
+  module Stmt = Stmt
+
+  external get_sub_stmt : t -> t = "clang_default_stmt_get_sub_stmt"
+
+  let pp fmt s = F.fprintf fmt "default:%a" Stmt.pp (get_sub_stmt s)
+end
+
+and SwitchStmt : (Sig.SWITCH_STMT with type t = Stmt.t) = struct
+  include Stmt
+  module Stmt = Stmt
+  module Expr = Expr
+
+  external get_cond : t -> Expr.t = "clang_switch_stmt_get_cond"
+
+  external get_body : t -> Expr.t = "clang_switch_stmt_get_body"
+
+  let pp fmt s =
+    F.fprintf fmt "switch (%a)\n" Expr.pp (get_cond s);
+    F.fprintf fmt "%a" Stmt.pp (get_body s)
 end
 
 and BinaryConditionalOperator :
@@ -486,7 +532,8 @@ and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
 
   let pp fmt i =
     F.fprintf fmt "%a %a %a" Stmt.pp (get_lhs i) pp_kind (get_kind i) Stmt.pp
-      (get_rhs i)
+      (get_rhs i);
+    match get_kind i with Assign -> pp_semicolon fmt | _ -> ()
 end
 
 and CallExpr : (Sig.CALL_EXPR with type t = Stmt.t) = struct
@@ -550,10 +597,10 @@ and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
 
   let pp fmt i =
     match get_kind i with
-    | PostInc -> F.fprintf fmt "%a++" Stmt.pp (get_sub_expr i)
-    | PostDec -> F.fprintf fmt "%a--" Stmt.pp (get_sub_expr i)
-    | PreInc -> F.fprintf fmt "++%a" Stmt.pp (get_sub_expr i)
-    | PreDec -> F.fprintf fmt "--%a" Stmt.pp (get_sub_expr i)
+    | PostInc -> F.fprintf fmt "%a++;" Stmt.pp (get_sub_expr i)
+    | PostDec -> F.fprintf fmt "%a--;" Stmt.pp (get_sub_expr i)
+    | PreInc -> F.fprintf fmt "++%a;" Stmt.pp (get_sub_expr i)
+    | PreDec -> F.fprintf fmt "--%a;" Stmt.pp (get_sub_expr i)
     | AddrOf -> F.fprintf fmt "&%a" Stmt.pp (get_sub_expr i)
     | Deref -> F.fprintf fmt "*%a" Stmt.pp (get_sub_expr i)
     | Plus -> F.fprintf fmt "+%a" Stmt.pp (get_sub_expr i)

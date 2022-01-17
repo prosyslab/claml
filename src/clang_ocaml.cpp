@@ -272,6 +272,8 @@ value clang_floating_literal_to_float(value Expr) {
   CAMLreturn(caml_copy_double(V.convertToDouble()));
 }
 
+WRAPPER_PTR(clang_constant_expr_get_sub_expr, ConstantExpr, Expr, getSubExpr)
+
 WRAPPER_INT(clang_cast_kind, CastExpr, getCastKind)
 
 WRAPPER_STR(clang_cast_kind_name, CastExpr, getCastKindName)
@@ -366,6 +368,18 @@ WRAPPER_PTR(clang_call_expr_get_callee, CallExpr, Expr, getCallee)
 
 WRAPPER_LIST_WITH_IDX(clang_call_expr_get_args, CallExpr, Expr, getNumArgs,
                       getArg)
+
+WRAPPER_PTR(clang_case_stmt_get_lhs, CaseStmt, Expr, getLHS)
+
+WRAPPER_PTR(clang_case_stmt_get_rhs, CaseStmt, Expr, getRHS)
+
+WRAPPER_PTR(clang_case_stmt_get_sub_stmt, CaseStmt, Stmt, getSubStmt)
+
+WRAPPER_PTR(clang_default_stmt_get_sub_stmt, DefaultStmt, Stmt, getSubStmt)
+
+WRAPPER_PTR(clang_switch_stmt_get_cond, SwitchStmt, Expr, getCond)
+
+WRAPPER_PTR(clang_switch_stmt_get_body, SwitchStmt, Stmt, getBody)
 
 WRAPPER_PTR(clang_binary_conditional_operator_get_cond,
             BinaryConditionalOperator, Expr, getCond)
