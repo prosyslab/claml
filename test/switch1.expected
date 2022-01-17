@@ -3,9 +3,9 @@
 // implicit typedef
 // implicit typedef
 // implicit typedef
-#line 1 "test/switch1.c"
+#line 1 "switch1.c"
 int a;
-#line 2 "test/switch1.c"
+#line 2 "switch1.c"
 void b() {
   switch (a)
     goto c;

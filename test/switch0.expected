@@ -3,12 +3,12 @@
 // implicit typedef
 // implicit typedef
 // implicit typedef
-#line 1 "test/switch0.c"
+#line 1 "switch0.c"
 int main() {
-#line 2 "test/switch0.c"
+#line 2 "switch0.c"
   int c = 1;
   switch (c) {
-#line 4 "test/switch0.c"
+#line 4 "switch0.c"
     int x = 1;
     {
     case 0:
