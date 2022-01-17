@@ -22,7 +22,7 @@ jobs:
 
       - name: Build Claml
         run: |
-          ./build.sh
+          ./build.sh || eval $(opam env) && make -j
 
       - name: Run test (regression)
         run: eval $(opam env) && make test

@@ -23,5 +23,8 @@ else
 fi
 
 eval $(SHELL=bash opam config env --switch=$CLAML_OPAM_SWITCH)
-opam pin add claml . -y
+opam pin add claml . -n
+opam install -j $NCPU claml --deps-only
 opam pin remove claml
+./bootstrap.sh
+make
