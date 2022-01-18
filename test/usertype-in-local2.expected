@@ -11,10 +11,7 @@ void foo() {
     int[3] arr;
   } _A;
 #line 5 "usertype-in-local2.c"
-  typedef struct {
-    int a;
-    int[3] arr;
-  } _A A;
+  typedef _A A;
 #line 6 "usertype-in-local2.c"
   A a = {
       1,

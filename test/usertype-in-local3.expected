@@ -10,9 +10,7 @@ void foo() {
     int a;
   } A;
 #line 5 "usertype-in-local3.c"
-  struct {
-    int a;
-  } A sa = {
+  A sa = {
       1,
   };
 }
@@ -23,9 +21,7 @@ void bar() {
     int b;
   } B;
 #line 12 "usertype-in-local3.c"
-  struct {
-    int b;
-  } B sb = {
+  B sb = {
       1,
   };
 }

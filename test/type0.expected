@@ -7,19 +7,11 @@
 struct {
 } _IO_FILE;
 #line 2 "type0.c"
-typedef struct {
-} _IO_FILE FILE;
+typedef _IO_FILE FILE;
 #line 3 "type0.c"
-extern struct {
-} _IO_FILE *stdout;
+extern _IO_FILE *stdout;
 #line 5 "type0.c"
-extern int vprintf(
-    const char *, struct {
-      unsigned int gp_offset;
-      unsigned int fp_offset;
-      void *overflow_arg_area;
-      void *reg_save_area;
-    } __va_list_tag *, ) {
+extern int vprintf(const char *, __va_list_tag *, ) {
   return vfprintf(stdout, __fmt, __arg, );
 }
 #line 5 "type0.c"
@@ -27,10 +19,4 @@ extern int vprintf(const char *__fmt, __builtin_va_list __arg, ) {
   return vfprintf(stdout, __fmt, __arg, );
 }
 #line 6 "type0.c"
-extern int vfprintf(
-    FILE *, const char *, struct {
-      unsigned int gp_offset;
-      unsigned int fp_offset;
-      void *overflow_arg_area;
-      void *reg_save_area;
-    } __va_list_tag *, );
+extern int vfprintf(FILE *, const char *, __va_list_tag *, );

@@ -10,9 +10,7 @@ int foo() {
     int a;
   } A;
 #line 5 "usertype-in-local0.c"
-  struct {
-    int a;
-  } A sa = {
+  A sa = {
       1,
   };
 }
@@ -23,9 +21,7 @@ int main() {
     int a;
   } A;
 #line 12 "usertype-in-local0.c"
-  struct {
-    int a;
-  } A sa = {
+  A sa = {
       1,
   };
   foo()

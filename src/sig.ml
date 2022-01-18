@@ -14,6 +14,8 @@ module type DECL = sig
   val is_implicit : t -> bool
 
   val pp : F.formatter -> t -> unit
+
+  val dump : t -> unit
 end
 
 module type TYPE = sig
@@ -62,7 +64,25 @@ module type TYPEDEF_DECL = NAMED_DECL
 
 module type ENUM_DECL = NAMED_DECL
 
-module type RECORD_DECL = NAMED_DECL
+module type RECORD_DECL = sig
+  include NAMED_DECL
+
+  module Decl : DECL
+
+  val is_anonymous : t -> bool
+
+  val is_struct : t -> bool
+
+  val is_union : t -> bool
+
+  val field_begin : t -> t option
+
+  val field_list_internal : t -> t list
+
+  val field_list : t -> Decl.t list
+
+  val iter_field : (Decl.t -> unit) -> t -> unit
+end
 
 module type TYPEDEC_DECL = NAMED_DECL
 

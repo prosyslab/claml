@@ -12,9 +12,7 @@ struct {
   enum { c, b } a d;
 } f;
 #line 6 "type2.c"
-struct {
-  enum { c, b } a d;
-} f a = {
+f a = {
     (enum {c, b} a)c,
 };
 #line 7 "type2.c"

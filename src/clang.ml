@@ -50,34 +50,28 @@ module rec Decl : Sig.DECL = struct
     | None -> ()
 
   let pp fmt decl =
+    ( match get_kind decl with
+    | TypedefDecl | FunctionDecl | VarDecl | EnumDecl | RecordDecl ->
+        pp_loc fmt decl
+    | FieldDecl | EnumConstantDecl -> ()
+    | _ when is_value_decl decl -> pp_loc fmt decl
+    | _ -> () );
+    ( match storage_class decl with
+    | NoneSC -> ()
+    | s -> F.fprintf fmt "%a " pp_storage_class s );
     match get_kind decl with
-    | TypedefDecl ->
-        pp_loc fmt decl;
-        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl)
-          TypedefDecl.pp decl
-    | FunctionDecl ->
-        pp_loc fmt decl;
-        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl)
-          FunctionDecl.pp decl
-    | VarDecl ->
-        pp_loc fmt decl;
-        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl) VarDecl.pp
-          decl
+    | TypedefDecl -> TypedefDecl.pp fmt decl
+    | FunctionDecl -> FunctionDecl.pp fmt decl
+    | VarDecl -> VarDecl.pp fmt decl
     | EnumDecl ->
-        pp_loc fmt decl;
-        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl) EnumDecl.pp
-          decl;
+        EnumDecl.pp fmt decl;
         pp_semicolon fmt
     | RecordDecl ->
-        pp_loc fmt decl;
-        F.fprintf fmt "%a %a" pp_storage_class (storage_class decl)
-          RecordDecl.pp decl;
+        RecordDecl.pp fmt decl;
         pp_semicolon fmt
     | FieldDecl -> FieldDecl.pp fmt decl
     | EnumConstantDecl -> EnumConstantDecl.pp fmt decl
     | _ when is_value_decl decl ->
-        pp_loc fmt decl;
-        F.fprintf fmt "%a " pp_storage_class (storage_class decl);
         F.fprintf fmt "%a %s (%s, %d)" QualType.pp (ValueDecl.get_type decl)
           (NamedDecl.get_name decl) (get_kind_name decl) (get_kind_enum decl)
     | _ -> pp_kind fmt (get_kind decl)
@@ -189,6 +183,7 @@ end
 
 and RecordDecl : (Sig.RECORD_DECL with type t = Decl.t) = struct
   include NamedDecl
+  module Decl = Decl
 
   external is_anonymous : t -> bool = "clang_record_decl_is_anonymous"
 
@@ -853,6 +848,9 @@ and ElaboratedType : (Sig.ELABORATED_TYPE with type t = Type.t) = struct
 
   external desugar : t -> QualType.t = "clang_elaborated_type_desugar"
 
+  external get_named_type : t -> QualType.t
+    = "clang_elaborated_type_get_named_type"
+
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
 end
 
@@ -869,7 +867,12 @@ and RecordType : (Sig.RECORD_TYPE with type t = Type.t) = struct
 
   external get_decl : t -> RecordDecl.t = "clang_record_type_get_decl"
 
-  let pp fmt t = F.fprintf fmt "%a" RecordDecl.pp (get_decl t)
+  let pp fmt t =
+    let decl = get_decl t in
+    let name = NamedDecl.get_name decl in
+    if RecordDecl.is_anonymous decl || name = "" then
+      F.fprintf fmt "%a" RecordDecl.pp decl
+    else F.fprintf fmt "%s" (NamedDecl.get_name decl)
 end
 
 and TypeOfExprType : (Sig.TYPE_OF_EXPR_TYPE with type t = Type.t) = struct

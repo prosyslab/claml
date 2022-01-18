@@ -75,6 +75,9 @@ WRAPPER_QUAL_TYPE(clang_pointer_type_get_pointee_type, PointerType,
 
 WRAPPER_QUAL_TYPE(clang_elaborated_type_desugar, ElaboratedType, desugar)
 
+WRAPPER_QUAL_TYPE(clang_elaborated_type_get_named_type, ElaboratedType,
+                  getNamedType)
+
 WRAPPER_PTR(clang_enum_type_get_decl, EnumType, EnumDecl, getDecl)
 
 WRAPPER_PTR(clang_record_type_get_decl, RecordType, RecordDecl, getDecl)
