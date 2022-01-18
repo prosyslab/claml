@@ -117,6 +117,8 @@ module type IMPLICIT_CAST = NODE
 
 module type EXPLICIT_CAST = NODE
 
+module type IMPLICIT_VALUE_INIT_EXPR = NODE
+
 module type INIT_LIST_EXPR = NODE
 
 module type CHARACTER_LITERAL = sig

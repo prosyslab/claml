@@ -160,7 +160,7 @@ type t =
   | Stmt158
   | Stmt159
   | Stmt160
-  | Stmt161
+  | ImplicitValueInitExpr
   | InitListExpr
   | IntegerLiteral
   | Stmt164

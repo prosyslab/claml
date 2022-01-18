@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "struct2.c"
+struct {
+  __pthread_internal_list *__prev;
+  __pthread_internal_list *__next;
+} __pthread_internal_list;
+#line 4 "struct2.c"
+typedef __pthread_internal_list __pthread_list;

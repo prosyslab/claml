@@ -250,6 +250,7 @@ and Stmt : Sig.STMT = struct
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
     | ConstantExpr -> ConstantExpr.pp fmt exp
+    | ImplicitValueInitExpr -> ImplicitValueInitExpr.pp fmt exp
     | InitListExpr -> InitListExpr.pp fmt exp
     | IntegerLiteral -> IntegerLiteral.pp fmt exp
     | MemberExpr -> MemberExpr.pp fmt exp
@@ -366,6 +367,11 @@ and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct
 
   let pp fmt e =
     F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Expr.pp (sub_expr e)
+end
+
+and ImplicitValueInitExpr :
+  (Sig.IMPLICIT_VALUE_INIT_EXPR with type t = Stmt.t) = struct
+  include Expr
 end
 
 and InitListExpr : (Sig.INIT_LIST_EXPR with type t = Stmt.t) = struct

@@ -1,0 +1,25 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "struct4.c"
+struct {
+} A;
+#line 3 "struct4.c"
+int f() {
+#line 4 "struct4.c"
+  A *p = (A *)0;
+  return 0;
+}
+#line 8 "struct4.c"
+struct {
+  int f;
+} A;
+#line 12 "struct4.c"
+int g() {
+#line 13 "struct4.c"
+  A a;
+  a.f = 1;
+  return 0;
+}

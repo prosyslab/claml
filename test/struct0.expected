@@ -1,0 +1,22 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "struct0.c"
+struct {
+  int[2] __val;
+};
+#line 3 "struct0.c"
+typedef struct {
+  int[2] __val;
+} __fsid_t;
+#line 5 "struct0.c"
+__fsid_t gg;
+#line 7 "struct0.c"
+int f(int x, ) {
+#line 8 "struct0.c"
+  __fsid_t a;
+  a.__val[0] = 1;
+  return 1;
+}

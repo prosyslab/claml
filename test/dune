@@ -434,3 +434,115 @@
  (alias runtest)
  (action
   (diff switch1.expected switch1.output)))
+
+(rule
+ (deps struct0.c)
+ (targets struct0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct0.expected struct0.output)))
+
+(rule
+ (deps struct1.c)
+ (targets struct1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct1.expected struct1.output)))
+
+(rule
+ (deps struct2.c)
+ (targets struct2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct2.expected struct2.output)))
+
+(rule
+ (deps struct3.c)
+ (targets struct3.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct3.expected struct3.output)))
+
+(rule
+ (deps struct4.c)
+ (targets struct4.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct4.expected struct4.output)))
+
+(rule
+ (deps struct5.c)
+ (targets struct5.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct5.expected struct5.output)))
+
+(rule
+ (deps struct7.c)
+ (targets struct7.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct7.expected struct7.output)))

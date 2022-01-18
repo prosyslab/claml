@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "struct3.c"
+struct {
+  unsigned long long __wseq;
+  struct {
+    unsigned int __low;
+    unsigned int __high;
+  } __wseq32;
+} __pthread_cond_s;
+#line 9 "struct3.c"
+int main() {
+#line 10 "struct3.c"
+  __pthread_cond_s a;
+  return 0;
+}

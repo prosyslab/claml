@@ -1,0 +1,23 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "struct5.c"
+struct {
+  int b;
+} a;
+#line 4 "struct5.c"
+struct {
+  a c;
+};
+#line 6 "struct5.c"
+struct {
+  a c;
+}[1] d = {
+    {
+        {
+            2,
+        },
+    },
+};
