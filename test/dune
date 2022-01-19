@@ -594,3 +594,67 @@
  (alias runtest)
  (action
   (diff static0.expected static0.output)))
+
+(rule
+ (deps self-reference-array.c)
+ (targets self-reference-array.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff self-reference-array.expected self-reference-array.output)))
+
+(rule
+ (deps return0.c)
+ (targets return0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff return0.expected return0.output)))
+
+(rule
+ (deps return1.c)
+ (targets return1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff return1.expected return1.output)))
+
+(rule
+ (deps return2.c)
+ (targets return2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff return2.expected return2.output)))

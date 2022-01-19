@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "self-reference-array.c"
+struct {
+  int v;
+  nd *[100] p1;
+} nd;
+#line 6 "self-reference-array.c"
+int main() {
+#line 7 "self-reference-array.c"
+  nd tmp;
+#line 7 "self-reference-array.c"
+  nd tmp2;
+  tmp.p1[0] = &tmp2;
+  return 0;
+}

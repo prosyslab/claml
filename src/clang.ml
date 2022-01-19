@@ -336,6 +336,7 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
     | BitCast | LValueToRValue | NoOp | ArrayToPointerDecay
     | FunctionToPointerDecay | BuiltinFnToFnPtr ->
         Stmt.pp fmt (sub_expr e)
+    | ToVoid -> ()
     | NullToPointer | IntegerToPointer | IntegralCast ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->

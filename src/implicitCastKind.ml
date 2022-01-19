@@ -23,7 +23,7 @@ type t =
   | IntegerToPointer
   | Cast22
   | Cast23
-  | Cast24
+  | ToVoid
   | Cast25
   | IntegralCast
   | IntegralToBoolean

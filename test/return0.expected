@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "return0.c"
+int f() { return 0; }
+#line 3 "return0.c"
+void g() {
+  f()
+#line 5 "return0.c"
+      short x = (short)f();
+}
