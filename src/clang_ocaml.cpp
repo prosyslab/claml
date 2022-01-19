@@ -276,11 +276,11 @@ WRAPPER_PTR(clang_constant_expr_get_sub_expr, ConstantExpr, Expr, getSubExpr)
 
 WRAPPER_PTR(clang_stmt_expr_get_sub_stmt, StmtExpr, CompoundStmt, getSubStmt)
 
-WRAPPER_INT(clang_cast_kind, CastExpr, getCastKind)
+WRAPPER_INT(clang_get_cast_kind, CastExpr, getCastKind)
 
-WRAPPER_STR(clang_cast_kind_name, CastExpr, getCastKindName)
+WRAPPER_STR(clang_cast_get_kind_name, CastExpr, getCastKindName)
 
-WRAPPER_PTR(clang_cast_sub_expr, CastExpr, Expr, getSubExpr)
+WRAPPER_PTR(clang_get_cast_sub_expr, CastExpr, Expr, getSubExpr)
 
 WRAPPER_QUAL_TYPE(clang_expr_get_type, Expr, getType)
 

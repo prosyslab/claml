@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "static0.c"
+static int static_f() { return 0; }
+#line 2 "static0.c"
+static int static2_f() { return 0; }
+#line 4 "static0.c"
+int non_static_f() { return 0; }
+#line 6 "static0.c"
+struct {
+  int() * fp;
+} S;
+#line 10 "static0.c"
+S s = {
+    static_f,
+};

@@ -73,6 +73,8 @@ value clang_function_type_get_param_types(value T) {
 WRAPPER_QUAL_TYPE(clang_pointer_type_get_pointee_type, PointerType,
                   getPointeeType)
 
+WRAPPER_QUAL_TYPE(clang_paren_type_desugar, ParenType, desugar)
+
 WRAPPER_QUAL_TYPE(clang_elaborated_type_desugar, ElaboratedType, desugar)
 
 WRAPPER_QUAL_TYPE(clang_elaborated_type_get_named_type, ElaboratedType,

@@ -323,22 +323,24 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
 
   type kind = ImplicitCastKind.t [@@deriving show]
 
-  external sub_expr : Stmt.t -> Stmt.t = "clang_cast_sub_expr"
+  external sub_expr : Stmt.t -> Stmt.t = "clang_get_cast_sub_expr"
 
-  external get_kind : Stmt.t -> kind = "clang_cast_kind"
+  external get_kind : Stmt.t -> kind = "clang_get_cast_kind"
 
-  external get_kind_enum : Stmt.t -> int = "clang_cast_kind"
+  external get_kind_name : Stmt.t -> string = "clang_cast_get_kind_name"
+
+  external get_kind_enum : Stmt.t -> int = "clang_get_cast_kind"
 
   let pp fmt e =
     match get_kind e with
-    | LValueToRValue | NoOp | ArrayToPointerDecay | FunctionToPointerDecay
-    | BuiltinFnToFnPtr ->
+    | BitCast | LValueToRValue | NoOp | ArrayToPointerDecay
+    | FunctionToPointerDecay | BuiltinFnToFnPtr ->
         Stmt.pp fmt (sub_expr e)
     | NullToPointer | IntegerToPointer | IntegralCast ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->
         F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
-          (Stmt.get_kind_name e) (get_kind_enum e)
+          (get_kind_name e) (get_kind_enum e)
 end
 
 and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
@@ -372,7 +374,7 @@ end
 and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct
   include Expr
 
-  external sub_expr : Expr.t -> Expr.t = "clang_cast_sub_expr"
+  external sub_expr : Expr.t -> Expr.t = "clang_get_cast_sub_expr"
 
   let pp fmt e =
     F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Expr.pp (sub_expr e)
@@ -738,6 +740,7 @@ and Type : Sig.TYPE = struct
           (fun at -> F.fprintf fmt "%a, " QualType.pp at)
           (FunctionType.param_types t);
         F.fprintf fmt ")"
+    | ParenType -> F.fprintf fmt "%a" ParenType.pp t
     | PointerType -> F.fprintf fmt "%a" PointerType.pp t
     | ElaboratedType -> F.fprintf fmt "%a" ElaboratedType.pp t
     | EnumType -> F.fprintf fmt "%a" EnumType.pp t
@@ -849,6 +852,15 @@ and FunctionType :
     = "clang_function_type_get_param_types"
 
   let pp fmt t = ()
+end
+
+and ParenType : (Sig.PAREN_TYPE with type t = Type.t) = struct
+  include Type
+  module QualType = QualType
+
+  external desugar : t -> QualType.t = "clang_paren_type_desugar"
+
+  let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
 end
 
 and PointerType : (Sig.POINTER_TYPE with type t = Type.t) = struct

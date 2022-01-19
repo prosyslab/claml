@@ -303,6 +303,14 @@ module type FUNCTION_TYPE = sig
   val param_types : t -> QualType.t list
 end
 
+module type PAREN_TYPE = sig
+  include NODE
+
+  module QualType : QUAL_TYPE
+
+  val desugar : t -> QualType.t
+end
+
 module type POINTER_TYPE = NODE
 
 module type ELABORATED_TYPE = NODE

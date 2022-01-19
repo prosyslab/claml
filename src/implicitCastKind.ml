@@ -1,6 +1,6 @@
 type t =
   | Cast0
-  | Cast1
+  | BitCast
   | Cast2
   | Cast3
   | LValueToRValue

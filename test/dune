@@ -578,3 +578,19 @@
  (alias runtest)
  (action
   (diff stmtexpr0.expected stmtexpr0.output)))
+
+(rule
+ (deps static0.c)
+ (targets static0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff static0.expected static0.output)))
