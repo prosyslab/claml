@@ -1,0 +1,15 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "stmtexpr0.c"
+int main() {
+#line 2 "stmtexpr0.c"
+  int x = ({
+#line 3 "stmtexpr0.c"
+    int d = 1;
+    d
+  });
+  return 0;
+}

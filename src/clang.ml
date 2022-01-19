@@ -256,6 +256,7 @@ and Stmt : Sig.STMT = struct
     | MemberExpr -> MemberExpr.pp fmt exp
     | OpaqueValueExpr -> OpaqueValueExpr.pp fmt exp
     | ParenExpr -> ParenExpr.pp fmt exp
+    | StmtExpr -> StmtExpr.pp fmt exp
     | StringLiteral -> StringLiteral.pp fmt exp
     | UnaryExprOrTypeTraitExpr -> UnaryExprOrTypeTraitExpr.pp fmt exp
     | UnaryOperator -> UnaryOperator.pp fmt exp
@@ -350,6 +351,14 @@ and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
   external get_value : t -> int = "clang_character_literal_get_value"
 
   let pp fmt e = F.fprintf fmt "%d" (get_value e)
+end
+
+and StmtExpr : (Sig.STMT_EXPR with type t = Stmt.t) = struct
+  include Expr
+
+  external get_sub_stmt : t -> t = "clang_stmt_expr_get_sub_stmt"
+
+  let pp fmt s = F.fprintf fmt "(%a)" Stmt.pp (get_sub_stmt s)
 end
 
 and StringLiteral : (Sig.STRING_LITERAL with type t = Stmt.t) = struct

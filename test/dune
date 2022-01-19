@@ -562,3 +562,19 @@
  (alias runtest)
  (action
   (diff struct7.expected struct7.output)))
+
+(rule
+ (deps stmtexpr0.c)
+ (targets stmtexpr0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff stmtexpr0.expected stmtexpr0.output)))
