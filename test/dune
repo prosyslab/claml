@@ -532,6 +532,22 @@
   (diff struct5.expected struct5.output)))
 
 (rule
+ (deps struct6.c)
+ (targets struct6.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff struct6.expected struct6.output)))
+
+(rule
  (deps struct7.c)
  (targets struct7.output)
  (action

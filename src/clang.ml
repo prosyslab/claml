@@ -372,6 +372,8 @@ end
 and ImplicitValueInitExpr :
   (Sig.IMPLICIT_VALUE_INIT_EXPR with type t = Stmt.t) = struct
   include Expr
+
+  let pp fmt e = ()
 end
 
 and InitListExpr : (Sig.INIT_LIST_EXPR with type t = Stmt.t) = struct
