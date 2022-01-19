@@ -244,8 +244,8 @@ and Stmt : Sig.STMT = struct
     | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
     | BinaryOperator -> BinaryOperator.pp fmt exp
     | CallExpr -> CallExpr.pp fmt exp
-    | CStyleCast -> ExplicitCast.pp fmt exp
-    | ImplicitCast -> ImplicitCast.pp fmt exp
+    | CStyleCastExpr -> ExplicitCast.pp fmt exp
+    | ImplicitCastExpr -> ImplicitCast.pp fmt exp
     | CharacterLiteral -> CharacterLiteral.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
