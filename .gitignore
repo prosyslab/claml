@@ -7,3 +7,4 @@ src/binaryOperatorKind.ml
 src/unaryOperatorKind.ml
 src/builtinTypeKind.ml
 src/stmtKind.ml
+config
