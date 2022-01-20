@@ -284,6 +284,11 @@ WRAPPER_PTR(clang_get_cast_sub_expr, CastExpr, Expr, getSubExpr)
 
 WRAPPER_QUAL_TYPE(clang_expr_get_type, Expr, getType)
 
+WRAPPER_PTR(clang_predefined_expr_get_function_name, PredefinedExpr,
+            StringLiteral, getFunctionName)
+
+WRAPPER_INT(clang_predefined_expr_get_ident_kind, PredefinedExpr, getIdentKind)
+
 value clang_compound_stmt_body_begin(value Stmt) {
   CAMLparam1(Stmt);
   CAMLlocal1(R);

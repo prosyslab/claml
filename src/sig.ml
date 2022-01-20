@@ -153,6 +153,16 @@ module type STRING_LITERAL = sig
   val get_string : t -> string
 end
 
+module type PREDEFINED_EXPR = sig
+  include EXPR
+
+  module StringLiteral : STRING_LITERAL
+
+  type kind
+
+  val get_function_name : t -> StringLiteral.t
+end
+
 module type RETURN_STMT = NODE
 
 module type BINARY_OPERATOR = NODE

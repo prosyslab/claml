@@ -658,3 +658,19 @@
  (alias runtest)
  (action
   (diff return2.expected return2.output)))
+
+(rule
+ (deps predef-macro.c)
+ (targets predef-macro.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff predef-macro.expected predef-macro.output)))

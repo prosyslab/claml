@@ -1,0 +1,10 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "predef-macro.c"
+int main() {
+#line 1 "predef-macro.c"
+  char *fname = __FUNCTION__;
+}

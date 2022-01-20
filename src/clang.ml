@@ -256,6 +256,7 @@ and Stmt : Sig.STMT = struct
     | MemberExpr -> MemberExpr.pp fmt exp
     | OpaqueValueExpr -> OpaqueValueExpr.pp fmt exp
     | ParenExpr -> ParenExpr.pp fmt exp
+    | PredefinedExpr -> PredefinedExpr.pp fmt exp
     | StmtExpr -> StmtExpr.pp fmt exp
     | StringLiteral -> StringLiteral.pp fmt exp
     | UnaryExprOrTypeTraitExpr -> UnaryExprOrTypeTraitExpr.pp fmt exp
@@ -354,6 +355,33 @@ and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
   external get_value : t -> int = "clang_character_literal_get_value"
 
   let pp fmt e = F.fprintf fmt "%d" (get_value e)
+end
+
+and PredefinedExpr : (Sig.PREDEFINED_EXPR with type t = Stmt.t) = struct
+  include Expr
+  module StringLiteral = StringLiteral
+
+  type kind =
+    | Func
+    | Function
+    | LFunction
+    | FuncDName
+    | FuncSig
+    | LFuncSig
+    | PrettyFunction
+    | PrettyFunctionNoVirtial
+  [@@deriving show]
+
+  let pp_kind fmt = function
+    | Function -> F.fprintf fmt "__FUNCTION__"
+    | k -> pp_kind fmt k
+
+  external get_ident_kind : t -> kind = "clang_predefined_expr_get_ident_kind"
+
+  external get_function_name : t -> StringLiteral.t
+    = "clang_predefined_expr_get_function_name"
+
+  let pp fmt s = F.fprintf fmt "%a" pp_kind (get_ident_kind s)
 end
 
 and StmtExpr : (Sig.STMT_EXPR with type t = Stmt.t) = struct
