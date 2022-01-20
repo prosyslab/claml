@@ -1,0 +1,15 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "pointer4.c"
+void f() {
+#line 2 "pointer4.c"
+  int offset = 1;
+#line 3 "pointer4.c"
+  char *s = "string";
+#line 4 "pointer4.c"
+  char *p = s;
+  *offset + p = (char)1;
+}

@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "pointer5.c"
+int f(char *c1, const char *c2, int s, ) { return 2; }
+#line 2 "pointer5.c"
+int g(char *c1, const char *c2, int s, ) { return 1; }
+#line 4 "pointer5.c"
+int main(int x, ) {
+#line 5 "pointer5.c"
+  int(char *, const char *, int, ) *fn = x > 10 ? f : g;
+#line 6 "pointer5.c"
+  char *word = "20";
+#line 7 "pointer5.c"
+  int slen = 10;
+  return fn(word, "const char str", slen, );
+}

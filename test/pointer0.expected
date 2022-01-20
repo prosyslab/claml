@@ -1,0 +1,17 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "pointer0.c"
+struct {
+} __locale_data;
+#line 1 "pointer0.c"
+__locale_data *[13] __locales;
+#line 3 "pointer0.c"
+int main() {
+#line 4 "pointer0.c"
+  __locale_data *p = (__locale_data *)0;
+  __locales[0] = (__locale_data *)0;
+  return 0;
+}

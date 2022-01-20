@@ -60,6 +60,7 @@ module rec Decl : Sig.DECL = struct
     | NoneSC -> ()
     | s -> F.fprintf fmt "%a " pp_storage_class s );
     match get_kind decl with
+    | EmptyDecl -> ()
     | TypedefDecl -> TypedefDecl.pp fmt decl
     | FunctionDecl -> FunctionDecl.pp fmt decl
     | VarDecl -> VarDecl.pp fmt decl
@@ -759,6 +760,7 @@ and Type : Sig.TYPE = struct
     | AdjustedType -> F.fprintf fmt "adjusted"
     | DecayedType -> F.fprintf fmt "%a" DecayedType.pp t
     | ConstantArrayType -> F.fprintf fmt "%a" ConstantArrayType.pp t
+    | IncompleteArrayType -> F.fprintf fmt "%a" IncompleteArrayType.pp t
     | VariableArrayType -> F.fprintf fmt "%a" VariableArrayType.pp t
     | BuiltinType -> F.fprintf fmt "%a" BuiltinType.pp t
     | FunctionNoProtoType ->
@@ -822,6 +824,12 @@ and ConstantArrayType : (Sig.CONSTANT_ARRAY_TYPE with type t = Type.t) = struct
   let pp fmt t =
     F.fprintf fmt "%a [%d]" QualType.pp (get_element_type t)
       (get_size t |> Int64.to_int)
+end
+
+and IncompleteArrayType : (Sig.ARRAY_TYPE with type t = Type.t) = struct
+  include ArrayType
+
+  let pp fmt t = F.fprintf fmt "%a []" QualType.pp (get_element_type t)
 end
 
 and VariableArrayType : (Sig.VARIABLE_ARRAY_TYPE with type t = Type.t) = struct

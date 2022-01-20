@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "pointer6.c"
+int g() { return 1; }
+
+#line 2 "pointer6.c"
+int h() { return 2; }
+
+#line 4 "pointer6.c"
+int main() {
+#line 5 "pointer6.c"
+  int x = 1;
+#line 6 "pointer6.c"
+  int *f = x > 0 ? g : h;
+  return f();
+}

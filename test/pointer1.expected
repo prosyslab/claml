@@ -1,0 +1,9 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "pointer1.c"
+int[4] arr;
+#line 2 "pointer1.c"
+int[] *p_arr = &arr;

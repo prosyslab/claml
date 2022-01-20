@@ -1,0 +1,7 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "pointer2.c"
+void f(char *p, ) { p[1] = (char)10; }

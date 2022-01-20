@@ -674,3 +674,115 @@
  (alias runtest)
  (action
   (diff predef-macro.expected predef-macro.output)))
+
+(rule
+ (deps pointer0.c)
+ (targets pointer0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer0.expected pointer0.output)))
+
+(rule
+ (deps pointer1.c)
+ (targets pointer1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer1.expected pointer1.output)))
+
+(rule
+ (deps pointer2.c)
+ (targets pointer2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer2.expected pointer2.output)))
+
+(rule
+ (deps pointer3.c)
+ (targets pointer3.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer3.expected pointer3.output)))
+
+(rule
+ (deps pointer4.c)
+ (targets pointer4.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer4.expected pointer4.output)))
+
+(rule
+ (deps pointer5.c)
+ (targets pointer5.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer5.expected pointer5.output)))
+
+(rule
+ (deps pointer6.c)
+ (targets pointer6.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pointer6.expected pointer6.output)))
