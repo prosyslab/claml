@@ -57,8 +57,37 @@ gen_stmt_kind() {
   echo "[@@deriving show]" >>$TARGET
 }
 
+gen_test() {
+  TARGET=test/dune
+  echo "(executable
+ (name test)
+ (modules test)
+ (libraries clang))
+ " >$TARGET
+  for cfile in $(find test -name "*.c"); do
+    cfile=$(basename $cfile)
+    echo "(rule
+ (deps $cfile)
+ (targets ${cfile%%.*}.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ${cfile%%.*}.expected ${cfile%%.*}.output)))
+" >>$TARGET
+  done
+}
+
 gen_config
 gen_binary_operator_kind
 gen_unary_operator_kind
 gen_builtin_type_kind
 gen_stmt_kind
+gen_test
