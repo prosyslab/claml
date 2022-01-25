@@ -802,3 +802,51 @@
  (alias runtest)
  (action
   (diff param0.expected param0.output)))
+
+(rule
+ (deps nested-init0.c)
+ (targets nested-init0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nested-init0.expected nested-init0.output)))
+
+(rule
+ (deps nested-init1.c)
+ (targets nested-init1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nested-init1.expected nested-init1.output)))
+
+(rule
+ (deps nested-init2.c)
+ (targets nested-init2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nested-init2.expected nested-init2.output)))

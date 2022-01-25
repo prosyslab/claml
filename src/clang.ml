@@ -339,7 +339,7 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
     | FunctionToPointerDecay | BuiltinFnToFnPtr ->
         Stmt.pp fmt (sub_expr e)
     | ToVoid -> ()
-    | NullToPointer | IntegerToPointer | IntegralCast ->
+    | NullToPointer | IntegerToPointer | IntegralCast | IntegralToFloating ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->
         F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
@@ -871,6 +871,8 @@ and BuiltinType : (Sig.BUILTIN_TYPE with type t = Type.t) = struct
     | WChar_S -> F.fprintf fmt "signed wchar"
     | Short -> F.fprintf fmt "short"
     | Int -> F.fprintf fmt "int"
+    | Float -> F.fprintf fmt "float"
+    | Double -> F.fprintf fmt "double"
     | k -> pp_kind fmt k
 end
 

@@ -1,0 +1,29 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "nested-init1.c"
+struct {
+  char[3] a;
+  float[2] f;
+  double[2] d;
+} B;
+#line 7 "nested-init1.c"
+B b = {
+    {
+        (char)0,
+        (char)1,
+        (char)2,
+    },
+    {
+        (float)3,
+        (float)4,
+    },
+    {
+        (double)5,
+        (double)6,
+    },
+};
+#line 9 "nested-init1.c"
+int main() { return 0; }
