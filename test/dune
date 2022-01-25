@@ -786,3 +786,19 @@
  (alias runtest)
  (action
   (diff pointer6.expected pointer6.output)))
+
+(rule
+ (deps param0.c)
+ (targets param0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff param0.expected param0.output)))

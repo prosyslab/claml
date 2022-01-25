@@ -1,0 +1,21 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "param0.c"
+struct {
+  int a;
+};
+#line 3 "param0.c"
+struct {
+  int a;
+} b;
+#line 4 "param0.c"
+void c(char *b, );
+#line 5 "param0.c"
+int d() {
+#line 6 "param0.c"
+  int x = b.a;
+  return 0;
+}
