@@ -1,0 +1,28 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init2.c"
+struct {
+  int y;
+} A;
+#line 3 "local-init2.c"
+typedef A A;
+#line 4 "local-init2.c"
+struct {
+  int a;
+  int b;
+  A[2] k;
+} B;
+#line 8 "local-init2.c"
+typedef B B;
+#line 9 "local-init2.c"
+int main() {
+#line 10 "local-init2.c"
+  B b = {
+      1,
+      ,
+      ,
+  };
+}

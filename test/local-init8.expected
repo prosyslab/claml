@@ -1,0 +1,23 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init8.c"
+int main() {
+#line 2 "local-init8.c"
+  struct {
+    int[42] A;
+  } atom;
+#line 5 "local-init8.c"
+  typedef atom atom_t;
+#line 7 "local-init8.c"
+  static atom_t[1] ramb16_atoms = {
+      {
+          {
+              17,
+          },
+      },
+  };
+  return 0;
+}

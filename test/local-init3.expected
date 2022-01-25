@@ -1,0 +1,41 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init3.c"
+struct {
+  float f;
+} Base;
+#line 4 "local-init3.c"
+struct {
+  Base base;
+  int[3] arr;
+} _A;
+#line 7 "local-init3.c"
+typedef _A A;
+#line 8 "local-init3.c"
+struct {
+  A[2] sa;
+  int b;
+} _B;
+#line 11 "local-init3.c"
+typedef _B B;
+#line 12 "local-init3.c"
+int main() {
+#line 12 "local-init3.c"
+  B b = {
+      {
+          {
+              {
+                  (float)1,
+              },
+              {
+                  2,
+                  3,
+              },
+          },
+      },
+      ,
+  };
+}

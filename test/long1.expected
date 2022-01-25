@@ -1,0 +1,7 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "long1.c"
+int main() { return (int)0.000000; }

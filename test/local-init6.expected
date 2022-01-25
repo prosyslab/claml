@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init6.c"
+struct {
+  int a;
+} atom;
+#line 5 "local-init6.c"
+int main() {
+#line 6 "local-init6.c"
+  atom[2] a = {
+      {
+          17,
+      },
+  };
+  return 0;
+}

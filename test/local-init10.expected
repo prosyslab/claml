@@ -1,0 +1,48 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init10.c"
+struct {
+  unsigned char op;
+  unsigned char bits;
+  unsigned short val;
+};
+#line 5 "local-init10.c"
+typedef struct {
+  unsigned char op;
+  unsigned char bits;
+  unsigned short val;
+} code;
+#line 7 "local-init10.c"
+void f() {
+#line 8 "local-init10.c"
+  static const const code[5] lenfix = {
+      {
+          (unsigned char)96,
+          (unsigned char)7,
+          (unsigned short)0,
+      },
+      {
+          (unsigned char)0,
+          (unsigned char)8,
+          (unsigned short)80,
+      },
+      {
+          (unsigned char)0,
+          (unsigned char)8,
+          (unsigned short)16,
+      },
+      {
+          (unsigned char)20,
+          (unsigned char)8,
+          (unsigned short)115,
+      },
+      {
+          (unsigned char)18,
+          (unsigned char)7,
+          (unsigned short)31,
+      },
+  };
+}

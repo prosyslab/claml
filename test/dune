@@ -52,6 +52,22 @@
   (diff long0.expected long0.output)))
 
 (rule
+ (deps long1.c)
+ (targets long1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff long1.expected long1.output)))
+
+(rule
  (deps alignof0.c)
  (targets alignof0.output)
  (action
@@ -882,3 +898,163 @@
  (alias runtest)
  (action
   (diff missing-proto0.expected missing-proto0.output)))
+
+(rule
+ (deps local-init1.c)
+ (targets local-init1.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init1.expected local-init1.output)))
+
+(rule
+ (deps local-init2.c)
+ (targets local-init2.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init2.expected local-init2.output)))
+
+(rule
+ (deps local-init3.c)
+ (targets local-init3.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init3.expected local-init3.output)))
+
+(rule
+ (deps local-init4.c)
+ (targets local-init4.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init4.expected local-init4.output)))
+
+(rule
+ (deps local-init5.c)
+ (targets local-init5.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init5.expected local-init5.output)))
+
+(rule
+ (deps local-init6.c)
+ (targets local-init6.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init6.expected local-init6.output)))
+
+(rule
+ (deps local-init7.c)
+ (targets local-init7.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init7.expected local-init7.output)))
+
+(rule
+ (deps local-init8.c)
+ (targets local-init8.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init8.expected local-init8.output)))
+
+(rule
+ (deps local-init9.c)
+ (targets local-init9.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init9.expected local-init9.output)))
+
+(rule
+ (deps local-init10.c)
+ (targets local-init10.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff local-init10.expected local-init10.output)))

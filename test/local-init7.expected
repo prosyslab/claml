@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init7.c"
+int main() {
+#line 2 "local-init7.c"
+  int a = {
+      17,
+  };
+  return 0;
+}

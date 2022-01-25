@@ -1,0 +1,67 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init1.c"
+typedef int(int, int, ) * FuncPtr;
+#line 3 "local-init1.c"
+union {
+  float uu;
+  double du;
+  int iu;
+} U;
+#line 9 "local-init1.c"
+struct {
+  int a;
+  float b;
+  double c;
+  int[5] arr;
+} A;
+#line 15 "local-init1.c"
+struct {
+  int e;
+  A sa;
+  int f;
+} B;
+#line 20 "local-init1.c"
+struct {
+  int g;
+  U u;
+  B sb;
+} C;
+#line 25 "local-init1.c"
+struct {
+  C P;
+  int k;
+  int[3] arr;
+  FuncPtr fptr;
+} D;
+#line 31 "local-init1.c"
+int main() {
+#line 32 "local-init1.c"
+  D d = {
+      {
+          1,
+          {
+              (float)2,
+          },
+          {
+              3,
+              {
+                  4,
+                  (float)5,
+                  (double)6,
+                  {
+                      7,
+                  },
+              },
+              ,
+          },
+      },
+      ,
+      ,
+      ,
+  };
+  return 1;
+}

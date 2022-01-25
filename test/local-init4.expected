@@ -1,0 +1,39 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-init4.c"
+struct {
+  int a;
+  int b;
+} _A;
+#line 4 "local-init4.c"
+typedef _A A;
+#line 5 "local-init4.c"
+struct {
+  int c;
+  A[2] a;
+  float f;
+} B;
+#line 9 "local-init4.c"
+typedef B B;
+#line 10 "local-init4.c"
+struct {
+  double d;
+  B[2] b;
+} C;
+#line 14 "local-init4.c"
+int main() {
+#line 14 "local-init4.c"
+  C c = {
+      (double)1,
+      {
+          {
+              2,
+              ,
+              ,
+          },
+      },
+  };
+}
