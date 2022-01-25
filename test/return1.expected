@@ -6,4 +6,4 @@
 #line 1 "return1.c"
 void f() {}
 #line 2 "return1.c"
-int main() { f() }
+int main() { f(); }

@@ -7,7 +7,8 @@
 int main() {
 #line 2 "unicode0.c"
   char x = (char)4294967168;
-  printf("%u\n", (int)x, ) return 0;
+  printf("%u\n", (int)x, );
+  return 0;
 }
 #line 3 "unicode0.c"
 extern int printf(const char *, );

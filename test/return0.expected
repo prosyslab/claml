@@ -7,7 +7,7 @@
 int f() { return 0; }
 #line 3 "return0.c"
 void g() {
-  f()
+  f();
 #line 5 "return0.c"
-      short x = (short)f();
+  short x = (short)f();
 }

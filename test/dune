@@ -850,3 +850,19 @@
  (alias runtest)
  (action
   (diff nested-init2.expected nested-init2.output)))
+
+(rule
+ (deps namespace0.c)
+ (targets namespace0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff namespace0.expected namespace0.output)))

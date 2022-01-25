@@ -1,0 +1,16 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "namespace0.c"
+struct {
+  int x;
+} sigaction;
+#line 5 "namespace0.c"
+extern int sigaction(const sigaction *__act, );
+#line 7 "namespace0.c"
+int f() {
+  sigaction((const sigaction *)0, );
+  return 0;
+}

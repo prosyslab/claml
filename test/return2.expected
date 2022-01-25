@@ -6,4 +6,7 @@
 #line 1 "return2.c"
 void fn() { return; }
 #line 3 "return2.c"
-int main() { fn() return 0; }
+int main() {
+  fn();
+  return 0;
+}

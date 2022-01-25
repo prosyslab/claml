@@ -169,7 +169,15 @@ module type BINARY_OPERATOR = NODE
 
 module type UNARY_EXPR_OR_TYPE_TRAIT_EXPR = NODE
 
-module type UNARY_OPERATOR = NODE
+module type UNARY_OPERATOR = sig
+  include STMT
+
+  type kind
+
+  val get_kind : t -> kind
+
+  val has_side_effect : t -> bool
+end
 
 module type DECL_REF_EXPR = NODE
 

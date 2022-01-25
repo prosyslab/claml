@@ -292,6 +292,10 @@ and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
     List.iter
       (fun s ->
         F.fprintf fmt "%a" Stmt.pp s;
+        ( match Stmt.get_kind s with
+        | UnaryOperator when UnaryOperator.has_side_effect s -> pp_semicolon fmt
+        | CallExpr -> pp_semicolon fmt
+        | _ -> () );
         pp_endline fmt)
       (body_list cs);
     F.fprintf fmt "}"
@@ -631,7 +635,7 @@ and UnaryExprOrTypeTraitExpr :
 end
 
 and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
-  type t = Stmt.t
+  include Stmt
 
   type kind = UnaryOperatorKind.t [@@deriving show]
 
@@ -639,12 +643,17 @@ and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
 
   external get_sub_expr : t -> t = "clang_unary_operator_get_sub_expr"
 
+  let has_side_effect i =
+    match get_kind i with
+    | PostInc | PostDec | PreInc | PreDec -> true
+    | _ -> false
+
   let pp fmt i =
     match get_kind i with
-    | PostInc -> F.fprintf fmt "%a++;" Stmt.pp (get_sub_expr i)
-    | PostDec -> F.fprintf fmt "%a--;" Stmt.pp (get_sub_expr i)
-    | PreInc -> F.fprintf fmt "++%a;" Stmt.pp (get_sub_expr i)
-    | PreDec -> F.fprintf fmt "--%a;" Stmt.pp (get_sub_expr i)
+    | PostInc -> F.fprintf fmt "%a++" Stmt.pp (get_sub_expr i)
+    | PostDec -> F.fprintf fmt "%a--" Stmt.pp (get_sub_expr i)
+    | PreInc -> F.fprintf fmt "++%a" Stmt.pp (get_sub_expr i)
+    | PreDec -> F.fprintf fmt "--%a" Stmt.pp (get_sub_expr i)
     | AddrOf -> F.fprintf fmt "&%a" Stmt.pp (get_sub_expr i)
     | Deref -> F.fprintf fmt "*%a" Stmt.pp (get_sub_expr i)
     | Plus -> F.fprintf fmt "+%a" Stmt.pp (get_sub_expr i)
