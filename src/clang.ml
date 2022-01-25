@@ -245,8 +245,8 @@ and Stmt : Sig.STMT = struct
     | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
     | BinaryOperator -> BinaryOperator.pp fmt exp
     | CallExpr -> CallExpr.pp fmt exp
-    | CStyleCastExpr -> ExplicitCast.pp fmt exp
-    | ImplicitCastExpr -> ImplicitCast.pp fmt exp
+    | CStyleCastExpr -> ExplicitCastExpr.pp fmt exp
+    | ImplicitCastExpr -> ImplicitCastExpr.pp fmt exp
     | CharacterLiteral -> CharacterLiteral.pp fmt exp
     | DeclRefExpr -> DeclRefExpr.pp fmt exp
     | FloatingLiteral -> FloatingLiteral.pp fmt exp
@@ -324,7 +324,7 @@ and GotoStmt : (Sig.GOTO_STMT with type t = Stmt.t) = struct
   let pp fmt s = F.fprintf fmt "goto %s;" (get_label s |> LabelDecl.get_name)
 end
 
-and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
+and ImplicitCastExpr : (Sig.IMPLICIT_CAST_EXPR with type t = Stmt.t) = struct
   include Expr
 
   type kind = ImplicitCastKind.t [@@deriving show]
@@ -343,7 +343,8 @@ and ImplicitCast : (Sig.IMPLICIT_CAST with type t = Stmt.t) = struct
     | FunctionToPointerDecay | BuiltinFnToFnPtr ->
         Stmt.pp fmt (sub_expr e)
     | ToVoid -> ()
-    | NullToPointer | IntegerToPointer | IntegralCast | IntegralToFloating ->
+    | NullToPointer | IntegerToPointer | IntegralCast | IntegralToFloating
+    | FloatingToIntegral ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->
         F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
@@ -405,7 +406,7 @@ and StringLiteral : (Sig.STRING_LITERAL with type t = Stmt.t) = struct
   let pp fmt e = F.fprintf fmt "\"%s\"" (get_string e |> String.escaped)
 end
 
-and ExplicitCast : (Sig.EXPLICIT_CAST with type t = Expr.t) = struct
+and ExplicitCastExpr : (Sig.EXPLICIT_CAST_EXPR with type t = Expr.t) = struct
   include Expr
 
   external sub_expr : Expr.t -> Expr.t = "clang_get_cast_sub_expr"

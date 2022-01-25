@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "missing-proto0.c"
+int main() {
+#line 2 "missing-proto0.c"
+  int x = 1 + f();
+#line 3 "missing-proto0.c"
+  int y = (int)1.100000;
+}

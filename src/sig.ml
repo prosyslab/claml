@@ -113,9 +113,9 @@ module type DECL_STMT = NODE
 
 module type GOTO_STMT = NODE
 
-module type IMPLICIT_CAST = NODE
+module type IMPLICIT_CAST_EXPR = NODE
 
-module type EXPLICIT_CAST = NODE
+module type EXPLICIT_CAST_EXPR = NODE
 
 module type IMPLICIT_VALUE_INIT_EXPR = NODE
 

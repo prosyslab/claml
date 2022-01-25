@@ -866,3 +866,19 @@
  (alias runtest)
  (action
   (diff namespace0.expected namespace0.output)))
+
+(rule
+ (deps missing-proto0.c)
+ (targets missing-proto0.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff missing-proto0.expected missing-proto0.output)))
