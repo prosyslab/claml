@@ -1,0 +1,120 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "init-list0.c"
+typedef char *str;
+#line 2 "init-list0.c"
+typedef int(int, int, ) * FuncPtr;
+#line 4 "init-list0.c"
+enum {
+  Sunday,
+  Monday,
+  Tuesday,
+  Wednesday,
+  Thursday,
+  Friday,
+  Saturday
+} DayOfWeek;
+#line 14 "init-list0.c"
+struct {
+  char *cp;
+} _L;
+#line 16 "init-list0.c"
+typedef _L L;
+#line 18 "init-list0.c"
+struct {
+  int n;
+  L l;
+  double[2] arr;
+} _M;
+#line 22 "init-list0.c"
+typedef _M M;
+#line 24 "init-list0.c"
+struct {
+  int k;
+  enum {
+    Sunday,
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday
+  } DayOfWeek day;
+  char[2] arr;
+  M m;
+  int l;
+} _G;
+#line 30 "init-list0.c"
+typedef _G G;
+#line 32 "init-list0.c"
+struct {
+  int a;
+  int b;
+} A;
+#line 36 "init-list0.c"
+struct {
+  int c;
+  int d;
+} B;
+#line 40 "init-list0.c"
+union {
+  float uu;
+  double du;
+  int iu;
+} U;
+#line 45 "init-list0.c"
+struct {
+  FuncPtr fptr;
+  str sp;
+  int o;
+  int e;
+  double *(char *, int *, ) * ss;
+  G g;
+  int f;
+  U u;
+  B struct_b;
+} C;
+#line 57 "init-list0.c"
+C my = {
+    (FuncPtr)1,
+    (str)2,
+    3,
+    4,
+    (double *(char *, int *, ) *)5,
+    {
+        6,
+        (enum {Sunday, Monday, Tuesday, Wednesday, Thursday, Friday,
+               Saturday} DayOfWeek)7,
+        {
+            (char)8,
+            (char)9,
+        },
+        {
+            10,
+            {
+                (char *)11,
+            },
+            {
+                (double)12,
+                (double)13,
+            },
+        },
+        14,
+    },
+    15,
+    {
+        (float)16,
+    },
+    {
+        17,
+        18,
+    },
+};
+#line 59 "init-list0.c"
+int main() {
+#line 59 "init-list0.c"
+  int i = 0;
+}

@@ -6,14 +6,14 @@
 #line 1 "usertype-in-local1.c"
 int foo() {
 #line 2 "usertype-in-local1.c"
-  enum { C, B, A };
+  enum { A, B, C };
 #line 2 "usertype-in-local1.c"
-  enum { C, B, A } alphabet;
+  enum { A, B, C } alphabet;
 #line 3 "usertype-in-local1.c"
-  enum { Wed, Tue, Mon };
+  enum { Mon, Tue, Wed };
 #line 3 "usertype-in-local1.c"
-  enum { Wed, Tue, Mon } day;
-  day = (enum {Wed, Tue, Mon})Mon;
-  alphabet = (enum {C, B, A})A;
+  enum { Mon, Tue, Wed } day;
+  day = (enum {Mon, Tue, Wed})Mon;
+  alphabet = (enum {A, B, C})A;
   return (int)day;
 }

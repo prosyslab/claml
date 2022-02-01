@@ -1,0 +1,14 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-fun0.c"
+int main() {
+#line 2 "local-fun0.c"
+  int f() { return 0; }
+  f();
+  return 0;
+}
+#line 7 "local-fun0.c"
+int f() { return 0; }

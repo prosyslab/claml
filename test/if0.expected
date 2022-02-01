@@ -1,0 +1,15 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "if0.c"
+void f(int x, ) {
+#line 2 "if0.c"
+  int y;
+  if (x < 1 && x > 10 || x == 0) {
+    y = x + 1;
+  } else {
+    y = x + 2;
+  }
+}

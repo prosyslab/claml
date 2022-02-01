@@ -1,0 +1,19 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "goto1.c"
+void f() {
+#line 2 "goto1.c"
+  int x;
+#line 2 "goto1.c"
+  int y;
+L : {
+  x = 1;
+  y = 2;
+  goto L;
+};
+  goto L;
+  goto L;
+}

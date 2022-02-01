@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "array-subscript0.c"
+int main() {
+#line 2 "array-subscript0.c"
+  char *result = "a";
+#line 3 "array-subscript0.c"
+  int i = 0;
+  result + i[1] = (char)1;
+}

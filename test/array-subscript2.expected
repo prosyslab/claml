@@ -1,0 +1,7 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "array-subscript2.c"
+int a(int[] b, ) { *b + 2 }

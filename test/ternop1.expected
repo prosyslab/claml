@@ -12,6 +12,6 @@ extern int tolower(int, ) {
   return __c >= -128 && __c < 256 ? *__ctype_tolower_loc()[__c] : __c;
 }
 #line 7 "ternop1.c"
-extern int tolower(int __c, ) {
+extern inline int tolower(int __c, ) {
   return __c >= -128 && __c < 256 ? *__ctype_tolower_loc()[__c] : __c;
 }

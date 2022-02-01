@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "cast1.c"
+int f() { (void)f() }
+#line 3 "cast1.c"
+int main() {
+  f();
+  return 0;
+}

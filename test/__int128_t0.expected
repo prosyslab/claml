@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "__int128_t0.c"
+int main() {
+#line 2 "__int128_t0.c"
+  __int128_t a;
+  a = (__int128_t)3;
+  return 0;
+}

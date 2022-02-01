@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "implicit-cast1.c"
+void f() {
+#line 2 "implicit-cast1.c"
+  int x = 10;
+#line 3 "implicit-cast1.c"
+  long y = (long)x;
+}

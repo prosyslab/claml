@@ -1,0 +1,10 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "incomplete-array0.c"
+int a(int[] b, ) {
+#line 1 "incomplete-array0.c"
+  int y = *b;
+}

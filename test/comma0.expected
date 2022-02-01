@@ -1,0 +1,15 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "comma0.c"
+int foo() {
+#line 2 "comma0.c"
+  int a = 1;
+#line 2 "comma0.c"
+  int b = 2;
+#line 3 "comma0.c"
+  int c = a, b;
+  return c;
+}

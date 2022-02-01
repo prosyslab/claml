@@ -1,0 +1,21 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "block0.c"
+void f() {
+#line 2 "block0.c"
+  int x;
+#line 3 "block0.c"
+  int y;
+  {
+    x = 1;
+    y = 2;
+    {
+#line 8 "block0.c"
+      int y;
+      y = 1;
+    }
+  }
+}

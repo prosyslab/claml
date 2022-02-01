@@ -1,0 +1,27 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "designated-init0.c"
+struct {
+  int x;
+  int y;
+  int z;
+} Point;
+#line 5 "designated-init0.c"
+int main() {
+#line 6 "designated-init0.c"
+  Point p1 = {
+      2,
+      0,
+      1,
+  };
+#line 7 "designated-init0.c"
+  Point p2 = {
+      20,
+      ,
+      ,
+  };
+  return 0;
+}

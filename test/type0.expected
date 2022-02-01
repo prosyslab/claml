@@ -15,7 +15,7 @@ extern int vprintf(const char *, __va_list_tag *, ) {
   return vfprintf(stdout, __fmt, __arg, );
 }
 #line 5 "type0.c"
-extern int vprintf(const char *__fmt, __builtin_va_list __arg, ) {
+extern inline int vprintf(const char *__fmt, __builtin_va_list __arg, ) {
   return vfprintf(stdout, __fmt, __arg, );
 }
 #line 6 "type0.c"

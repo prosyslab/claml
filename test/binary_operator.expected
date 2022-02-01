@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "binary_operator.c"
+void foo() {
+#line 2 "binary_operator.c"
+  int i = 0;
+  while (1) {
+    i += 10;
+  }
+}

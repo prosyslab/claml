@@ -1,0 +1,11 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "enum2.c"
+enum { A, B, C };
+#line 1 "enum2.c"
+typedef enum { A, B, C } type_t;
+#line 3 "enum2.c"
+void f(type_t x, ) { return; }

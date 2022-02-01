@@ -1,0 +1,10 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "attribute1.c"
+inline void f() {
+#line 1 "attribute1.c"
+  int x = 0;
+}

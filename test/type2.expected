@@ -4,16 +4,16 @@
 // implicit typedef
 // implicit typedef
 #line 1 "type2.c"
-enum { c, b } a;
+enum { b, c } a;
 #line 2 "type2.c"
 typedef int f;
 #line 3 "type2.c"
 struct {
-  enum { c, b } a d;
+  enum { b, c } a d;
 } f;
 #line 6 "type2.c"
 f a = {
-    (enum {c, b} a)c,
+    (enum {b, c} a)c,
 };
 #line 7 "type2.c"
 int main() {

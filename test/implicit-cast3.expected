@@ -1,0 +1,26 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "implicit-cast3.c"
+struct {
+} A;
+#line 3 "implicit-cast3.c"
+struct {
+  int f;
+  A *next;
+} A;
+#line 8 "implicit-cast3.c"
+struct {
+} A;
+#line 10 "implicit-cast3.c"
+int main() {
+#line 11 "implicit-cast3.c"
+  A a;
+  a.f = 1;
+#line 13 "implicit-cast3.c"
+  A *p = &a;
+  p->f = 1;
+  return 0;
+}

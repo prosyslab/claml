@@ -1,0 +1,20 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "enum0.c"
+enum { a, b } state;
+#line 2 "enum0.c"
+enum { Mon, Tue, Wed } week;
+#line 4 "enum0.c"
+int main() {
+#line 5 "enum0.c"
+  enum { a, b } state a;
+#line 6 "enum0.c"
+  enum {} week;
+  printf("%d\n", Wed, );
+  return 0;
+}
+#line 7 "enum0.c"
+extern int printf(const char *, );

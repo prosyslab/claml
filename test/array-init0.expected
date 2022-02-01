@@ -1,0 +1,11 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "array-init0.c"
+int f() {
+#line 2 "array-init0.c"
+  char[0] b = {};
+  return 0;
+}

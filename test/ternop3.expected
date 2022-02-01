@@ -1,0 +1,11 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "ternop3.c"
+int a() {
+#line 2 "ternop3.c"
+  char[6] tmp;
+  0 ?: 0 tmp[5]
+}

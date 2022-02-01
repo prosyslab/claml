@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "binop0.c"
+int main() {
+#line 2 "binop0.c"
+  int x = 1;
+  x *= 10;
+  return 0;
+}

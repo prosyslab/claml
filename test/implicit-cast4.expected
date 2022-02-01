@@ -1,0 +1,7 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "implicit-cast4.c"
+int a() { (char *)0 [3] }

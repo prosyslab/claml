@@ -4,6 +4,18 @@ let pp_semicolon fmt = F.fprintf fmt ";"
 
 let pp_endline fmt = F.fprintf fmt "\n"
 
+module Attr : Sig.ATTR = struct
+  type t
+
+  type kind = AttrKind.t
+
+  external get_kind : t -> kind = "clang_attr_get_kind"
+
+  external get_spelling : t -> string = "clang_attr_get_spelling"
+
+  let pp fmt a = F.fprintf fmt "%s" (get_spelling a)
+end
+
 module rec Decl : Sig.DECL = struct
   type t
 
@@ -76,11 +88,6 @@ module rec Decl : Sig.DECL = struct
         F.fprintf fmt "%a %s (%s, %d)" QualType.pp (ValueDecl.get_type decl)
           (NamedDecl.get_name decl) (get_kind_name decl) (get_kind_enum decl)
     | _ -> pp_kind fmt (get_kind decl)
-
-  (* decl checker *)
-  external native_kind_access_spec : unit -> t = "clang_decl_kind_AccessSpec"
-
-  external native_kind_typedef : unit -> kind = "clang_decl_kind_Typedef"
 end
 
 and NamedDecl : (Sig.NAMED_DECL with type t = Decl.t) = struct
@@ -124,7 +131,11 @@ and FunctionDecl : (Sig.FUNCTION_DECL with type t = Decl.t) = struct
 
   external get_body : t -> Stmt.t = "clang_function_decl_get_body"
 
+  external is_inline_specified : t -> bool
+    = "clang_function_decl_is_inline_specified"
+
   let pp fmt fdecl =
+    if is_inline_specified fdecl then F.fprintf fmt "inline ";
     F.fprintf fmt "%a %s (" QualType.pp (return_type fdecl) (get_name fdecl);
     List.iter
       (fun param -> F.fprintf fmt "%a, " ParmVarDecl.pp param)
@@ -166,8 +177,10 @@ end
 and EnumDecl : (Sig.ENUM_DECL with type t = Decl.t) = struct
   include NamedDecl
 
-  (* TODO: order *)
-  external get_enums : Decl.t -> Decl.t list = "clang_enum_decl_get_enums"
+  external get_enums_internal : Decl.t -> Decl.t list
+    = "clang_enum_decl_get_enums"
+
+  let get_enums x = get_enums_internal x |> List.rev
 
   let rec pp_list fmt = function
     | [ h ] -> F.fprintf fmt "%a" Decl.pp h
@@ -240,10 +253,12 @@ and Stmt : Sig.STMT = struct
     | CaseStmt -> CaseStmt.pp fmt exp
     | DefaultStmt -> DefaultStmt.pp fmt exp
     | SwitchStmt -> SwitchStmt.pp fmt exp
+    | AttributedStmt -> AttributedStmt.pp fmt exp
     | BinaryConditionalOperator -> BinaryConditionalOperator.pp fmt exp
     | ConditionalOperator -> ConditionalOperator.pp fmt exp
     | ArraySubscriptExpr -> ArraySubscriptExpr.pp fmt exp
     | BinaryOperator -> BinaryOperator.pp fmt exp
+    | CompoundAssignOperator -> CompoundAssignOperator.pp fmt exp
     | CallExpr -> CallExpr.pp fmt exp
     | CStyleCastExpr -> ExplicitCastExpr.pp fmt exp
     | ImplicitCastExpr -> ImplicitCastExpr.pp fmt exp
@@ -280,11 +295,6 @@ end
 and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
   type t = Stmt.t
 
-  external body_begin : Stmt.t -> Stmt.t option
-    = "clang_compound_stmt_body_begin"
-
-  external body_succ : Stmt.t -> Stmt.t option = "clang_compound_stmt_body_succ"
-
   external body_list : Stmt.t -> Stmt.t list = "clang_compound_stmt_body_list"
 
   let pp fmt cs =
@@ -293,6 +303,10 @@ and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
       (fun s ->
         F.fprintf fmt "%a" Stmt.pp s;
         ( match Stmt.get_kind s with
+        | BinaryOperator when BinaryOperator.has_side_effect s ->
+            pp_semicolon fmt
+        | CompoundAssignOperator when BinaryOperator.has_side_effect s ->
+            pp_semicolon fmt
         | UnaryOperator when UnaryOperator.has_side_effect s -> pp_semicolon fmt
         | CallExpr -> pp_semicolon fmt
         | _ -> () );
@@ -480,7 +494,16 @@ and CaseStmt : (Sig.CASE_STMT with type t = Stmt.t) = struct
   external get_sub_stmt : t -> t = "clang_case_stmt_get_sub_stmt"
 
   let pp fmt s =
-    F.fprintf fmt "case %a:%a" Expr.pp (get_lhs s) Stmt.pp (get_sub_stmt s)
+    let sub_s = get_sub_stmt s in
+    F.fprintf fmt "case %a:%a" Expr.pp (get_lhs s) Stmt.pp sub_s;
+    match Stmt.get_kind sub_s with
+    | BinaryOperator when BinaryOperator.has_side_effect sub_s ->
+        pp_semicolon fmt
+    | CompoundAssignOperator when BinaryOperator.has_side_effect sub_s ->
+        pp_semicolon fmt
+    | UnaryOperator when UnaryOperator.has_side_effect sub_s -> pp_semicolon fmt
+    | CallExpr -> pp_semicolon fmt
+    | _ -> ()
 end
 
 and DefaultStmt : (Sig.DEFAULT_STMT with type t = Stmt.t) = struct
@@ -489,7 +512,17 @@ and DefaultStmt : (Sig.DEFAULT_STMT with type t = Stmt.t) = struct
 
   external get_sub_stmt : t -> t = "clang_default_stmt_get_sub_stmt"
 
-  let pp fmt s = F.fprintf fmt "default:%a" Stmt.pp (get_sub_stmt s)
+  let pp fmt s =
+    let sub_s = get_sub_stmt s in
+    F.fprintf fmt "default:%a" Stmt.pp sub_s;
+    match Stmt.get_kind sub_s with
+    | BinaryOperator when BinaryOperator.has_side_effect sub_s ->
+        pp_semicolon fmt
+    | CompoundAssignOperator when BinaryOperator.has_side_effect sub_s ->
+        pp_semicolon fmt
+    | UnaryOperator when UnaryOperator.has_side_effect sub_s -> pp_semicolon fmt
+    | CallExpr -> pp_semicolon fmt
+    | _ -> ()
 end
 
 and SwitchStmt : (Sig.SWITCH_STMT with type t = Stmt.t) = struct
@@ -504,6 +537,20 @@ and SwitchStmt : (Sig.SWITCH_STMT with type t = Stmt.t) = struct
   let pp fmt s =
     F.fprintf fmt "switch (%a)\n" Expr.pp (get_cond s);
     F.fprintf fmt "%a" Stmt.pp (get_body s)
+end
+
+and AttributedStmt : (Sig.ATTRIBUTED_STMT with type t = Stmt.t) = struct
+  include Stmt
+
+  external get_sub_stmt : t -> Stmt.t = "clang_attributed_stmt_get_sub_stmt"
+
+  external get_attrs : t -> Attr.t list = "clang_attributed_stmt_get_attrs"
+
+  let pp_attrs fmt al = List.iter (fun a -> F.fprintf fmt "%a, " Attr.pp a) al
+
+  let pp fmt s =
+    F.fprintf fmt "__attribute__((%a) %a)" pp_attrs (get_attrs s) Stmt.pp
+      (get_sub_stmt s)
 end
 
 and BinaryConditionalOperator :
@@ -563,8 +610,21 @@ and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
 
   external get_rhs : t -> t = "clang_binary_operator_get_rhs"
 
+  let has_side_effect i =
+    match get_kind i with
+    | Assign | MulAssign | DivAssign | RemAssign | AddAssign | SubAssign
+    | ShlAssign | ShrAssign | AndAssign | XorAssign | OrAssign ->
+        true
+    | _ -> false
+
   let pp_kind fmt = function
-    | BinaryOperatorKind.Add -> F.fprintf fmt "+"
+    | BinaryOperatorKind.Mul -> F.fprintf fmt "*"
+    | Div -> F.fprintf fmt "/"
+    | Rem -> F.fprintf fmt "%%"
+    | Add -> F.fprintf fmt "+"
+    | Sub -> F.fprintf fmt "-"
+    | Shl -> F.fprintf fmt "<<"
+    | Shr -> F.fprintf fmt ">>"
     | LT -> F.fprintf fmt "<"
     | GT -> F.fprintf fmt ">"
     | LE -> F.fprintf fmt "<="
@@ -577,13 +637,26 @@ and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
     | LAnd -> F.fprintf fmt "&&"
     | LOr -> F.fprintf fmt "||"
     | Assign -> F.fprintf fmt "="
+    | MulAssign -> F.fprintf fmt "*="
+    | DivAssign -> F.fprintf fmt "/="
+    | RemAssign -> F.fprintf fmt "%% ="
+    | AddAssign -> F.fprintf fmt "+="
+    | SubAssign -> F.fprintf fmt "-="
+    | ShlAssign -> F.fprintf fmt "<<="
+    | ShrAssign -> F.fprintf fmt ">>="
+    | AndAssign -> F.fprintf fmt "&="
+    | XorAssign -> F.fprintf fmt "^="
+    | OrAssign -> F.fprintf fmt "|="
+    | Comma -> F.fprintf fmt ","
     | k -> pp_kind fmt k
 
   let pp fmt i =
     F.fprintf fmt "%a %a %a" Stmt.pp (get_lhs i) pp_kind (get_kind i) Stmt.pp
-      (get_rhs i);
-    match get_kind i with Assign -> pp_semicolon fmt | _ -> ()
+      (get_rhs i)
 end
+
+and CompoundAssignOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) =
+  BinaryOperator
 
 and CallExpr : (Sig.CALL_EXPR with type t = Stmt.t) = struct
   type t = Stmt.t
@@ -705,7 +778,17 @@ and LabelStmt : (Sig.LABEL_STMT with type t = Stmt.t) = struct
 
   external get_sub_stmt : t -> Stmt.t = "clang_label_stmt_get_sub_stmt"
 
-  let pp fmt s = F.fprintf fmt "%s:\n%a" (get_name s) Stmt.pp (get_sub_stmt s)
+  let pp fmt s =
+    let sub_s = get_sub_stmt s in
+    F.fprintf fmt "%s:\n%a" (get_name s) Stmt.pp sub_s;
+    match Stmt.get_kind sub_s with
+    | BinaryOperator when BinaryOperator.has_side_effect sub_s ->
+        pp_semicolon fmt
+    | CompoundAssignOperator when BinaryOperator.has_side_effect sub_s ->
+        pp_semicolon fmt
+    | UnaryOperator when UnaryOperator.has_side_effect sub_s -> pp_semicolon fmt
+    | CallExpr -> pp_semicolon fmt
+    | _ -> ()
 end
 
 and WhileStmt : (Sig.WHILE_STMT with type t = Stmt.t) = struct
@@ -883,6 +966,7 @@ and BuiltinType : (Sig.BUILTIN_TYPE with type t = Type.t) = struct
     | Int -> F.fprintf fmt "int"
     | Float -> F.fprintf fmt "float"
     | Double -> F.fprintf fmt "double"
+    | Long -> F.fprintf fmt "long"
     | k -> pp_kind fmt k
 end
 

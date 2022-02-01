@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "attribute0.c"
+const char *x = (const char *)0;
+#line 3 "attribute0.c"
+void f() {
+#line 3 "attribute0.c"
+  const char *p = x;
+}

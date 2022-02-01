@@ -165,7 +165,15 @@ end
 
 module type RETURN_STMT = NODE
 
-module type BINARY_OPERATOR = NODE
+module type BINARY_OPERATOR = sig
+  include STMT
+
+  type kind
+
+  val get_kind : t -> kind
+
+  val has_side_effect : t -> bool
+end
 
 module type UNARY_EXPR_OR_TYPE_TRAIT_EXPR = NODE
 
@@ -240,6 +248,8 @@ module type SWITCH_STMT = sig
 
   val get_body : t -> Stmt.t
 end
+
+module type ATTRIBUTED_STMT = STMT
 
 module type BINARY_CONDITIONAL_OPERATOR = sig
   include EXPR
@@ -346,3 +356,13 @@ module type TYPE_OF_EXPR_TYPE = sig
 end
 
 module type TYPEDEF_TYPE = NODE
+
+module type ATTR = sig
+  include NODE
+
+  type kind = AttrKind.t
+
+  val get_kind : t -> kind
+
+  val get_spelling : t -> string
+end

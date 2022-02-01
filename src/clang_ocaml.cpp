@@ -99,6 +99,8 @@ WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, FunctionDecl, ParmVarDecl,
                       getNumParams, getParamDecl)
 WRAPPER_QUAL_TYPE(clang_function_decl_return_type, FunctionDecl, getReturnType)
 WRAPPER_BOOL(clang_function_decl_has_body, FunctionDecl, hasBody)
+WRAPPER_BOOL(clang_function_decl_is_inline_specified, FunctionDecl,
+             isInlineSpecified)
 WRAPPER_PTR(clang_function_decl_get_body, FunctionDecl, Stmt, getBody)
 
 WRAPPER_BOOL(clang_record_decl_is_anonymous, RecordDecl,
@@ -234,9 +236,6 @@ value clang_enum_decl_get_enums(value T) {
   }
   CAMLreturn(Tl);
 }
-////////////////////////////////////////////////////////////////////////////////
-// End Decl
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 // Expr
@@ -289,26 +288,6 @@ WRAPPER_PTR(clang_predefined_expr_get_function_name, PredefinedExpr,
 
 WRAPPER_INT(clang_predefined_expr_get_ident_kind, PredefinedExpr, getIdentKind)
 
-value clang_compound_stmt_body_begin(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  clang::CompoundStmt *S = *((clang::CompoundStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  clang::Stmt *D = *(S->body_begin());
-  if (D) {
-    *((clang::Stmt **)Data_abstract_val(R)) = D;
-    CAMLreturn(caml_alloc_some(R));
-  } else {
-    CAMLreturn(Val_none);
-  }
-}
-
-value clang_compound_stmt_body_succ(value Stmt) {
-  /* TODO */
-  CAMLparam1(Stmt);
-  CAMLreturn(Val_none);
-}
-
 WRAPPER_LIST_WITH_REV_ITER(clang_compound_stmt_body_list, CompoundStmt, Stmt,
                            body_rbegin, body_rend)
 
@@ -352,12 +331,8 @@ WRAPPER_BOOL(clang_unary_expr_or_type_trait_expr_is_argument_type,
 WRAPPER_PTR(clang_unary_expr_or_type_trait_expr_get_argument_expr,
             UnaryExprOrTypeTraitExpr, Expr, getArgumentExpr)
 
-value clang_unary_expr_or_type_trait_expr_get_argument_type(value Expr) {
-  CAMLparam1(Expr);
-  clang::UnaryExprOrTypeTraitExpr *S =
-      *((clang::UnaryExprOrTypeTraitExpr **)Data_abstract_val(Expr));
-  CAMLreturn(clang_to_qual_type(S->getArgumentType()));
-}
+WRAPPER_QUAL_TYPE(clang_unary_expr_or_type_trait_expr_get_argument_type,
+                  UnaryExprOrTypeTraitExpr, getArgumentType)
 
 WRAPPER_PTR(clang_member_expr_get_base, MemberExpr, Expr, getBase)
 
@@ -388,6 +363,27 @@ WRAPPER_PTR(clang_switch_stmt_get_cond, SwitchStmt, Expr, getCond)
 
 WRAPPER_PTR(clang_switch_stmt_get_body, SwitchStmt, Stmt, getBody)
 
+value clang_attributed_stmt_get_attrs(value Param) {
+  CAMLparam1(Param);
+  CAMLlocal4(Hd, Tl, AT, PT);
+  clang::AttributedStmt *P =
+      *((clang::AttributedStmt **)Data_abstract_val(Param));
+  Tl = Val_int(0);
+  clang::ArrayRef<const clang::Attr *> Attrs = P->getAttrs();
+  for (auto i = Attrs.rbegin(); i != Attrs.rend(); i++) {
+    Hd = caml_alloc(1, Abstract_tag);
+    *((const clang::Attr **)Data_abstract_val(Hd)) = *i;
+    value Tmp = caml_alloc(2, Abstract_tag);
+    Field(Tmp, 0) = Hd;
+    Field(Tmp, 1) = Tl;
+    Tl = Tmp;
+  }
+  CAMLreturn(Tl);
+}
+
+WRAPPER_PTR(clang_attributed_stmt_get_sub_stmt, AttributedStmt, Stmt,
+            getSubStmt)
+
 WRAPPER_PTR(clang_binary_conditional_operator_get_cond,
             BinaryConditionalOperator, Expr, getCond)
 
@@ -417,13 +413,7 @@ WRAPPER_PTR(clang_va_arg_expr_get_sub_expr, VAArgExpr, Expr, getSubExpr)
 WRAPPER_LIST_WITH_IDX(clang_init_list_expr_get_inits, InitListExpr, Expr,
                       getNumInits, getInit)
 
-#define CLANG_DECL_KIND(Kind)                                                  \
-  value clang_decl_kind_##Kind() {                                             \
-    CAMLparam0();                                                              \
-    CAMLreturn(Val_int(clang::Decl::Kind));                                    \
-  }
+WRAPPER_INT(clang_attr_get_kind, Attr, getKind)
 
-CLANG_DECL_KIND(AccessSpec)
-CLANG_DECL_KIND(Block)
-CLANG_DECL_KIND(Typedef)
+WRAPPER_STR(clang_attr_get_spelling, Attr, getSpelling)
 }

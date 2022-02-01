@@ -1,0 +1,14 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "if3.c"
+typedef int a;
+#line 2 "if3.c"
+int b();
+#line 3 "if3.c"
+int c() {
+  if (b())
+    ;
+}

@@ -1,0 +1,34 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "enum1.c"
+enum {
+  _ISupper,
+  _ISlower,
+  _ISalpha,
+  _ISdigit,
+  _ISxdigit,
+  _ISspace,
+  _ISprint,
+  _ISgraph,
+  _ISblank,
+  _IScntrl,
+  _ISpunct,
+  _ISalnum
+};
+#line 15 "enum1.c"
+int x = 0;
+#line 16 "enum1.c"
+int y = 1;
+#line 17 "enum1.c"
+int main() {
+#line 18 "enum1.c"
+  int x = _ISalnum;
+#line 19 "enum1.c"
+  int z = 1 << 4;
+#line 20 "enum1.c"
+  int y = 1 + 2;
+  return 0;
+}

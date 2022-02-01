@@ -1,0 +1,16 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "local-array0.c"
+int f(int x, ) {
+#line 2 "local-array0.c"
+  int[4] l = {
+      1,
+      2,
+      3,
+      4,
+  };
+  return 1;
+}

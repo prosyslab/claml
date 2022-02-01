@@ -1,3 +1,4 @@
+#include "clang/AST/Attr.h"
 #include "clang/AST/DeclBase.h"
 
 #include "caml/alloc.h"

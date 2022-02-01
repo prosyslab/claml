@@ -1,0 +1,32 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "comma1.c"
+struct {
+  int a;
+} A;
+#line 4 "comma1.c"
+struct {
+  int[3] arr;
+  A sa;
+} _B;
+#line 7 "comma1.c"
+typedef _B B;
+#line 9 "comma1.c"
+int foo() {
+#line 10 "comma1.c"
+  B b = {
+      {
+          1,
+          2,
+          3,
+      },
+      {
+          4,
+      },
+  };
+  b.sa.a = b.arr[0], b.arr[1];
+  return b.sa.a;
+}

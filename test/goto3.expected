@@ -1,0 +1,10 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "goto3.c"
+void g() {
+target:
+  goto target;
+}

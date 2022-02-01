@@ -1,0 +1,21 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "indirect-field3.c"
+struct {
+  struct {
+    int a;
+  };
+};
+#line 5 "indirect-field3.c"
+typedef struct {
+  struct {
+    int a;
+  };
+} b;
+#line 6 "indirect-field3.c"
+b *c;
+#line 7 "indirect-field3.c"
+int d() { return c->.a; }

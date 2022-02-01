@@ -1,0 +1,12 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "implicit-cast0.c"
+int f(int x, ) {
+  __builtin_bswap32((unsigned int)x, );
+  return 0;
+}
+#line 2 "implicit-cast0.c"
+extern unsigned int __builtin_bswap32(unsigned int, );

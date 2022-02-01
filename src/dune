@@ -11,6 +11,7 @@
   unaryOperatorKind
   binaryOperatorKind
   characterKind
+  attrKind
   sig)
  (foreign_stubs
   (language cxx)

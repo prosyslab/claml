@@ -1,0 +1,22 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "UL0.c"
+int main() {
+#line 4 "UL0.c"
+  unsigned long k = 1;
+#line 5 "UL0.c"
+  unsigned long o = 123;
+#line 6 "UL0.c"
+  unsigned long a = 1245678900;
+#line 7 "UL0.c"
+  unsigned long b = 2145678900;
+#line 8 "UL0.c"
+  unsigned long c = 2147483647;
+#line 9 "UL0.c"
+  unsigned long d = 2147483648;
+#line 10 "UL0.c"
+  unsigned long e = 3614090360;
+}

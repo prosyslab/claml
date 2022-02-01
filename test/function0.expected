@@ -1,0 +1,13 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "function0.c"
+int g() { return 0; }
+#line 2 "function0.c"
+void f() {
+#line 3 "function0.c"
+  int x;
+  x = g();
+}
