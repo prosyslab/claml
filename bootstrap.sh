@@ -1,4 +1,23 @@
-LLVM_CONFIG=llvm-config-13
+#!/bin/bash
+
+SUPPORTED_LLVM_VERSION=("13" "12")
+
+find_llvm_config() {
+  LLVM_FOUND=0
+  for v in ${SUPPORTED_LLVM_VERSION[@]}; do
+    which llvm-config-$v >&/dev/null
+    if [[ $? == 0 ]]; then
+      LLVM_CONFIG=llvm-config-$v
+      echo "$LLVM_CONFIG found"
+      return 0
+    fi
+  done
+  echo "Error: llvm-config not found"
+  return 1
+}
+
+find_llvm_config || exit 1
+
 LLVM_HOME=$($LLVM_CONFIG --prefix)
 OPERATION_KIND_FILE=$LLVM_HOME/include/clang/AST/OperationKinds.def
 OPENCL_IMAGE_TYPES_FILE=$LLVM_HOME/include/clang/Basic/OpenCLImageTypes.def
@@ -64,9 +83,11 @@ gen_builtin_type_kind() {
   for line in $(grep "^PPC_VECTOR_" $PPC_TYPES_FILE | cut -d ',' -f2); do
     echo "  | $line" >>$TARGET
   done
-  for line in $(grep "^RVV_VECTOR_TYPE_INT\|^RVV_VECTOR_TYPE_FLOAT\|^RVV_PREDICATE_TYPE" $RVV_TYPES_FILE | cut -d ',' -f2); do
-    echo "  | $line" >>$TARGET
-  done
+  if [[ -f $RVV_TYPES_FILE ]]; then
+    for line in $(grep "^RVV_VECTOR_TYPE_INT\|^RVV_VECTOR_TYPE_FLOAT\|^RVV_PREDICATE_TYPE" $RVV_TYPES_FILE | cut -d ',' -f2); do
+      echo "  | $line" >>$TARGET
+    done
+  fi
   for line in $(grep "^BUILTIN_TYPE\|^SIGNED_TYPE\|^UNSIGNED_TYPE\|^FLOATING_TYPE\|^PLACEHOLDER_TYPE\|^SHARED_SINGLETON_TYPE" $BUILTIN_TYPES_FILE | sed -e "s/SHARED_SINGLETON_TYPE(//g" | cut -d '(' -f2 | cut -d ',' -f1); do
     echo "  | $line" >>$TARGET
   done
