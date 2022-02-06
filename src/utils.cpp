@@ -16,6 +16,7 @@ value clang_to_string(const char *str) {
 value clang_to_qual_type(clang::QualType QT) {
   CAMLparam0();
   CAMLlocal2(R, T);
+  LOG("clang_to_qual_type");
   R = caml_alloc(2, Abstract_tag);
   T = caml_alloc(1, Abstract_tag);
   *((const clang::Type **)Data_abstract_val(T)) = QT.getTypePtr();
@@ -26,6 +27,7 @@ value clang_to_qual_type(clang::QualType QT) {
 
 value clang_to_int64(llvm::APInt I) {
   CAMLparam0();
+  LOG("clang_to_int64");
   unsigned int Bit = I.getBitWidth();
   if (I.isSignedIntN(Bit)) {
     CAMLreturn(caml_copy_int64(I.getSExtValue()));

@@ -17,14 +17,16 @@
 #define WRAPPER_INT(fname, param_type, fun)                                    \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
-    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));               \
-    CAMLreturn(Val_int(P->fun()));                                         \
+    LOG("" #fname "");                                                         \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
+    CAMLreturn(Val_int(P->fun()));                                             \
   }
 
 #define WRAPPER_INT64(fname, param_type, fun)                                  \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
-    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));   \
+    LOG("" #fname "");                                                         \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     llvm::APInt V = P->fun();                                                  \
     CAMLreturn(clang_to_int64(V));                                             \
   }
@@ -32,20 +34,23 @@
 #define WRAPPER_STR(fname, param_type, fun)                                    \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     CAMLreturn(clang_to_string(P->fun()));                                     \
   }
 
-#define WRAPPER_STRREF(fname, param_type, fun)                                    \
+#define WRAPPER_STRREF(fname, param_type, fun)                                 \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
-    CAMLreturn(clang_to_string(P->fun().data()));                                     \
+    CAMLreturn(clang_to_string(P->fun().data()));                              \
   }
 
 #define WRAPPER_BOOL(fname, param_type, fun)                                   \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     CAMLreturn(Val_bool(P->fun()));                                            \
   }
@@ -54,7 +59,7 @@
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal1(R);                                                             \
-    LOG("" #fname ""); \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     R = caml_alloc(1, Abstract_tag);                                           \
     *((clang::return_type **)Data_abstract_val(R)) = P->fun();                 \
@@ -62,8 +67,9 @@
   }
 
 #define WRAPPER_VOID(fname, param_type, fun)                                   \
-  void fname(value Param) {                                                   \
+  void fname(value Param) {                                                    \
     CAMLparam1(Param);                                                         \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     P->fun();                                                                  \
     CAMLreturn0;                                                               \
@@ -74,6 +80,7 @@
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal4(Hd, Tl, AT, PT);                                                \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     Tl = Val_int(0);                                                           \
     for (unsigned int i = P->fun_size(); i > 0; i--) {                         \
@@ -93,6 +100,7 @@
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal4(Hd, Tl, AT, PT);                                                \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     Tl = Val_int(0);                                                           \
     for (auto i = P->fun_rbegin(); i != P->fun_rend(); i++) {                  \
@@ -109,6 +117,7 @@
 #define WRAPPER_QUAL_TYPE(fname, param_type, fun)                              \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
+    LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     CAMLreturn(clang_to_qual_type(P->fun()));                                  \
   }
