@@ -7,4 +7,6 @@ src/binaryOperatorKind.ml
 src/unaryOperatorKind.ml
 src/builtinTypeKind.ml
 src/stmtKind.ml
+src/declKind.ml
+src/attrKind.ml
 config
