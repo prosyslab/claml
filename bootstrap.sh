@@ -104,6 +104,16 @@ gen_attr_kind() {
   echo "[@@deriving show]" >>$TARGET
 }
 
+gen_implicit_cast_kind() {
+  TARGET=src/implicitCastKind.ml
+  echo $HEADER >$TARGET
+  echo "type t =" >>$TARGET
+  for line in $(grep "^CAST_OPERATION" $OPERATION_KIND_FILE | cut -d '(' -f2 | cut -d ')' -f1); do
+    echo "  | $line" >>$TARGET
+  done
+  echo "[@@deriving show]" >>$TARGET
+}
+
 gen_test() {
   TARGET=test/dune
   echo "(executable
@@ -139,4 +149,5 @@ gen_builtin_type_kind
 gen_decl_kind
 gen_stmt_kind
 gen_attr_kind
+gen_implicit_cast_kind
 gen_test

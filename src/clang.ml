@@ -357,7 +357,7 @@ and ImplicitCastExpr : (Sig.IMPLICIT_CAST_EXPR with type t = Stmt.t) = struct
     | FunctionToPointerDecay | BuiltinFnToFnPtr ->
         Stmt.pp fmt (sub_expr e)
     | ToVoid -> ()
-    | NullToPointer | IntegerToPointer | IntegralCast | IntegralToFloating
+    | NullToPointer | IntegralToPointer | IntegralCast | IntegralToFloating
     | FloatingToIntegral ->
         F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
     | k ->

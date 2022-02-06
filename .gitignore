@@ -9,4 +9,5 @@ src/builtinTypeKind.ml
 src/stmtKind.ml
 src/declKind.ml
 src/attrKind.ml
+src/implicitCastKind.ml
 config
