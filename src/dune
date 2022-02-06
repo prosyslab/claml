@@ -1,6 +1,6 @@
 (library
  (name clang)
- (public_name clang)
+ (public_name claml)
  (modules
   clang
   declKind

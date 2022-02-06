@@ -8,7 +8,7 @@ license: "MIT"
 synopsis: "A Clang binding for OCaml"
 build: [
   ["bash" "-ex" "./bootstrap.sh"]
-  [make]
+  ["dune" "build" "-p" name "-j" jobs]
 ]
 depexts: [
   ["libclang-dev" "llvm-dev"] {os-family = "debian"}
