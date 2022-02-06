@@ -95,12 +95,31 @@ value clang_decl_is_value_decl(value Decl) {
   }
 }
 
+value clang_decl_get_attrs(value Param) {
+  CAMLparam1(Param);
+  CAMLlocal4(Hd, Tl, AT, PT);
+  clang::Decl *P = *((clang::Decl **)Data_abstract_val(Param));
+  Tl = Val_int(0);
+  clang::AttrVec &Attrs = P->getAttrs();
+  for (auto i = Attrs.rbegin(); i != Attrs.rend(); i++) {
+    Hd = caml_alloc(1, Abstract_tag);
+    *((const clang::Attr **)Data_abstract_val(Hd)) = *i;
+    value Tmp = caml_alloc(2, Abstract_tag);
+    Field(Tmp, 0) = Hd;
+    Field(Tmp, 1) = Tl;
+    Tl = Tmp;
+  }
+  CAMLreturn(Tl);
+}
+
 WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, FunctionDecl, ParmVarDecl,
                       getNumParams, getParamDecl)
-WRAPPER_QUAL_TYPE(clang_function_decl_return_type, FunctionDecl, getReturnType)
+WRAPPER_QUAL_TYPE(clang_function_decl_get_return_type, FunctionDecl,
+                  getReturnType)
 WRAPPER_BOOL(clang_function_decl_has_body, FunctionDecl, hasBody)
 WRAPPER_BOOL(clang_function_decl_is_inline_specified, FunctionDecl,
              isInlineSpecified)
+WRAPPER_BOOL(clang_function_decl_is_variadic, FunctionDecl, isVariadic)
 WRAPPER_PTR(clang_function_decl_get_body, FunctionDecl, Stmt, getBody)
 
 WRAPPER_BOOL(clang_record_decl_is_anonymous, RecordDecl,
@@ -178,7 +197,7 @@ value clang_decl_get_source_location(value decl) {
   }
 }
 
-value clang_decl_storage_class(value Decl) {
+value clang_decl_get_storage_class(value Decl) {
   CAMLparam1(Decl);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
   if (clang::FunctionDecl *FD = llvm::dyn_cast<clang::FunctionDecl>(D)) {

@@ -1,4 +1,13 @@
 module F = Format
+module DeclKind = DeclKind
+module AttrKind = AttrKind
+module StmtKind = StmtKind
+module TypeKind = TypeKind
+module BuiltinTypeKind = BuiltinTypeKind
+module CharacterKind = CharacterKind
+module ImplicitCastKind = ImplicitCastKind
+module BinaryOperatorKind = BinaryOperatorKind
+module UnaryOperatorKind = UnaryOperatorKind
 
 module SourceLocation : Sig.SOURCE_LOCATION = struct
   type t = { filename : string; line : int; column : int }
@@ -20,12 +29,13 @@ module Attr : Sig.ATTR = struct
   let pp fmt a = F.fprintf fmt "%s" (get_spelling a)
 end
 
-module rec Decl : Sig.DECL = struct
+module rec Decl : (Sig.DECL with type Attr.t = Attr.t) = struct
   type t
 
   type kind = DeclKind.t [@@deriving show]
 
   module SourceLocation = SourceLocation
+  module Attr = Attr
 
   type storage_class =
     | NoneSC
@@ -41,7 +51,10 @@ module rec Decl : Sig.DECL = struct
 
   external get_kind_enum : t -> int = "clang_decl_get_kind"
 
-  external storage_class : t -> storage_class = "clang_decl_storage_class"
+  external get_storage_class : t -> storage_class
+    = "clang_decl_get_storage_class"
+
+  external get_attrs : t -> Attr.t list = "clang_decl_get_attrs"
 
   external dump : t -> unit = "clang_decl_dump"
 
@@ -72,7 +85,7 @@ module rec Decl : Sig.DECL = struct
     | FieldDecl | EnumConstantDecl -> ()
     | _ when is_value_decl decl -> pp_loc fmt decl
     | _ -> ());
-    (match storage_class decl with
+    (match get_storage_class decl with
     | NoneSC -> ()
     | s -> F.fprintf fmt "%a " pp_storage_class s);
     match get_kind decl with
@@ -119,14 +132,27 @@ end
 
 and EnumConstantDecl : (Sig.NAMED_DECL with type t = Decl.t) = NamedDecl
 
-and ParmVarDecl : (Sig.PARAM_VAR_DECL with type t = Decl.t) = struct
+and ParmVarDecl :
+  (Sig.PARAM_VAR_DECL
+    with type t = Decl.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include ValueDecl
 end
 
-and FunctionDecl : (Sig.FUNCTION_DECL with type t = Decl.t) = struct
+and FunctionDecl :
+  (Sig.FUNCTION_DECL
+    with type t = Decl.t
+     and type ParmVarDecl.t = ParmVarDecl.t
+     and type Attr.t = Attr.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include ValueDecl
+  module ParmVarDecl = ParmVarDecl
+  module Stmt = Stmt
 
-  external return_type : t -> QualType.t = "clang_function_decl_return_type"
+  external get_return_type : t -> QualType.t
+    = "clang_function_decl_get_return_type"
 
   external get_params : t -> ParmVarDecl.t list
     = "clang_function_decl_get_params"
@@ -138,9 +164,11 @@ and FunctionDecl : (Sig.FUNCTION_DECL with type t = Decl.t) = struct
   external is_inline_specified : t -> bool
     = "clang_function_decl_is_inline_specified"
 
+  external is_variadic : t -> bool = "clang_function_decl_is_variadic"
+
   let pp fmt fdecl =
     if is_inline_specified fdecl then F.fprintf fmt "inline ";
-    F.fprintf fmt "%a %s (" QualType.pp (return_type fdecl) (get_name fdecl);
+    F.fprintf fmt "%a %s (" QualType.pp (get_return_type fdecl) (get_name fdecl);
     List.iter
       (fun param -> F.fprintf fmt "%a, " ParmVarDecl.pp param)
       (get_params fdecl);
@@ -296,8 +324,10 @@ and Expr : (Sig.EXPR with type t = Stmt.t) = struct
   external get_type : t -> QualType.t = "clang_expr_get_type"
 end
 
-and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+and CompoundStmt :
+  (Sig.COMPOUND_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) = struct
+  include Stmt
+  module Stmt = Stmt
 
   external body_list : Stmt.t -> Stmt.t list = "clang_compound_stmt_body_list"
 
@@ -748,8 +778,10 @@ and DeclRefExpr : (Sig.DECL_REF_EXPR with type t = Stmt.t) = struct
   let pp fmt d = F.fprintf fmt "%s" (get_decl d |> NamedDecl.get_name)
 end
 
-and IfStmt : (Sig.IF_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+and IfStmt : (Sig.IF_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) =
+struct
+  include Stmt
+  module Stmt = Stmt
 
   external get_cond : t -> Stmt.t = "clang_if_stmt_get_cond"
 
@@ -775,8 +807,10 @@ and VAArgExpr : (Sig.VA_ARG_EXPR with type t = Stmt.t) = struct
       QualType.pp (get_type s)
 end
 
-and LabelStmt : (Sig.LABEL_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+and LabelStmt : (Sig.LABEL_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) =
+struct
+  include Stmt
+  module Stmt = Stmt
 
   external get_name : t -> string = "clang_label_stmt_get_name"
 
@@ -846,14 +880,14 @@ and Type : Sig.TYPE = struct
 
   type kind = TypeKind.t [@@deriving show]
 
-  external kind : t -> kind = "clang_type_kind"
+  external get_kind : t -> kind = "clang_type_get_kind"
 
   external get_kind_name : t -> string = "clang_type_get_kind_name"
 
   external get_kind_enum : t -> int = "clang_type_get_kind_enum"
 
   let pp fmt t =
-    match kind t with
+    match get_kind t with
     | AdjustedType -> F.fprintf fmt "adjusted"
     | DecayedType -> F.fprintf fmt "%a" DecayedType.pp t
     | ConstantArrayType -> F.fprintf fmt "%a" ConstantArrayType.pp t
@@ -946,10 +980,10 @@ and BuiltinType : (Sig.BUILTIN_TYPE with type t = Type.t) = struct
 
   type kind = BuiltinTypeKind.t [@@deriving show]
 
-  external kind : t -> kind = "clang_builtin_type_kind"
+  external get_kind : t -> kind = "clang_builtin_type_get_kind"
 
   let pp fmt t =
-    match kind t with
+    match get_kind t with
     | Void -> F.fprintf fmt "void"
     | Bool -> F.fprintf fmt "bool"
     | Char_U -> F.fprintf fmt "unsigned char"

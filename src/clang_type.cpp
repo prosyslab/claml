@@ -21,7 +21,7 @@ value clang_type_ptr(value QT) {
   CAMLreturn((result));
 }
 
-value clang_builtin_type_kind(value T) {
+value clang_builtin_type_get_kind(value T) {
   CAMLparam1(T);
   clang::Type *Ty = *((clang::Type **)Data_abstract_val(T));
   if (clang::BuiltinType *BT = llvm::dyn_cast<clang::BuiltinType>(Ty)) {
@@ -38,7 +38,7 @@ value clang_qual_type_to_string(value QT) {
   CAMLreturn(clang_to_string(qt->getAsString().c_str()));
 }
 
-WRAPPER_INT(clang_type_kind, Type, getTypeClass)
+WRAPPER_INT(clang_type_get_kind, Type, getTypeClass)
 
 WRAPPER_STR(clang_type_get_kind_name, Type, getTypeClassName)
 

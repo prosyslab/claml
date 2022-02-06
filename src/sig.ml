@@ -10,18 +10,42 @@ module type NODE = sig
   val pp : F.formatter -> t -> unit
 end
 
+module type ATTR = sig
+  include NODE
+
+  type kind = AttrKind.t
+
+  val get_kind : t -> kind
+
+  val get_spelling : t -> string
+end
+
 module type DECL = sig
   type t
 
   type kind = DeclKind.t
 
+  type storage_class =
+    | NoneSC
+    | Extern
+    | Static
+    | PrivateExtern
+    | Auto
+    | Register
+
   module SourceLocation : SOURCE_LOCATION
+
+  module Attr : ATTR
 
   val get_kind : t -> kind
 
   val get_kind_name : t -> string
 
   val get_source_location : t -> SourceLocation.t option
+
+  val get_storage_class : t -> storage_class
+
+  val get_attrs : t -> Attr.t list
 
   val is_implicit : t -> bool
 
@@ -34,6 +58,10 @@ module type TYPE = sig
   type t
 
   type kind = TypeKind.t
+
+  val get_kind : t -> kind
+
+  val get_kind_name : t -> string
 
   val pp : Format.formatter -> t -> unit
 end
@@ -64,7 +92,37 @@ module type VALUE_DECL = sig
   val get_type : t -> QualType.t
 end
 
-module type FUNCTION_DECL = VALUE_DECL
+module type PARAM_VAR_DECL = VALUE_DECL
+
+module type STMT = sig
+  include NODE
+
+  type kind = StmtKind.t
+
+  val get_kind : t -> kind
+
+  val get_kind_name : t -> string
+end
+
+module type FUNCTION_DECL = sig
+  include VALUE_DECL
+
+  module ParmVarDecl : PARAM_VAR_DECL
+
+  module Stmt : STMT
+
+  val get_return_type : t -> QualType.t
+
+  val get_params : t -> ParmVarDecl.t list
+
+  val has_body : t -> bool
+
+  val get_body : t -> Stmt.t
+
+  val is_inline_specified : t -> bool
+
+  val is_variadic : t -> bool
+end
 
 module type VAR_DECL = VALUE_DECL
 
@@ -98,19 +156,6 @@ end
 
 module type TYPEDEC_DECL = NAMED_DECL
 
-module type PARAM_VAR_DECL = VALUE_DECL
-
-(* Statement *)
-module type STMT = sig
-  include NODE
-
-  type kind = StmtKind.t
-
-  val get_kind : t -> kind
-
-  val get_kind_name : t -> string
-end
-
 module type EXPR = sig
   include STMT
 
@@ -119,7 +164,13 @@ module type EXPR = sig
   val get_type : t -> QualType.t
 end
 
-module type COMPOUND_STMT = NODE
+module type COMPOUND_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  val body_list : Stmt.t -> Stmt.t list
+end
 
 module type DECL_STMT = NODE
 
@@ -201,9 +252,29 @@ end
 
 module type DECL_REF_EXPR = NODE
 
-module type IF_STMT = NODE
+module type IF_STMT = sig
+  include STMT
 
-module type LABEL_STMT = NODE
+  module Stmt : STMT
+
+  val get_cond : t -> Stmt.t
+
+  val get_then : t -> Stmt.t
+
+  val get_else : t -> Stmt.t
+
+  val has_else_storage : t -> bool
+end
+
+module type LABEL_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  val get_name : t -> string
+
+  val get_sub_stmt : t -> Stmt.t
+end
 
 module type WHILE_STMT = NODE
 
@@ -299,7 +370,13 @@ end
 
 (* Type *)
 
-module type BUILTIN_TYPE = NODE
+module type BUILTIN_TYPE = sig
+  include NODE
+
+  type kind = BuiltinTypeKind.t
+
+  val get_kind : t -> kind
+end
 
 module type ADJUSTED_TYPE = sig
   include NODE
@@ -368,13 +445,3 @@ module type TYPE_OF_EXPR_TYPE = sig
 end
 
 module type TYPEDEF_TYPE = NODE
-
-module type ATTR = sig
-  include NODE
-
-  type kind = AttrKind.t
-
-  val get_kind : t -> kind
-
-  val get_spelling : t -> string
-end
