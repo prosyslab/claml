@@ -1,5 +1,9 @@
 module F = Format
 
+module type SOURCE_LOCATION = sig
+  type t = { filename : string; line : int; column : int }
+end
+
 module type NODE = sig
   type t
 
@@ -10,6 +14,14 @@ module type DECL = sig
   type t
 
   type kind = DeclKind.t
+
+  module SourceLocation : SOURCE_LOCATION
+
+  val get_kind : t -> kind
+
+  val get_kind_name : t -> string
+
+  val get_source_location : t -> SourceLocation.t option
 
   val is_implicit : t -> bool
 

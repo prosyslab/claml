@@ -1,5 +1,9 @@
 module F = Format
 
+module SourceLocation : Sig.SOURCE_LOCATION = struct
+  type t = { filename : string; line : int; column : int }
+end
+
 let pp_semicolon fmt = F.fprintf fmt ";"
 
 let pp_endline fmt = F.fprintf fmt "\n"
@@ -21,7 +25,7 @@ module rec Decl : Sig.DECL = struct
 
   type kind = DeclKind.t [@@deriving show]
 
-  type source_location = { filename : string; line : int; column : int }
+  module SourceLocation = SourceLocation
 
   type storage_class =
     | NoneSC
@@ -41,8 +45,8 @@ module rec Decl : Sig.DECL = struct
 
   external dump : t -> unit = "clang_decl_dump"
 
-  external source_location : t -> source_location option
-    = "clang_source_location"
+  external get_source_location : t -> SourceLocation.t option
+    = "clang_decl_get_source_location"
 
   external is_value_decl : t -> bool = "clang_decl_is_value_decl"
 
@@ -57,20 +61,20 @@ module rec Decl : Sig.DECL = struct
     | Register -> F.fprintf fmt "register"
 
   let pp_loc fmt decl =
-    match source_location decl with
+    match get_source_location decl with
     | Some loc -> F.fprintf fmt "#line %d \"%s\"\n" loc.line loc.filename
     | None -> ()
 
   let pp fmt decl =
-    ( match get_kind decl with
+    (match get_kind decl with
     | TypedefDecl | FunctionDecl | VarDecl | EnumDecl | RecordDecl ->
         pp_loc fmt decl
     | FieldDecl | EnumConstantDecl -> ()
     | _ when is_value_decl decl -> pp_loc fmt decl
-    | _ -> () );
-    ( match storage_class decl with
+    | _ -> ());
+    (match storage_class decl with
     | NoneSC -> ()
-    | s -> F.fprintf fmt "%a " pp_storage_class s );
+    | s -> F.fprintf fmt "%a " pp_storage_class s);
     match get_kind decl with
     | EmptyDecl -> ()
     | TypedefDecl -> TypedefDecl.pp fmt decl
@@ -302,14 +306,14 @@ and CompoundStmt : (Sig.COMPOUND_STMT with type t = Stmt.t) = struct
     List.iter
       (fun s ->
         F.fprintf fmt "%a" Stmt.pp s;
-        ( match Stmt.get_kind s with
+        (match Stmt.get_kind s with
         | BinaryOperator when BinaryOperator.has_side_effect s ->
             pp_semicolon fmt
         | CompoundAssignOperator when BinaryOperator.has_side_effect s ->
             pp_semicolon fmt
         | UnaryOperator when UnaryOperator.has_side_effect s -> pp_semicolon fmt
         | CallExpr -> pp_semicolon fmt
-        | _ -> () );
+        | _ -> ());
         pp_endline fmt)
       (body_list cs);
     F.fprintf fmt "}"

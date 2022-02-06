@@ -161,7 +161,7 @@ value clang_decl_get_type(value Decl) {
   }
 }
 
-value clang_source_location(value decl) {
+value clang_decl_get_source_location(value decl) {
   CAMLparam1(decl);
   CAMLlocal1(result);
   clang::Decl *d = *((clang::Decl **)Data_abstract_val(decl));
