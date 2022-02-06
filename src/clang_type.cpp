@@ -25,7 +25,7 @@ value clang_builtin_type_kind(value T) {
   CAMLparam1(T);
   clang::Type *Ty = *((clang::Type **)Data_abstract_val(T));
   if (clang::BuiltinType *BT = llvm::dyn_cast<clang::BuiltinType>(Ty)) {
-    CAMLreturn(Val_int(BT->getKind() - 99));
+    CAMLreturn(Val_int(BT->getKind()));
   } else {
     assert(false);
   }
