@@ -132,7 +132,15 @@ module type FUNCTION_DECL = sig
   val is_variadic : t -> bool
 end
 
-module type VAR_DECL = VALUE_DECL
+module type VAR_DECL = sig
+  include VALUE_DECL
+
+  module Stmt : STMT
+
+  val has_init : t -> bool
+
+  val get_init : t -> Stmt.t option
+end
 
 module type FIELD_DECL = VALUE_DECL
 
@@ -190,7 +198,13 @@ module type EXPLICIT_CAST_EXPR = NODE
 
 module type IMPLICIT_VALUE_INIT_EXPR = NODE
 
-module type INIT_LIST_EXPR = NODE
+module type INIT_LIST_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_inits : t -> Expr.t list
+end
 
 module type CHARACTER_LITERAL = sig
   include EXPR
@@ -202,9 +216,17 @@ module type CHARACTER_LITERAL = sig
   val get_value : t -> int
 end
 
-module type INTEGER_LITERAL = NODE
+module type INTEGER_LITERAL = sig
+  include EXPR
 
-module type FLOATING_LITERAL = NODE
+  val to_int : t -> Int64.t
+end
+
+module type FLOATING_LITERAL = sig
+  include EXPR
+
+  val to_float : t -> float
+end
 
 module type CONSTANT_EXPR = sig
   include EXPR
@@ -311,13 +333,17 @@ module type FOR_STMT = sig
 
   module Expr : EXPR
 
-  val get_cond : t -> Expr.t
+  module VarDecl : VAR_DECL
 
-  val get_inc : t -> Expr.t
+  val get_cond : t -> Expr.t option
+
+  val get_inc : t -> Expr.t option
 
   val get_body : t -> Stmt.t
 
-  val get_init : t -> Stmt.t
+  val get_init : t -> Stmt.t option
+
+  val get_condition_variable : t -> VarDecl.t option
 end
 
 module type MEMBER_EXPR = NODE
@@ -373,6 +399,8 @@ module type SWITCH_STMT = sig
 
   val get_body : t -> Stmt.t
 end
+
+module type DESIGNATED_INIT_EXPR = EXPR
 
 module type ATTRIBUTED_STMT = STMT
 

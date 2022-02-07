@@ -66,6 +66,22 @@
     CAMLreturn(R);                                                             \
   }
 
+#define WRAPPER_PTR_OPTION(fname, param_type, return_type, fun)                \
+  value fname(value Param) {                                                   \
+    CAMLparam1(Param);                                                         \
+    CAMLlocal1(R);                                                             \
+    LOG("" #fname "");                                                         \
+    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
+    clang::return_type *Ret = P->fun();                                        \
+    if (Ret) {                                                                 \
+      R = caml_alloc(1, Abstract_tag);                                         \
+      *((clang::return_type **)Data_abstract_val(R)) = Ret;                    \
+      CAMLreturn(caml_alloc_some(R));                                          \
+    } else {                                                                   \
+      CAMLreturn(Val_none);                                                    \
+    }                                                                          \
+  }
+
 #define WRAPPER_VOID(fname, param_type, fun)                                   \
   void fname(value Param) {                                                    \
     CAMLparam1(Param);                                                         \

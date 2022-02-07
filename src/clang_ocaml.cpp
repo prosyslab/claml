@@ -251,10 +251,12 @@ WRAPPER_PTR(clang_while_stmt_get_body, WhileStmt, Stmt, getBody)
 WRAPPER_PTR(clang_do_stmt_get_cond, DoStmt, Expr, getCond)
 WRAPPER_PTR(clang_do_stmt_get_body, DoStmt, Expr, getCond)
 
-WRAPPER_PTR(clang_for_stmt_get_cond, ForStmt, Expr, getCond)
-WRAPPER_PTR(clang_for_stmt_get_inc, ForStmt, Expr, getInc)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_cond, ForStmt, Expr, getCond)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_inc, ForStmt, Expr, getInc)
 WRAPPER_PTR(clang_for_stmt_get_body, ForStmt, Stmt, getBody)
-WRAPPER_PTR(clang_for_stmt_get_init, ForStmt, Stmt, getInit)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_init, ForStmt, Stmt, getInit)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_condition_variable, ForStmt, VarDecl,
+                   getConditionVariable)
 
 WRAPPER_QUAL_TYPE(clang_typedef_decl_get_underlying_type, TypedefDecl,
                   getUnderlyingType)

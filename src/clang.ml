@@ -153,6 +153,7 @@ and FunctionDecl :
   (Sig.FUNCTION_DECL
     with type t = Decl.t
      and type ParmVarDecl.t = ParmVarDecl.t
+     and type Stmt.t = Stmt.t
      and type Attr.t = Attr.t
      and type QualType.Type.t = QualType.Type.t
      and type QualType.t = QualType.t) = struct
@@ -186,8 +187,14 @@ and FunctionDecl :
     else F.fprintf fmt ";"
 end
 
-and VarDecl : (Sig.VAR_DECL with type t = Decl.t) = struct
+and VarDecl :
+  (Sig.VAR_DECL
+    with type t = Decl.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t
+     and type Stmt.t = Stmt.t) = struct
   include ValueDecl
+  module Stmt = Stmt
 
   external has_init : t -> bool = "clang_vardecl_has_init"
 
@@ -490,8 +497,10 @@ and ImplicitValueInitExpr :
   let pp fmt e = ()
 end
 
-and InitListExpr : (Sig.INIT_LIST_EXPR with type t = Stmt.t) = struct
+and InitListExpr :
+  (Sig.INIT_LIST_EXPR with type t = Stmt.t and type Expr.t = Expr.t) = struct
   include Expr
+  module Expr = Expr
 
   external get_inits : t -> Expr.t list = "clang_init_list_expr_get_inits"
 
@@ -501,18 +510,31 @@ and InitListExpr : (Sig.INIT_LIST_EXPR with type t = Stmt.t) = struct
     F.fprintf fmt "}"
 end
 
-and IntegerLiteral : (Sig.INTEGER_LITERAL with type t = Stmt.t) = struct
-  type t = Stmt.t
+and DesignatedInitExpr : (Sig.DESIGNATED_INIT_EXPR with type t = Stmt.t) =
+struct
+  include Expr
+end
 
-  external to_int : Stmt.t -> Int64.t = "clang_integer_literal_to_int"
+and IntegerLiteral :
+  (Sig.INTEGER_LITERAL
+    with type t = Stmt.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include Expr
+
+  external to_int : t -> Int64.t = "clang_integer_literal_to_int"
 
   let pp fmt i = F.fprintf fmt "%s" (to_int i |> Int64.to_string)
 end
 
-and FloatingLiteral : (Sig.FLOATING_LITERAL with type t = Stmt.t) = struct
-  type t = Stmt.t
+and FloatingLiteral :
+  (Sig.FLOATING_LITERAL
+    with type t = Stmt.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include Expr
 
-  external to_float : Stmt.t -> float = "clang_floating_literal_to_float"
+  external to_float : t -> float = "clang_floating_literal_to_float"
 
   let pp fmt i = F.fprintf fmt "%f" (to_float i)
 end
@@ -879,21 +901,26 @@ and ForStmt :
   (Sig.FOR_STMT
     with type t = Stmt.t
      and type Expr.t = Expr.t
-     and type Stmt.t = Stmt.t) = struct
+     and type Stmt.t = Stmt.t
+     and type VarDecl.t = VarDecl.t) = struct
   include Stmt
   module Expr = Expr
   module Stmt = Stmt
+  module VarDecl = VarDecl
 
-  external get_cond : t -> Expr.t = "clang_for_stmt_get_cond"
+  external get_cond : t -> Expr.t option = "clang_for_stmt_get_cond"
 
-  external get_inc : t -> Expr.t = "clang_for_stmt_get_inc"
+  external get_inc : t -> Expr.t option = "clang_for_stmt_get_inc"
 
   external get_body : t -> Stmt.t = "clang_for_stmt_get_body"
 
-  external get_init : t -> Stmt.t = "clang_for_stmt_get_init"
+  external get_init : t -> Stmt.t option = "clang_for_stmt_get_init"
 
-  let pp fmt d =
-    F.fprintf fmt "while (%a) %a" Stmt.pp (get_cond d) Stmt.pp (get_body d)
+  external get_condition_variable : t -> VarDecl.t option
+    = "clang_for_stmt_get_condition_variable"
+
+  (* TODO *)
+  let pp fmt d = F.fprintf fmt "for"
 end
 
 and MemberExpr : (Sig.MEMBER_EXPR with type t = Stmt.t) = struct
