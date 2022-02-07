@@ -188,7 +188,13 @@ module type COMPOUND_STMT = sig
   val body_list : Stmt.t -> Stmt.t list
 end
 
-module type DECL_STMT = NODE
+module type DECL_STMT = sig
+  include STMT
+
+  module Decl : DECL
+
+  val decl_list : t -> Decl.t list
+end
 
 module type GOTO_STMT = NODE
 

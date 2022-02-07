@@ -376,8 +376,10 @@ and CompoundStmt :
     F.fprintf fmt "}"
 end
 
-and DeclStmt : (Sig.DECL_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+and DeclStmt : (Sig.DECL_STMT with type t = Stmt.t and type Decl.t = Decl.t) =
+struct
+  include Stmt
+  module Decl = Decl
 
   external decl_list : Stmt.t -> Decl.t list = "clang_decl_stmt_decl_list"
 
