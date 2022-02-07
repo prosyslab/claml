@@ -256,7 +256,13 @@ module type PREDEFINED_EXPR = sig
   val get_function_name : t -> StringLiteral.t
 end
 
-module type RETURN_STMT = NODE
+module type RETURN_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  val get_ret_value : t -> Stmt.t option
+end
 
 module type BINARY_OPERATOR = sig
   include STMT

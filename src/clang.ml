@@ -554,10 +554,13 @@ and ConstantExpr : (Sig.CONSTANT_EXPR with type t = Stmt.t) = struct
   let pp fmt e = Expr.pp fmt (get_sub_expr e)
 end
 
-and ReturnStmt : (Sig.RETURN_STMT with type t = Stmt.t) = struct
+and ReturnStmt :
+  (Sig.RETURN_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) = struct
   include Stmt
+  module Stmt = Stmt
 
-  external get_ret_value : t -> t option = "clang_return_stmt_get_ret_value"
+  external get_ret_value : t -> Stmt.t option
+    = "clang_return_stmt_get_ret_value"
 
   let pp fmt i =
     match get_ret_value i with
