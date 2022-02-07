@@ -510,9 +510,16 @@ and InitListExpr :
     F.fprintf fmt "}"
 end
 
-and DesignatedInitExpr : (Sig.DESIGNATED_INIT_EXPR with type t = Stmt.t) =
+and DesignatedInitExpr :
+  (Sig.DESIGNATED_INIT_EXPR with type t = Stmt.t and type Expr.t = Expr.t) =
 struct
   include Expr
+  module Expr = Expr
+
+  external get_init : t -> Expr.t = "clang_designated_init_expr_get_init"
+
+  (* TODO *)
+  let pp fmt e = F.fprintf fmt "designated init"
 end
 
 and IntegerLiteral :

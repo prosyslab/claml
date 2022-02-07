@@ -400,7 +400,13 @@ module type SWITCH_STMT = sig
   val get_body : t -> Stmt.t
 end
 
-module type DESIGNATED_INIT_EXPR = EXPR
+module type DESIGNATED_INIT_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_init : t -> Expr.t
+end
 
 module type ATTRIBUTED_STMT = STMT
 

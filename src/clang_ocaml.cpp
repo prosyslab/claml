@@ -258,6 +258,9 @@ WRAPPER_PTR_OPTION(clang_for_stmt_get_init, ForStmt, Stmt, getInit)
 WRAPPER_PTR_OPTION(clang_for_stmt_get_condition_variable, ForStmt, VarDecl,
                    getConditionVariable)
 
+WRAPPER_PTR(clang_designated_init_expr_get_init, DesignatedInitExpr, Expr,
+            getInit)
+
 WRAPPER_QUAL_TYPE(clang_typedef_decl_get_underlying_type, TypedefDecl,
                   getUnderlyingType)
 
