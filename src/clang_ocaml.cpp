@@ -12,6 +12,8 @@
 #include "utils.h"
 
 extern "C" {
+clang::ASTContext *AC = NULL;
+
 value clang_parse_file(value args) {
   CAMLparam1(args);
   CAMLlocal1(v);
@@ -33,8 +35,8 @@ value clang_parse_file(value args) {
       std::make_shared<clang::PCHContainerOperations>();
   clang::ASTUnit *Unit(clang::ASTUnit::LoadFromCommandLine(
       Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
-  clang::TranslationUnitDecl *TU =
-      Unit->getASTContext().getTranslationUnitDecl();
+  AC = &Unit->getASTContext();
+  clang::TranslationUnitDecl *TU = AC->getTranslationUnitDecl();
   v = caml_alloc(0, Abstract_tag);
   *((clang::TranslationUnitDecl **)Data_abstract_val(v)) = TU;
   CAMLreturn(v);
@@ -75,6 +77,15 @@ value clang_decls_succ(value Decl) {
   } else {
     CAMLreturn(Val_none);
   }
+}
+
+value clang_decl_get_ast_context(value Decl) {
+  CAMLparam1(Decl);
+  CAMLlocal1(V);
+  clang::Decl *TTU = *((clang::Decl **)Data_abstract_val(Decl));
+  V = caml_alloc(1, Abstract_tag);
+  *((clang::ASTContext **)Data_abstract_val(V)) = &TTU->getASTContext();
+  CAMLreturn(V);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,6 +281,23 @@ value clang_enum_decl_get_enums(value T) {
 
 WRAPPER_INT(clang_stmt_get_kind, Stmt, getStmtClass)
 WRAPPER_STR(clang_stmt_get_kind_name, Stmt, getStmtClassName)
+
+value clang_stmt_get_source_location(value Stmt) {
+  CAMLparam1(Stmt);
+  CAMLlocal1(Result);
+  clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(Stmt));
+  const clang::PresumedLoc &loc =
+      AC->getSourceManager().getPresumedLoc(S->getBeginLoc());
+  if (loc.isValid()) {
+    Result = caml_alloc(3, 0);
+    Store_field(Result, 0, clang_to_string(loc.getFilename()));
+    Store_field(Result, 1, Val_int(loc.getLine()));
+    Store_field(Result, 2, Val_int(loc.getColumn()));
+    CAMLreturn(caml_alloc_some(Result));
+  } else {
+    CAMLreturn(Val_none);
+  }
+}
 
 value clang_integer_literal_to_int(value Expr) {
   CAMLparam1(Expr);

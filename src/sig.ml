@@ -1,5 +1,9 @@
 module F = Format
 
+module type AST_CONTEXT = sig
+  type t
+end
+
 module type SOURCE_LOCATION = sig
   type t = { filename : string; line : int; column : int }
 end
@@ -97,11 +101,15 @@ module type PARAM_VAR_DECL = VALUE_DECL
 module type STMT = sig
   include NODE
 
+  module SourceLocation : SOURCE_LOCATION
+
   type kind = StmtKind.t
 
   val get_kind : t -> kind
 
   val get_kind_name : t -> string
+
+  val get_source_location : t -> SourceLocation.t option
 end
 
 module type FUNCTION_DECL = sig

@@ -9,6 +9,12 @@ module ImplicitCastKind = ImplicitCastKind
 module BinaryOperatorKind = BinaryOperatorKind
 module UnaryOperatorKind = UnaryOperatorKind
 
+module ASTContext : Sig.AST_CONTEXT = struct
+  type t
+end
+
+let ast_context : ASTContext.t ref option = None
+
 module SourceLocation : Sig.SOURCE_LOCATION = struct
   type t = { filename : string; line : int; column : int }
 end
@@ -29,7 +35,10 @@ module Attr : Sig.ATTR = struct
   let pp fmt a = F.fprintf fmt "%s" (get_spelling a)
 end
 
-module rec Decl : (Sig.DECL with type Attr.t = Attr.t) = struct
+module rec Decl :
+  (Sig.DECL
+    with type Attr.t = Attr.t
+     and type SourceLocation.t = SourceLocation.t) = struct
   type t
 
   type kind = DeclKind.t [@@deriving show]
@@ -262,16 +271,26 @@ and LabelDecl : Sig.LABEL_DECL = struct
   include NamedDecl
 end
 
-and Stmt : Sig.STMT = struct
+and Stmt : (Sig.STMT with type SourceLocation.t = SourceLocation.t) = struct
   type t
 
   type kind = StmtKind.t [@@deriving show]
+
+  module SourceLocation = SourceLocation
 
   external get_kind : t -> kind = "clang_stmt_get_kind"
 
   external get_kind_enum : t -> int = "clang_stmt_get_kind"
 
   external get_kind_name : t -> string = "clang_stmt_get_kind_name"
+
+  external get_source_location : t -> SourceLocation.t option
+    = "clang_stmt_get_source_location"
+
+  let pp_loc fmt decl =
+    match get_source_location decl with
+    | Some loc -> F.fprintf fmt "#line %d \"%s\"\n" loc.line loc.filename
+    | None -> ()
 
   let pp fmt exp =
     match get_kind exp with
@@ -631,7 +650,7 @@ struct
 end
 
 and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
-  type t = Stmt.t
+  include Stmt
 
   type kind = BinaryOperatorKind.t [@@deriving show]
 
