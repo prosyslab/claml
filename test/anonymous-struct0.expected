@@ -5,24 +5,54 @@
 // implicit typedef
 #line 1 "anonymous-struct0.c"
 struct {
+#line 2 "anonymous-struct0.c"
+  struct {
+    unsigned int overload;
+  };
+  ;
   struct {
     unsigned int overload;
   } com;
+#line 5 "anonymous-struct0.c"
+  struct {
+    unsigned int shreg;
+  };
+  ;
   struct {
     unsigned int shreg;
   } bit;
+#line 8 "anonymous-struct0.c"
+  struct {
+    unsigned int send;
+  };
+  ;
   struct {
     unsigned int send;
   } boo;
 };
 #line 11 "anonymous-struct0.c"
 typedef struct {
+#line 2 "anonymous-struct0.c"
+  struct {
+    unsigned int overload;
+  };
+  ;
   struct {
     unsigned int overload;
   } com;
+#line 5 "anonymous-struct0.c"
+  struct {
+    unsigned int shreg;
+  };
+  ;
   struct {
     unsigned int shreg;
   } bit;
+#line 8 "anonymous-struct0.c"
+  struct {
+    unsigned int send;
+  };
+  ;
   struct {
     unsigned int send;
   } boo;

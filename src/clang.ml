@@ -65,6 +65,10 @@ module rec Decl :
 
   external get_attrs : t -> Attr.t list = "clang_decl_get_attrs"
 
+  external get_global_id : t -> int = "clang_decl_get_global_id"
+
+  external hash : t -> int = "clang_decl_hash"
+
   external dump : t -> unit = "clang_decl_dump"
 
   external get_source_location : t -> SourceLocation.t option
@@ -139,7 +143,17 @@ and ValueDecl :
     F.fprintf fmt "%a %s" QualType.pp (get_type decl) (get_name decl)
 end
 
-and EnumConstantDecl : (Sig.NAMED_DECL with type t = Decl.t) = NamedDecl
+and EnumConstantDecl :
+  (Sig.ENUM_CONSTANT_DECL with type t = Decl.t and type Expr.t = Expr.t) =
+struct
+  include NamedDecl
+  module Expr = Expr
+
+  external get_init_expr : t -> Expr.t
+    = "clang_enum_constant_decl_get_init_expr"
+
+  external get_init_val : t -> Int64.t = "clang_enum_constant_decl_get_init_val"
+end
 
 and ParmVarDecl :
   (Sig.PARAM_VAR_DECL
@@ -209,8 +223,13 @@ and VarDecl :
         F.fprintf fmt "%a %s;" QualType.pp (get_type vdecl) (get_name vdecl)
 end
 
-and TypedefDecl : (Sig.TYPEDEF_DECL with type t = Decl.t) = struct
+and TypedefDecl :
+  (Sig.TYPEDEF_DECL
+    with type t = Decl.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include NamedDecl
+  module QualType = QualType
 
   external get_underlying_type : t -> QualType.t
     = "clang_typedef_decl_get_underlying_type"
@@ -222,10 +241,21 @@ and TypedefDecl : (Sig.TYPEDEF_DECL with type t = Decl.t) = struct
         (get_name decl)
 end
 
-and EnumDecl : (Sig.ENUM_DECL with type t = Decl.t) = struct
+and TagDecl : (Sig.TAG_DECL with type t = Decl.t) = struct
   include NamedDecl
 
-  external get_enums_internal : Decl.t -> Decl.t list
+  external is_complete_definition : t -> bool
+    = "clang_tag_decl_is_complete_definition"
+end
+
+and EnumDecl :
+  (Sig.ENUM_DECL
+    with type t = Decl.t
+     and type EnumConstantDecl.t = EnumConstantDecl.t) = struct
+  include TagDecl
+  module EnumConstantDecl = EnumConstantDecl
+
+  external get_enums_internal : t -> EnumConstantDecl.t list
     = "clang_enum_decl_get_enums"
 
   let get_enums x = get_enums_internal x |> List.rev
@@ -243,8 +273,9 @@ and EnumDecl : (Sig.ENUM_DECL with type t = Decl.t) = struct
     F.fprintf fmt " } %s" (get_name decl)
 end
 
-and RecordDecl : (Sig.RECORD_DECL with type t = Decl.t) = struct
-  include NamedDecl
+and RecordDecl :
+  (Sig.RECORD_DECL with type t = Decl.t and type Decl.t = Decl.t) = struct
+  include TagDecl
   module Decl = Decl
 
   external is_anonymous : t -> bool = "clang_record_decl_is_anonymous"
@@ -255,7 +286,7 @@ and RecordDecl : (Sig.RECORD_DECL with type t = Decl.t) = struct
 
   external field_begin : t -> t option = "clang_record_decl_field_begin"
 
-  external field_list_internal : t -> t list
+  external field_list_internal : t -> Decl.t list
     = "clang_record_decl_field_list_internal"
 
   let field_list decl = field_list_internal decl |> List.rev
@@ -270,8 +301,27 @@ and RecordDecl : (Sig.RECORD_DECL with type t = Decl.t) = struct
     if is_anonymous decl then () else F.fprintf fmt " %s" (get_name decl)
 end
 
-and FieldDecl : (Sig.FIELD_DECL with type t = Decl.t) = struct
+and FieldDecl :
+  (Sig.FIELD_DECL
+    with type t = Decl.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include ValueDecl
+end
+
+and IndirectFieldDecl :
+  (Sig.INDIRECT_FIELD_DECL
+    with type t = Decl.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t
+     and type Decl.t = Decl.t) = struct
+  include ValueDecl
+  module Decl = Decl
+
+  external get_decl_list_internal : t -> Decl.t list
+    = "clang_indirect_field_decl_get_decl_list_internal"
+
+  let get_decl_list fd = get_decl_list_internal fd |> List.rev
 end
 
 and LabelDecl : Sig.LABEL_DECL = struct
@@ -293,6 +343,8 @@ and Stmt : (Sig.STMT with type SourceLocation.t = SourceLocation.t) = struct
 
   external get_source_location : t -> SourceLocation.t option
     = "clang_stmt_get_source_location"
+
+  external is_expr : t -> bool = "clang_stmt_is_expr"
 
   let pp_loc fmt decl =
     match get_source_location decl with
@@ -344,11 +396,17 @@ and Stmt : (Sig.STMT with type SourceLocation.t = SourceLocation.t) = struct
           (get_kind_enum exp)
 end
 
-and Expr : (Sig.EXPR with type t = Stmt.t) = struct
+and Expr :
+  (Sig.EXPR
+    with type t = Stmt.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include Stmt
   module QualType = QualType
 
   external get_type : t -> QualType.t = "clang_expr_get_type"
+
+  external is_cast : t -> bool = "clang_expr_is_cast"
 end
 
 and CompoundStmt :
@@ -401,30 +459,46 @@ and GotoStmt : (Sig.GOTO_STMT with type t = Stmt.t) = struct
   let pp fmt s = F.fprintf fmt "goto %s;" (get_label s |> LabelDecl.get_name)
 end
 
-and ImplicitCastExpr : (Sig.IMPLICIT_CAST_EXPR with type t = Stmt.t) = struct
+and CastExpr :
+  (Sig.IMPLICIT_CAST_EXPR
+    with type t = Stmt.t
+     and type Expr.t = Expr.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) =
+  ImplicitCastExpr
+
+and ImplicitCastExpr :
+  (Sig.IMPLICIT_CAST_EXPR
+    with type t = Stmt.t
+     and type Expr.t = Expr.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include Expr
 
   type kind = ImplicitCastKind.t [@@deriving show]
 
-  external sub_expr : Stmt.t -> Stmt.t = "clang_get_cast_sub_expr"
+  module Expr = Expr
 
-  external get_kind : Stmt.t -> kind = "clang_get_cast_kind"
+  external get_sub_expr : t -> Expr.t = "clang_cast_expr_get_sub_expr"
 
-  external get_kind_name : Stmt.t -> string = "clang_cast_get_kind_name"
+  external get_kind : t -> kind = "clang_cast_expr_get_kind"
 
-  external get_kind_enum : Stmt.t -> int = "clang_get_cast_kind"
+  external get_kind_name : t -> string = "clang_cast_expr_get_kind_name"
+
+  external get_kind_enum : t -> int = "clang_cast_expr_get_kind_enum"
 
   let pp fmt e =
     match get_kind e with
     | BitCast | LValueToRValue | NoOp | ArrayToPointerDecay
     | FunctionToPointerDecay | BuiltinFnToFnPtr ->
-        Stmt.pp fmt (sub_expr e)
+        Stmt.pp fmt (get_sub_expr e)
     | ToVoid -> ()
     | NullToPointer | IntegralToPointer | IntegralCast | IntegralToFloating
     | FloatingToIntegral ->
-        F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp (sub_expr e)
+        F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Stmt.pp
+          (get_sub_expr e)
     | k ->
-        F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (sub_expr e)
+        F.fprintf fmt "(%a) %a (%s, %d)" pp_kind k Stmt.pp (get_sub_expr e)
           (get_kind_name e) (get_kind_enum e)
 end
 
@@ -440,7 +514,10 @@ and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
   let pp fmt e = F.fprintf fmt "%d" (get_value e)
 end
 
-and PredefinedExpr : (Sig.PREDEFINED_EXPR with type t = Stmt.t) = struct
+and PredefinedExpr :
+  (Sig.PREDEFINED_EXPR
+    with type t = Stmt.t
+     and type StringLiteral.t = StringLiteral.t) = struct
   include Expr
   module StringLiteral = StringLiteral
 
@@ -483,13 +560,16 @@ and StringLiteral : (Sig.STRING_LITERAL with type t = Stmt.t) = struct
   let pp fmt e = F.fprintf fmt "\"%s\"" (get_string e |> String.escaped)
 end
 
-and ExplicitCastExpr : (Sig.EXPLICIT_CAST_EXPR with type t = Expr.t) = struct
+and ExplicitCastExpr :
+  (Sig.EXPLICIT_CAST_EXPR with type t = Expr.t and type Expr.t = Expr.t) =
+struct
   include Expr
+  module Expr = Expr
 
-  external sub_expr : Expr.t -> Expr.t = "clang_get_cast_sub_expr"
+  external get_sub_expr : t -> Expr.t = "clang_cast_expr_get_sub_expr"
 
   let pp fmt e =
-    F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Expr.pp (sub_expr e)
+    F.fprintf fmt "(%a) %a" QualType.pp (get_type e) Expr.pp (get_sub_expr e)
 end
 
 and ImplicitValueInitExpr :
@@ -512,13 +592,34 @@ and InitListExpr :
     F.fprintf fmt "}"
 end
 
+and Designator : Sig.DESIGNATOR = struct
+  type t
+
+  external is_field_designator : t -> bool
+    = "clang_designator_is_field_designator"
+
+  external is_array_designator : t -> bool
+    = "clang_designator_is_array_designator"
+
+  external is_array_range_designator : t -> bool
+    = "clang_designator_is_array_range_designator"
+
+  external get_field_name : t -> string = "clang_designator_get_field_name"
+end
+
 and DesignatedInitExpr :
-  (Sig.DESIGNATED_INIT_EXPR with type t = Stmt.t and type Expr.t = Expr.t) =
-struct
+  (Sig.DESIGNATED_INIT_EXPR
+    with type t = Stmt.t
+     and type Expr.t = Expr.t
+     and type Designator.t = Designator.t) = struct
   include Expr
   module Expr = Expr
+  module Designator = Designator
 
   external get_init : t -> Expr.t = "clang_designated_init_expr_get_init"
+
+  external get_designators : t -> Designator.t list
+    = "clang_designated_init_expr_get_designators"
 
   (* TODO *)
   let pp fmt e = F.fprintf fmt "designated init"
@@ -548,8 +649,10 @@ and FloatingLiteral :
   let pp fmt i = F.fprintf fmt "%f" (to_float i)
 end
 
-and ConstantExpr : (Sig.CONSTANT_EXPR with type t = Stmt.t) = struct
+and ConstantExpr :
+  (Sig.CONSTANT_EXPR with type t = Stmt.t and type Expr.t = Expr.t) = struct
   include Expr
+  module Expr = Expr
 
   external get_sub_expr : t -> t = "clang_constant_expr_get_sub_expr"
 
@@ -570,16 +673,20 @@ and ReturnStmt :
     | Some e -> F.fprintf fmt "return %a;" Stmt.pp e
 end
 
-and CaseStmt : (Sig.CASE_STMT with type t = Stmt.t) = struct
+and CaseStmt :
+  (Sig.CASE_STMT
+    with type t = Stmt.t
+     and type Stmt.t = Stmt.t
+     and type Expr.t = Expr.t) = struct
   include Stmt
   module Stmt = Stmt
   module Expr = Expr
 
-  external get_lhs : t -> t = "clang_case_stmt_get_lhs"
+  external get_lhs : t -> Expr.t = "clang_case_stmt_get_lhs"
 
-  external get_rhs : t -> t = "clang_case_stmt_get_rhs"
+  external get_rhs : t -> Expr.t = "clang_case_stmt_get_rhs"
 
-  external get_sub_stmt : t -> t = "clang_case_stmt_get_sub_stmt"
+  external get_sub_stmt : t -> Stmt.t = "clang_case_stmt_get_sub_stmt"
 
   let pp fmt s =
     let sub_s = get_sub_stmt s in
@@ -594,11 +701,12 @@ and CaseStmt : (Sig.CASE_STMT with type t = Stmt.t) = struct
     | _ -> ()
 end
 
-and DefaultStmt : (Sig.DEFAULT_STMT with type t = Stmt.t) = struct
+and DefaultStmt :
+  (Sig.DEFAULT_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) = struct
   include Stmt
   module Stmt = Stmt
 
-  external get_sub_stmt : t -> t = "clang_default_stmt_get_sub_stmt"
+  external get_sub_stmt : t -> Stmt.t = "clang_default_stmt_get_sub_stmt"
 
   let pp fmt s =
     let sub_s = get_sub_stmt s in
@@ -613,10 +721,21 @@ and DefaultStmt : (Sig.DEFAULT_STMT with type t = Stmt.t) = struct
     | _ -> ()
 end
 
-and SwitchStmt : (Sig.SWITCH_STMT with type t = Stmt.t) = struct
+and SwitchStmt :
+  (Sig.SWITCH_STMT
+    with type t = Stmt.t
+     and type Stmt.t = Stmt.t
+     and type Expr.t = Expr.t
+     and type VarDecl.t = VarDecl.t) = struct
   include Stmt
   module Stmt = Stmt
   module Expr = Expr
+  module VarDecl = VarDecl
+
+  external get_init : t -> Stmt.t option = "clang_switch_stmt_get_init"
+
+  external get_condition_variable : t -> VarDecl.t option
+    = "clang_switch_stmt_get_condition_variable"
 
   external get_cond : t -> Expr.t = "clang_switch_stmt_get_cond"
 
@@ -683,10 +802,13 @@ struct
   let pp fmt e = F.fprintf fmt "%a[%a]" Stmt.pp (get_base e) Stmt.pp (get_idx e)
 end
 
-and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
+and BinaryOperator :
+  (Sig.BINARY_OPERATOR with type t = Stmt.t and type Expr.t = Expr.t) = struct
   include Stmt
 
   type kind = BinaryOperatorKind.t [@@deriving show]
+
+  module Expr = Expr
 
   external get_kind : t -> kind = "clang_binary_operator_kind"
 
@@ -694,9 +816,9 @@ and BinaryOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) = struct
 
   external get_kind_name : t -> string = "clang_binary_operator_kind_name"
 
-  external get_lhs : t -> t = "clang_binary_operator_get_lhs"
+  external get_lhs : t -> Expr.t = "clang_binary_operator_get_lhs"
 
-  external get_rhs : t -> t = "clang_binary_operator_get_rhs"
+  external get_rhs : t -> Expr.t = "clang_binary_operator_get_rhs"
 
   let has_side_effect i =
     match get_kind i with
@@ -746,12 +868,14 @@ end
 and CompoundAssignOperator : (Sig.BINARY_OPERATOR with type t = Stmt.t) =
   BinaryOperator
 
-and CallExpr : (Sig.CALL_EXPR with type t = Stmt.t) = struct
-  type t = Stmt.t
+and CallExpr : (Sig.CALL_EXPR with type t = Stmt.t and type Expr.t = Expr.t) =
+struct
+  include Expr
+  module Expr = Expr
 
-  external get_callee : t -> Stmt.t = "clang_call_expr_get_callee"
+  external get_callee : t -> Expr.t = "clang_call_expr_get_callee"
 
-  external get_args : t -> Stmt.t list = "clang_call_expr_get_args"
+  external get_args : t -> Expr.t list = "clang_call_expr_get_args"
 
   let pp fmt t =
     F.fprintf fmt "%a(" Stmt.pp (get_callee t);
@@ -760,8 +884,11 @@ and CallExpr : (Sig.CALL_EXPR with type t = Stmt.t) = struct
 end
 
 and UnaryExprOrTypeTraitExpr :
-  (Sig.UNARY_EXPR_OR_TYPE_TRAIT_EXPR with type t = Stmt.t) = struct
-  type t = Stmt.t
+  (Sig.UNARY_EXPR_OR_TYPE_TRAIT_EXPR
+    with type t = Stmt.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include Expr
 
   type kind =
     | SizeOf
@@ -796,10 +923,13 @@ and UnaryExprOrTypeTraitExpr :
       F.fprintf fmt "%a (%a)" pp_kind (get_kind e) Stmt.pp (get_argument_expr e)
 end
 
-and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
+and UnaryOperator :
+  (Sig.UNARY_OPERATOR with type t = Stmt.t and type Expr.t = Expr.t) = struct
   include Stmt
 
   type kind = UnaryOperatorKind.t [@@deriving show]
+
+  module Expr = Expr
 
   external get_kind : t -> kind = "clang_unary_operator_kind"
 
@@ -824,8 +954,11 @@ and UnaryOperator : (Sig.UNARY_OPERATOR with type t = Stmt.t) = struct
     | k -> pp_kind fmt k
 end
 
-and DeclRefExpr : (Sig.DECL_REF_EXPR with type t = Stmt.t) = struct
-  type t = Stmt.t
+and DeclRefExpr :
+  (Sig.DECL_REF_EXPR with type t = Stmt.t and type NamedDecl.t = NamedDecl.t) =
+struct
+  include Expr
+  module NamedDecl = NamedDecl
 
   external get_decl : t -> NamedDecl.t = "clang_decl_ref_get_decl"
 
@@ -851,8 +984,10 @@ struct
     else ()
 end
 
-and VAArgExpr : (Sig.VA_ARG_EXPR with type t = Stmt.t) = struct
+and VAArgExpr :
+  (Sig.VA_ARG_EXPR with type t = Stmt.t and type Expr.t = Expr.t) = struct
   include Expr
+  module Expr = Expr
 
   external get_sub_expr : t -> t = "clang_va_arg_expr_get_sub_expr"
 
@@ -935,10 +1070,16 @@ and ForStmt :
   let pp fmt d = F.fprintf fmt "for"
 end
 
-and MemberExpr : (Sig.MEMBER_EXPR with type t = Stmt.t) = struct
-  type t = Stmt.t
+and MemberExpr :
+  (Sig.MEMBER_EXPR
+    with type t = Stmt.t
+     and type Expr.t = Expr.t
+     and type NamedDecl.t = NamedDecl.t) = struct
+  include Expr
+  module Expr = Expr
+  module NamedDecl = NamedDecl
 
-  external get_base : t -> Stmt.t = "clang_member_expr_get_base"
+  external get_base : t -> Expr.t = "clang_member_expr_get_base"
 
   external get_member_decl : t -> NamedDecl.t
     = "clang_member_expr_get_member_decl"
@@ -1009,7 +1150,11 @@ and Type : Sig.TYPE = struct
           (get_kind_enum t)
 end
 
-and AdjustedType : (Sig.ADJUSTED_TYPE with type t = Type.t) = struct
+and AdjustedType :
+  (Sig.ADJUSTED_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   type t = Type.t
 
   module QualType = QualType
@@ -1020,10 +1165,13 @@ and AdjustedType : (Sig.ADJUSTED_TYPE with type t = Type.t) = struct
   let pp fmt t = QualType.pp fmt (get_original_type t)
 end
 
-and DecayedType : (Sig.DECAYED_TYPE with type t = Type.t) = struct
+and DecayedType :
+  (Sig.DECAYED_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include AdjustedType
-
-  type t = Type.t
+  module QualType = QualType
 
   external get_decayed_type : t -> QualType.t
     = "clang_decayed_type_get_decayed_type"
@@ -1120,6 +1268,19 @@ and FunctionType :
   let pp fmt t = ()
 end
 
+and FunctionProtoType :
+  (Sig.FUNCTION_PROTO_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include FunctionType
+
+  external is_variadic : t -> bool = "clang_function_proto_type_is_variadic"
+
+  (* TODO *)
+  let pp fmt t = ()
+end
+
 and ParenType : (Sig.PAREN_TYPE with type t = Type.t) = struct
   include Type
   module QualType = QualType
@@ -1129,8 +1290,13 @@ and ParenType : (Sig.PAREN_TYPE with type t = Type.t) = struct
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
 end
 
-and PointerType : (Sig.POINTER_TYPE with type t = Type.t) = struct
-  type t = Type.t
+and PointerType :
+  (Sig.POINTER_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include Type
+  module QualType = QualType
 
   external get_pointee_type : t -> QualType.t
     = "clang_pointer_type_get_pointee_type"
@@ -1138,8 +1304,13 @@ and PointerType : (Sig.POINTER_TYPE with type t = Type.t) = struct
   let pp fmt t = F.fprintf fmt "%a *" QualType.pp (get_pointee_type t)
 end
 
-and ElaboratedType : (Sig.ELABORATED_TYPE with type t = Type.t) = struct
-  type t = Type.t
+and ElaboratedType :
+  (Sig.ELABORATED_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include Type
+  module QualType = QualType
 
   external desugar : t -> QualType.t = "clang_elaborated_type_desugar"
 
@@ -1149,16 +1320,21 @@ and ElaboratedType : (Sig.ELABORATED_TYPE with type t = Type.t) = struct
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
 end
 
-and EnumType : (Sig.ENUM_TYPE with type t = Type.t) = struct
+and EnumType :
+  (Sig.ENUM_TYPE with type t = Type.t and type EnumDecl.t = EnumDecl.t) = struct
   include Type
+  module EnumDecl = EnumDecl
 
   external get_decl : t -> EnumDecl.t = "clang_enum_type_get_decl"
 
   let pp fmt t = F.fprintf fmt "%a" EnumDecl.pp (get_decl t)
 end
 
-and RecordType : (Sig.RECORD_TYPE with type t = Type.t) = struct
-  type t = Type.t
+and RecordType :
+  (Sig.RECORD_TYPE with type t = Type.t and type RecordDecl.t = RecordDecl.t) =
+struct
+  include Type
+  module RecordDecl = RecordDecl
 
   external get_decl : t -> RecordDecl.t = "clang_record_type_get_decl"
 
@@ -1170,7 +1346,8 @@ and RecordType : (Sig.RECORD_TYPE with type t = Type.t) = struct
     else F.fprintf fmt "%s" (NamedDecl.get_name decl)
 end
 
-and TypeOfExprType : (Sig.TYPE_OF_EXPR_TYPE with type t = Type.t) = struct
+and TypeOfExprType :
+  (Sig.TYPE_OF_EXPR_TYPE with type t = Type.t and type Expr.t = Expr.t) = struct
   include Type
   module Expr = Expr
 
@@ -1180,8 +1357,11 @@ and TypeOfExprType : (Sig.TYPE_OF_EXPR_TYPE with type t = Type.t) = struct
   let pp fmt t = F.fprintf fmt "__typeof__(%a)" Expr.pp (get_underlying_expr t)
 end
 
-and TypedefType : (Sig.TYPEDEF_TYPE with type t = Type.t) = struct
-  type t = Type.t
+and TypedefType :
+  (Sig.TYPEDEF_TYPE with type t = Type.t and type TypedefDecl.t = TypedefDecl.t) =
+struct
+  include Type
+  module TypedefDecl = TypedefDecl
 
   external get_decl : t -> TypedefDecl.t = "clang_typedef_type_get_decl"
 

@@ -51,6 +51,10 @@ module type DECL = sig
 
   val get_attrs : t -> Attr.t list
 
+  val get_global_id : t -> int
+
+  val hash : t -> int
+
   val is_implicit : t -> bool
 
   val pp : F.formatter -> t -> unit
@@ -96,6 +100,12 @@ module type VALUE_DECL = sig
   val get_type : t -> QualType.t
 end
 
+module type TAG_DECL = sig
+  include NAMED_DECL
+
+  val is_complete_definition : t -> bool
+end
+
 module type PARAM_VAR_DECL = VALUE_DECL
 
 module type STMT = sig
@@ -110,6 +120,8 @@ module type STMT = sig
   val get_kind_name : t -> string
 
   val get_source_location : t -> SourceLocation.t option
+
+  val is_expr : t -> bool
 end
 
 module type FUNCTION_DECL = sig
@@ -144,14 +156,54 @@ end
 
 module type FIELD_DECL = VALUE_DECL
 
+module type INDIRECT_FIELD_DECL = sig
+  include VALUE_DECL
+
+  module Decl : DECL
+
+  val get_decl_list : t -> Decl.t list
+end
+
 module type LABEL_DECL = NAMED_DECL
 
-module type TYPEDEF_DECL = NAMED_DECL
+module type TYPEDEF_DECL = sig
+  include NAMED_DECL
 
-module type ENUM_DECL = NAMED_DECL
+  module QualType : QUAL_TYPE
+
+  val get_underlying_type : t -> QualType.t
+end
+
+module type EXPR = sig
+  include STMT
+
+  module QualType : QUAL_TYPE
+
+  val get_type : t -> QualType.t
+
+  val is_cast : t -> bool
+end
+
+module type ENUM_CONSTANT_DECL = sig
+  include NAMED_DECL
+
+  module Expr : EXPR
+
+  val get_init_expr : t -> Expr.t
+
+  val get_init_val : t -> Int64.t
+end
+
+module type ENUM_DECL = sig
+  include TAG_DECL
+
+  module EnumConstantDecl : ENUM_CONSTANT_DECL
+
+  val get_enums : t -> EnumConstantDecl.t list
+end
 
 module type RECORD_DECL = sig
-  include NAMED_DECL
+  include TAG_DECL
 
   module Decl : DECL
 
@@ -172,14 +224,6 @@ end
 
 module type TYPEDEC_DECL = NAMED_DECL
 
-module type EXPR = sig
-  include STMT
-
-  module QualType : QUAL_TYPE
-
-  val get_type : t -> QualType.t
-end
-
 module type COMPOUND_STMT = sig
   include STMT
 
@@ -198,9 +242,29 @@ end
 
 module type GOTO_STMT = NODE
 
-module type IMPLICIT_CAST_EXPR = NODE
+module type IMPLICIT_CAST_EXPR = sig
+  include EXPR
 
-module type EXPLICIT_CAST_EXPR = NODE
+  type kind = ImplicitCastKind.t
+
+  module Expr : EXPR
+
+  val get_sub_expr : t -> Expr.t
+
+  val get_kind : t -> kind
+
+  val get_kind_name : t -> string
+
+  val get_kind_enum : t -> int
+end
+
+module type EXPLICIT_CAST_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_sub_expr : t -> Expr.t
+end
 
 module type IMPLICIT_VALUE_INIT_EXPR = NODE
 
@@ -215,7 +279,7 @@ end
 module type CHARACTER_LITERAL = sig
   include EXPR
 
-  type kind
+  type kind = CharacterKind.t
 
   val get_kind : t -> kind
 
@@ -237,7 +301,9 @@ end
 module type CONSTANT_EXPR = sig
   include EXPR
 
-  val get_sub_expr : t -> t
+  module Expr : EXPR
+
+  val get_sub_expr : t -> Expr.t
 end
 
 module type STMT_EXPR = sig
@@ -273,26 +339,59 @@ end
 module type BINARY_OPERATOR = sig
   include STMT
 
-  type kind
+  type kind = BinaryOperatorKind.t
+
+  module Expr : EXPR
 
   val get_kind : t -> kind
 
   val has_side_effect : t -> bool
+
+  val get_lhs : t -> Expr.t
+
+  val get_rhs : t -> Expr.t
 end
 
-module type UNARY_EXPR_OR_TYPE_TRAIT_EXPR = NODE
+module type UNARY_EXPR_OR_TYPE_TRAIT_EXPR = sig
+  include EXPR
+
+  type kind =
+    | SizeOf
+    | AlignOf
+    | PreferredAlignOf
+    | VecStep
+    | OpenMPRequiredSimdAlign
+
+  val get_kind : t -> kind
+
+  val is_argument_type : t -> bool
+
+  val get_argument_expr : t -> t
+
+  val get_argument_type : t -> QualType.t
+end
 
 module type UNARY_OPERATOR = sig
   include STMT
 
-  type kind
+  type kind = UnaryOperatorKind.t
+
+  module Expr : EXPR
 
   val get_kind : t -> kind
+
+  val get_sub_expr : t -> Expr.t
 
   val has_side_effect : t -> bool
 end
 
-module type DECL_REF_EXPR = NODE
+module type DECL_REF_EXPR = sig
+  include EXPR
+
+  module NamedDecl : NAMED_DECL
+
+  val get_decl : t -> NamedDecl.t
+end
 
 module type IF_STMT = sig
   include STMT
@@ -358,7 +457,19 @@ module type FOR_STMT = sig
   val get_condition_variable : t -> VarDecl.t option
 end
 
-module type MEMBER_EXPR = NODE
+module type MEMBER_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  module NamedDecl : NAMED_DECL
+
+  val get_base : t -> Expr.t
+
+  val get_member_decl : t -> NamedDecl.t
+
+  val is_arrow : t -> bool
+end
 
 module type OPAQUE_VALUE_EXPR = sig
   include EXPR
@@ -376,7 +487,15 @@ module type PAREN_EXPR = sig
   val get_sub_expr : t -> Expr.t
 end
 
-module type CALL_EXPR = NODE
+module type CALL_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_callee : t -> Expr.t
+
+  val get_args : t -> Expr.t list
+end
 
 module type CASE_STMT = sig
   include STMT
@@ -407,9 +526,27 @@ module type SWITCH_STMT = sig
 
   module Expr : EXPR
 
+  module VarDecl : VAR_DECL
+
+  val get_init : t -> Stmt.t option
+
+  val get_condition_variable : t -> VarDecl.t option
+
   val get_cond : t -> Expr.t
 
   val get_body : t -> Stmt.t
+end
+
+module type DESIGNATOR = sig
+  type t
+
+  val is_field_designator : t -> bool
+
+  val is_array_designator : t -> bool
+
+  val is_array_range_designator : t -> bool
+
+  val get_field_name : t -> string
 end
 
 module type DESIGNATED_INIT_EXPR = sig
@@ -417,7 +554,11 @@ module type DESIGNATED_INIT_EXPR = sig
 
   module Expr : EXPR
 
+  module Designator : DESIGNATOR
+
   val get_init : t -> Expr.t
+
+  val get_designators : t -> Designator.t list
 end
 
 module type ATTRIBUTED_STMT = STMT
@@ -453,6 +594,8 @@ end
 module type VA_ARG_EXPR = sig
   include EXPR
 
+  module Expr : EXPR
+
   val get_sub_expr : t -> t
 end
 
@@ -474,7 +617,11 @@ module type ADJUSTED_TYPE = sig
   val get_original_type : t -> QualType.t
 end
 
-module type DECAYED_TYPE = ADJUSTED_TYPE
+module type DECAYED_TYPE = sig
+  include ADJUSTED_TYPE
+
+  val get_decayed_type : t -> QualType.t
+end
 
 module type ARRAY_TYPE = sig
   include NODE
@@ -508,6 +655,14 @@ module type FUNCTION_TYPE = sig
   val param_types : t -> QualType.t list
 end
 
+module type FUNCTION_PROTO_TYPE = sig
+  include FUNCTION_TYPE
+
+  val is_variadic : t -> bool
+end
+
+module type FUNCTION_NO_PROTO_TYPE = FUNCTION_TYPE
+
 module type PAREN_TYPE = sig
   include NODE
 
@@ -516,13 +671,37 @@ module type PAREN_TYPE = sig
   val desugar : t -> QualType.t
 end
 
-module type POINTER_TYPE = NODE
+module type POINTER_TYPE = sig
+  include NODE
 
-module type ELABORATED_TYPE = NODE
+  module QualType : QUAL_TYPE
 
-module type ENUM_TYPE = NODE
+  val get_pointee_type : t -> QualType.t
+end
 
-module type RECORD_TYPE = NODE
+module type ELABORATED_TYPE = sig
+  include NODE
+
+  module QualType : QUAL_TYPE
+
+  val desugar : t -> QualType.t
+end
+
+module type ENUM_TYPE = sig
+  include TYPE
+
+  module EnumDecl : ENUM_DECL
+
+  val get_decl : t -> EnumDecl.t
+end
+
+module type RECORD_TYPE = sig
+  include TYPE
+
+  module RecordDecl : RECORD_DECL
+
+  val get_decl : t -> RecordDecl.t
+end
 
 module type TYPE_OF_EXPR_TYPE = sig
   include TYPE
@@ -532,4 +711,10 @@ module type TYPE_OF_EXPR_TYPE = sig
   val get_underlying_expr : t -> Expr.t
 end
 
-module type TYPEDEF_TYPE = NODE
+module type TYPEDEF_TYPE = sig
+  include TYPE
+
+  module TypedefDecl : TYPEDEF_DECL
+
+  val get_decl : t -> TypedefDecl.t
+end

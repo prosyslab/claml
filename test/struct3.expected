@@ -6,6 +6,12 @@
 #line 1 "struct3.c"
 struct {
   unsigned long long __wseq;
+#line 3 "struct3.c"
+  struct {
+    unsigned int __low;
+    unsigned int __high;
+  };
+  ;
   struct {
     unsigned int __low;
     unsigned int __high;

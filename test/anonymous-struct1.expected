@@ -5,14 +5,38 @@
 // implicit typedef
 #line 1 "anonymous-struct1.c"
 struct {
+#line 2 "anonymous-struct1.c"
   struct {
+#line 3 "anonymous-struct1.c"
+    struct {};
+    ;
+    struct {
+    } a;
+  };
+  ;
+  struct {
+#line 3 "anonymous-struct1.c"
+    struct {};
+    ;
     struct {
     } a;
   } b;
 };
 #line 6 "anonymous-struct1.c"
 struct {
+#line 2 "anonymous-struct1.c"
   struct {
+#line 3 "anonymous-struct1.c"
+    struct {};
+    ;
+    struct {
+    } a;
+  };
+  ;
+  struct {
+#line 3 "anonymous-struct1.c"
+    struct {};
+    ;
     struct {
     } a;
   } b;

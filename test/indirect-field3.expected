@@ -5,15 +5,29 @@
 // implicit typedef
 #line 1 "indirect-field3.c"
 struct {
+#line 2 "indirect-field3.c"
   struct {
     int a;
   };
+  ;
+  struct {
+    int a;
+  };
+#line 3 "indirect-field3.c"
+  int a(IndirectField, 68);
 };
 #line 5 "indirect-field3.c"
 typedef struct {
+#line 2 "indirect-field3.c"
   struct {
     int a;
   };
+  ;
+  struct {
+    int a;
+  };
+#line 3 "indirect-field3.c"
+  int a(IndirectField, 68);
 } b;
 #line 6 "indirect-field3.c"
 b *c;

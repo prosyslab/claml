@@ -27,6 +27,8 @@ value clang_parse_file(value args) {
   clang::IntrusiveRefCntPtr<clang::DiagnosticsEngine> Diags =
       clang::CompilerInstance::createDiagnostics(
           new clang::DiagnosticOptions());
+  Diags->setIgnoreAllWarnings(true);
+  Diags->setSuppressAllDiagnostics(true);
   clang::FileSystemOptions FileSystemOpts;
   llvm::SmallVector<const char *, 4> Args;
   Args.push_back("clang");
@@ -106,6 +108,12 @@ value clang_decl_is_value_decl(value Decl) {
   }
 }
 
+value clang_decl_hash(value Param) {
+  CAMLparam1(Param);
+  clang::Decl *P = *((clang::Decl **)Data_abstract_val(Param));
+  CAMLreturn(Val_int((unsigned long)P));
+}
+
 value clang_decl_get_attrs(value Param) {
   CAMLparam1(Param);
   CAMLlocal4(Hd, Tl, AT, PT);
@@ -122,6 +130,11 @@ value clang_decl_get_attrs(value Param) {
   }
   CAMLreturn(Tl);
 }
+
+WRAPPER_INT(clang_decl_get_global_id, Decl, getID)
+
+WRAPPER_BOOL(clang_tag_decl_is_complete_definition, TagDecl,
+             isCompleteDefinition)
 
 WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, FunctionDecl, ParmVarDecl,
                       getNumParams, getParamDecl)
@@ -158,11 +171,39 @@ value clang_record_decl_field_list_internal(value Decl) {
   CAMLparam1(Decl);
   CAMLlocal3(Hd, Tl, R);
   clang::RecordDecl *RD = *((clang::RecordDecl **)Data_abstract_val(Decl));
+  /*  R = caml_alloc(1, Abstract_tag);
+    Tl = Val_int(0);
+    for (auto i = RD->field_begin(); i != RD->field_end(); i++) {
+      Hd = caml_alloc(1, Abstract_tag);
+      *((clang::FieldDecl **)Data_abstract_val(Hd)) = *i;
+      value Tmp = caml_alloc(2, Abstract_tag);
+      Field(Tmp, 0) = Hd;
+      Field(Tmp, 1) = Tl;
+      Tl = Tmp;
+    }*/
   R = caml_alloc(1, Abstract_tag);
   Tl = Val_int(0);
-  for (auto i = RD->field_begin(); i != RD->field_end(); i++) {
+  for (auto i = RD->decls_begin(); i != RD->decls_end(); i++) {
     Hd = caml_alloc(1, Abstract_tag);
-    *((clang::FieldDecl **)Data_abstract_val(Hd)) = *i;
+    *((clang::Decl **)Data_abstract_val(Hd)) = *i;
+    value Tmp = caml_alloc(2, Abstract_tag);
+    Field(Tmp, 0) = Hd;
+    Field(Tmp, 1) = Tl;
+    Tl = Tmp;
+  }
+  CAMLreturn(Tl);
+}
+
+value clang_indirect_field_decl_get_decl_list_internal(value Decl) {
+  CAMLparam1(Decl);
+  CAMLlocal3(Hd, Tl, R);
+  clang::IndirectFieldDecl *RD =
+      *((clang::IndirectFieldDecl **)Data_abstract_val(Decl));
+  R = caml_alloc(1, Abstract_tag);
+  Tl = Val_int(0);
+  for (auto i = RD->chain_begin(); i != RD->chain_end(); i++) {
+    Hd = caml_alloc(1, Abstract_tag);
+    *((clang::NamedDecl **)Data_abstract_val(Hd)) = *i;
     value Tmp = caml_alloc(2, Abstract_tag);
     Field(Tmp, 0) = Hd;
     Field(Tmp, 1) = Tl;
@@ -261,6 +302,27 @@ WRAPPER_PTR_OPTION(clang_for_stmt_get_condition_variable, ForStmt, VarDecl,
 WRAPPER_PTR(clang_designated_init_expr_get_init, DesignatedInitExpr, Expr,
             getInit)
 
+WRAPPER_LIST_WITH_IDX(clang_designated_init_expr_get_designators,
+                      DesignatedInitExpr, DesignatedInitExpr::Designator, size,
+                      getDesignator)
+
+WRAPPER_BOOL(clang_designator_is_field_designator,
+             DesignatedInitExpr::Designator, isFieldDesignator)
+
+WRAPPER_BOOL(clang_designator_is_array_designator,
+             DesignatedInitExpr::Designator, isArrayDesignator)
+
+WRAPPER_BOOL(clang_designator_is_array_range_designator,
+             DesignatedInitExpr::Designator, isArrayRangeDesignator)
+
+value clang_designator_get_field_name(value Param) {
+  CAMLparam1(Param);
+  CAMLlocal1(Result);
+  clang::DesignatedInitExpr::Designator *S =
+      *((clang::DesignatedInitExpr::Designator **)Data_abstract_val(Param));
+  CAMLreturn(clang_to_string(S->getFieldName()->getName().data()));
+}
+
 WRAPPER_QUAL_TYPE(clang_typedef_decl_get_underlying_type, TypedefDecl,
                   getUnderlyingType)
 
@@ -280,12 +342,27 @@ value clang_enum_decl_get_enums(value T) {
   CAMLreturn(Tl);
 }
 
+WRAPPER_PTR(clang_enum_constant_decl_get_init_expr, EnumConstantDecl, Expr,
+            getInitExpr)
+WRAPPER_INT64(clang_enum_constant_decl_get_init_val, EnumConstantDecl,
+              getInitVal)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Expr
 ////////////////////////////////////////////////////////////////////////////////
 
 WRAPPER_INT(clang_stmt_get_kind, Stmt, getStmtClass)
 WRAPPER_STR(clang_stmt_get_kind_name, Stmt, getStmtClassName)
+
+value clang_stmt_is_expr(value Stmt) {
+  CAMLparam1(Stmt);
+  clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(Stmt));
+  if (clang::Expr *E = llvm::dyn_cast<clang::Expr>(S)) {
+    CAMLreturn(Val_true);
+  } else {
+    CAMLreturn(Val_false);
+  }
+}
 
 value clang_stmt_get_source_location(value Stmt) {
   CAMLparam1(Stmt);
@@ -335,13 +412,25 @@ WRAPPER_PTR(clang_constant_expr_get_sub_expr, ConstantExpr, Expr, getSubExpr)
 
 WRAPPER_PTR(clang_stmt_expr_get_sub_stmt, StmtExpr, CompoundStmt, getSubStmt)
 
-WRAPPER_INT(clang_get_cast_kind, CastExpr, getCastKind)
+WRAPPER_INT(clang_cast_expr_get_kind, CastExpr, getCastKind)
 
-WRAPPER_STR(clang_cast_get_kind_name, CastExpr, getCastKindName)
+WRAPPER_INT(clang_cast_expr_get_kind_enum, CastExpr, getCastKind)
 
-WRAPPER_PTR(clang_get_cast_sub_expr, CastExpr, Expr, getSubExpr)
+WRAPPER_STR(clang_cast_expr_get_kind_name, CastExpr, getCastKindName)
+
+WRAPPER_PTR(clang_cast_expr_get_sub_expr, CastExpr, Expr, getSubExpr)
 
 WRAPPER_QUAL_TYPE(clang_expr_get_type, Expr, getType)
+
+value clang_expr_is_cast(value Expr) {
+  CAMLparam1(Expr);
+  clang::Expr *E = *((clang::Expr **)Data_abstract_val(Expr));
+  if (clang::CastExpr *C = llvm::dyn_cast<clang::CastExpr>(E)) {
+    CAMLreturn(Val_true);
+  } else {
+    CAMLreturn(Val_false);
+  }
+}
 
 WRAPPER_PTR(clang_predefined_expr_get_function_name, PredefinedExpr,
             StringLiteral, getFunctionName)
@@ -418,6 +507,11 @@ WRAPPER_PTR(clang_case_stmt_get_rhs, CaseStmt, Expr, getRHS)
 WRAPPER_PTR(clang_case_stmt_get_sub_stmt, CaseStmt, Stmt, getSubStmt)
 
 WRAPPER_PTR(clang_default_stmt_get_sub_stmt, DefaultStmt, Stmt, getSubStmt)
+
+WRAPPER_PTR_OPTION(clang_switch_stmt_get_init, SwitchStmt, Stmt, getInit)
+
+WRAPPER_PTR_OPTION(clang_switch_stmt_get_condition_variable, SwitchStmt,
+                   VarDecl, getConditionVariable)
 
 WRAPPER_PTR(clang_switch_stmt_get_cond, SwitchStmt, Expr, getCond)
 
