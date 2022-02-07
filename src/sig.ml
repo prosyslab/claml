@@ -276,7 +276,41 @@ module type LABEL_STMT = sig
   val get_sub_stmt : t -> Stmt.t
 end
 
-module type WHILE_STMT = NODE
+module type WHILE_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  val get_cond : t -> Stmt.t
+
+  val get_body : t -> Stmt.t
+end
+
+module type DO_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  val get_cond : t -> Stmt.t
+
+  val get_body : t -> Stmt.t
+end
+
+module type FOR_STMT = sig
+  include STMT
+
+  module Stmt : STMT
+
+  module Expr : EXPR
+
+  val get_cond : t -> Expr.t
+
+  val get_inc : t -> Expr.t
+
+  val get_body : t -> Stmt.t
+
+  val get_init : t -> Stmt.t
+end
 
 module type MEMBER_EXPR = NODE
 

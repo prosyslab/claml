@@ -312,6 +312,7 @@ and Stmt : Sig.STMT = struct
     | VAArgExpr -> VAArgExpr.pp fmt exp
     | LabelStmt -> LabelStmt.pp fmt exp
     | WhileStmt -> WhileStmt.pp fmt exp
+    | ForStmt -> ForStmt.pp fmt exp
     | k ->
         F.fprintf fmt "%a (%s, %d)" pp_kind k (get_kind_name exp)
           (get_kind_enum exp)
@@ -829,12 +830,48 @@ struct
     | _ -> ()
 end
 
-and WhileStmt : (Sig.WHILE_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+and WhileStmt : (Sig.WHILE_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) =
+struct
+  include Stmt
+  module Stmt = Stmt
 
   external get_cond : t -> Stmt.t = "clang_while_stmt_get_cond"
 
   external get_body : t -> Stmt.t = "clang_while_stmt_get_body"
+
+  let pp fmt d =
+    F.fprintf fmt "while (%a) %a" Stmt.pp (get_cond d) Stmt.pp (get_body d)
+end
+
+and DoStmt : (Sig.DO_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) =
+struct
+  include Stmt
+  module Stmt = Stmt
+
+  external get_cond : t -> Stmt.t = "clang_do_stmt_get_cond"
+
+  external get_body : t -> Stmt.t = "clang_do_stmt_get_body"
+
+  let pp fmt d =
+    F.fprintf fmt "do %a while(%a)" Stmt.pp (get_body d) Stmt.pp (get_cond d)
+end
+
+and ForStmt :
+  (Sig.FOR_STMT
+    with type t = Stmt.t
+     and type Expr.t = Expr.t
+     and type Stmt.t = Stmt.t) = struct
+  include Stmt
+  module Expr = Expr
+  module Stmt = Stmt
+
+  external get_cond : t -> Expr.t = "clang_for_stmt_get_cond"
+
+  external get_inc : t -> Expr.t = "clang_for_stmt_get_inc"
+
+  external get_body : t -> Stmt.t = "clang_for_stmt_get_body"
+
+  external get_init : t -> Stmt.t = "clang_for_stmt_get_init"
 
   let pp fmt d =
     F.fprintf fmt "while (%a) %a" Stmt.pp (get_cond d) Stmt.pp (get_body d)
