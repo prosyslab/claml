@@ -1190,7 +1190,11 @@ and ArrayType : (Sig.ARRAY_TYPE with type t = Type.t) = struct
   let pp fmt t = ()
 end
 
-and ConstantArrayType : (Sig.CONSTANT_ARRAY_TYPE with type t = Type.t) = struct
+and ConstantArrayType :
+  (Sig.CONSTANT_ARRAY_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include ArrayType
 
   external get_size : t -> Int64.t = "clang_constant_array_type_get_size_expr"
