@@ -4,9 +4,9 @@
 // implicit typedef
 // implicit typedef
 #line 1 "duplication0.c"
-int f(int, ) { return 0; }
+int f(int, );
 #line 2 "duplication0.c"
-int f(int, ) { return 0; }
+int f(int, );
 #line 4 "duplication0.c"
 int f(int x, ) { return 0; }
 #line 6 "duplication0.c"

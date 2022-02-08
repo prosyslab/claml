@@ -11,15 +11,13 @@ struct {
 } Point;
 #line 4 "designated-init1.c"
 Point p1 = {
-    2,
-    0,
-    1,
+    StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
+    StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
+    StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
 };
 #line 5 "designated-init1.c"
 Point p2 = {
-    20,
-    ,
-    ,
+    StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
 };
 #line 7 "designated-init1.c"
 int main() { return 0; }

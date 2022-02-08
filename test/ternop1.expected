@@ -8,9 +8,7 @@ typedef int __int32_t;
 #line 3 "ternop1.c"
 extern const __int32_t **__ctype_tolower_loc();
 #line 7 "ternop1.c"
-extern int tolower(int, ) {
-  return __c >= -128 && __c < 256 ? *__ctype_tolower_loc()[__c] : __c;
-}
+extern int tolower(int, );
 #line 7 "ternop1.c"
 extern inline int tolower(int __c, ) {
   return __c >= -128 && __c < 256 ? *__ctype_tolower_loc()[__c] : __c;

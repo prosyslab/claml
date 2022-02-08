@@ -14,6 +14,7 @@
 extern "C" {
 clang::ASTContext *AC = NULL;
 
+// https://github.com/llvm/llvm-project/blob/a2e2fbba17ace0958d9b188aef68f80bcf63332d/clang/tools/libclang/CIndex.cpp#L3572
 value clang_parse_file(value args) {
   CAMLparam1(args);
   CAMLlocal1(v);
@@ -32,6 +33,8 @@ value clang_parse_file(value args) {
   clang::FileSystemOptions FileSystemOpts;
   llvm::SmallVector<const char *, 4> Args;
   Args.push_back("clang");
+  Args.push_back("-cc1");
+  Args.push_back("-fsyntax-only");
   Args.push_back(clang_args[0]);
   std::shared_ptr<clang::PCHContainerOperations> PCHContainerOps =
       std::make_shared<clang::PCHContainerOperations>();
@@ -141,10 +144,12 @@ WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, FunctionDecl, ParmVarDecl,
 WRAPPER_QUAL_TYPE(clang_function_decl_get_return_type, FunctionDecl,
                   getReturnType)
 WRAPPER_BOOL(clang_function_decl_has_body, FunctionDecl, hasBody)
+WRAPPER_BOOL(clang_function_decl_does_this_declaration_have_a_body,
+             FunctionDecl, doesThisDeclarationHaveABody)
 WRAPPER_BOOL(clang_function_decl_is_inline_specified, FunctionDecl,
              isInlineSpecified)
 WRAPPER_BOOL(clang_function_decl_is_variadic, FunctionDecl, isVariadic)
-WRAPPER_PTR(clang_function_decl_get_body, FunctionDecl, Stmt, getBody)
+WRAPPER_PTR_OPTION(clang_function_decl_get_body, FunctionDecl, Stmt, getBody)
 
 WRAPPER_BOOL(clang_record_decl_is_anonymous, RecordDecl,
              isAnonymousStructOrUnion)
@@ -278,9 +283,12 @@ value clang_vardecl_get_init(value VarDecl) {
 
 WRAPPER_PTR(clang_goto_stmt_get_label, GotoStmt, LabelDecl, getLabel)
 
+WRAPPER_PTR_OPTION(clang_if_stmt_get_init, IfStmt, Stmt, getInit)
+WRAPPER_PTR_OPTION(clang_if_stmt_get_condition_variable, IfStmt, VarDecl,
+                   getConditionVariable)
 WRAPPER_PTR(clang_if_stmt_get_cond, IfStmt, Expr, getCond)
 WRAPPER_PTR(clang_if_stmt_get_then, IfStmt, Stmt, getThen)
-WRAPPER_PTR(clang_if_stmt_get_else, IfStmt, Stmt, getElse)
+WRAPPER_PTR_OPTION(clang_if_stmt_get_else, IfStmt, Stmt, getElse)
 WRAPPER_BOOL(clang_if_stmt_has_else_storage, IfStmt, hasElseStorage)
 
 WRAPPER_STR(clang_label_stmt_get_name, LabelStmt, getName)
@@ -288,6 +296,8 @@ WRAPPER_PTR(clang_label_stmt_get_sub_stmt, LabelStmt, Stmt, getSubStmt)
 
 WRAPPER_PTR(clang_while_stmt_get_cond, WhileStmt, Expr, getCond)
 WRAPPER_PTR(clang_while_stmt_get_body, WhileStmt, Stmt, getBody)
+WRAPPER_PTR_OPTION(clang_while_stmt_get_condition_variable, WhileStmt, VarDecl,
+                   getConditionVariable)
 
 WRAPPER_PTR(clang_do_stmt_get_cond, DoStmt, Expr, getCond)
 WRAPPER_PTR(clang_do_stmt_get_body, DoStmt, Expr, getCond)
@@ -541,8 +551,8 @@ WRAPPER_PTR(clang_attributed_stmt_get_sub_stmt, AttributedStmt, Stmt,
 WRAPPER_PTR(clang_binary_conditional_operator_get_cond,
             BinaryConditionalOperator, Expr, getCond)
 
-WRAPPER_PTR(clang_binary_conditional_operator_get_true_expr,
-            BinaryConditionalOperator, Expr, getTrueExpr)
+WRAPPER_PTR_OPTION(clang_binary_conditional_operator_get_true_expr,
+                   BinaryConditionalOperator, Expr, getTrueExpr)
 
 WRAPPER_PTR(clang_binary_conditional_operator_get_false_expr,
             BinaryConditionalOperator, Expr, getFalseExpr)
@@ -550,8 +560,8 @@ WRAPPER_PTR(clang_binary_conditional_operator_get_false_expr,
 WRAPPER_PTR(clang_conditional_operator_get_cond, ConditionalOperator, Expr,
             getCond)
 
-WRAPPER_PTR(clang_conditional_operator_get_true_expr, ConditionalOperator, Expr,
-            getTrueExpr)
+WRAPPER_PTR_OPTION(clang_conditional_operator_get_true_expr,
+                   ConditionalOperator, Expr, getTrueExpr)
 
 WRAPPER_PTR(clang_conditional_operator_get_false_expr, ConditionalOperator,
             Expr, getFalseExpr)
@@ -564,6 +574,12 @@ WRAPPER_PTR(clang_array_subscript_expr_get_idx, ArraySubscriptExpr, Expr,
 
 WRAPPER_PTR(clang_va_arg_expr_get_sub_expr, VAArgExpr, Expr, getSubExpr)
 
+WRAPPER_BOOL(clang_init_list_expr_is_syntactic_form, InitListExpr,
+             isSyntacticForm)
+WRAPPER_BOOL(clang_init_list_expr_is_semantic_form, InitListExpr,
+             isSemanticForm)
+WRAPPER_PTR_OPTION(clang_init_list_expr_get_syntactic_form, InitListExpr,
+                   InitListExpr, getSyntacticForm)
 WRAPPER_LIST_WITH_IDX(clang_init_list_expr_get_inits, InitListExpr, Expr,
                       getNumInits, getInit)
 

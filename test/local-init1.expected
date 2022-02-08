@@ -41,27 +41,7 @@ struct {
 int main() {
 #line 32 "local-init1.c"
   D d = {
-      {
-          1,
-          {
-              (float)2,
-          },
-          {
-              3,
-              {
-                  4,
-                  (float)5,
-                  (double)6,
-                  {
-                      7,
-                  },
-              },
-              ,
-          },
-      },
-      ,
-      ,
-      ,
+      1, (float)2, 3, 4, (float)5, (double)6, 7,
   };
   return 1;
 }

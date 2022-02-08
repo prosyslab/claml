@@ -22,7 +22,5 @@ int main() {
 #line 10 "local-init2.c"
   B b = {
       1,
-      ,
-      ,
   };
 }

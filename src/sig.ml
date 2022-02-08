@@ -79,6 +79,8 @@ module type QUAL_TYPE = sig
 
   type t = { ty : Type.t; const : bool }
 
+  val is_null : t -> bool
+
   val to_string : t -> string
 
   val pp : Format.formatter -> t -> unit
@@ -137,7 +139,9 @@ module type FUNCTION_DECL = sig
 
   val has_body : t -> bool
 
-  val get_body : t -> Stmt.t
+  val does_this_declaration_have_a_body : t -> bool
+
+  val get_body : t -> Stmt.t option
 
   val is_inline_specified : t -> bool
 
@@ -240,7 +244,13 @@ module type DECL_STMT = sig
   val decl_list : t -> Decl.t list
 end
 
-module type GOTO_STMT = NODE
+module type GOTO_STMT = sig
+  include STMT
+
+  module LabelDecl : LABEL_DECL
+
+  val get_label : t -> LabelDecl.t
+end
 
 module type IMPLICIT_CAST_EXPR = sig
   include EXPR
@@ -398,11 +408,19 @@ module type IF_STMT = sig
 
   module Stmt : STMT
 
-  val get_cond : t -> Stmt.t
+  module Expr : EXPR
+
+  module VarDecl : VAR_DECL
+
+  val get_init : t -> Stmt.t option
+
+  val get_cond : t -> Expr.t
+
+  val get_condition_variable : t -> VarDecl.t option
 
   val get_then : t -> Stmt.t
 
-  val get_else : t -> Stmt.t
+  val get_else : t -> Stmt.t option
 
   val has_else_storage : t -> bool
 end
@@ -421,6 +439,10 @@ module type WHILE_STMT = sig
   include STMT
 
   module Stmt : STMT
+
+  module VarDecl : VAR_DECL
+
+  val get_condition_variable : t -> VarDecl.t option
 
   val get_cond : t -> Stmt.t
 
@@ -568,7 +590,7 @@ module type BINARY_CONDITIONAL_OPERATOR = sig
 
   val get_cond : t -> t
 
-  val get_true_expr : t -> t
+  val get_true_expr : t -> t option
 
   val get_false_expr : t -> t
 end
@@ -578,7 +600,7 @@ module type CONDITIONAL_OPERATOR = sig
 
   val get_cond : t -> t
 
-  val get_true_expr : t -> t
+  val get_true_expr : t -> t option
 
   val get_false_expr : t -> t
 end

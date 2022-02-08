@@ -181,9 +181,14 @@ and FunctionDecl :
   external get_params : t -> ParmVarDecl.t list
     = "clang_function_decl_get_params"
 
+  (* has body *eventually* *)
   external has_body : t -> bool = "clang_function_decl_has_body"
 
-  external get_body : t -> Stmt.t = "clang_function_decl_get_body"
+  (* this particular declaration *)
+  external does_this_declaration_have_a_body : t -> bool
+    = "clang_function_decl_does_this_declaration_have_a_body"
+
+  external get_body : t -> Stmt.t option = "clang_function_decl_get_body"
 
   external is_inline_specified : t -> bool
     = "clang_function_decl_is_inline_specified"
@@ -197,7 +202,8 @@ and FunctionDecl :
       (fun param -> F.fprintf fmt "%a, " ParmVarDecl.pp param)
       (get_params fdecl);
     F.fprintf fmt ")";
-    if has_body fdecl then F.fprintf fmt " %a" Stmt.pp (get_body fdecl)
+    if does_this_declaration_have_a_body fdecl then
+      F.fprintf fmt " %a" Stmt.pp (get_body fdecl |> Option.get)
     else F.fprintf fmt ";"
 end
 
@@ -451,8 +457,11 @@ struct
   let pp fmt cs = decl_list cs |> pp_list fmt
 end
 
-and GotoStmt : (Sig.GOTO_STMT with type t = Stmt.t) = struct
-  type t = Stmt.t
+and GotoStmt :
+  (Sig.GOTO_STMT with type t = Stmt.t and type LabelDecl.t = LabelDecl.t) =
+struct
+  include Stmt
+  module LabelDecl = LabelDecl
 
   external get_label : Stmt.t -> LabelDecl.t = "clang_goto_stmt_get_label"
 
@@ -584,7 +593,23 @@ and InitListExpr :
   include Expr
   module Expr = Expr
 
-  external get_inits : t -> Expr.t list = "clang_init_list_expr_get_inits"
+  external is_syntactic_form : t -> bool
+    = "clang_init_list_expr_is_syntactic_form"
+
+  external is_semantic_form : t -> bool
+    = "clang_init_list_expr_is_semantic_form"
+
+  external get_syntactic_form : t -> t option
+    = "clang_init_list_expr_get_syntactic_form"
+
+  external get_inits_internal : t -> Expr.t list
+    = "clang_init_list_expr_get_inits"
+
+  (* TODO: use semantic form *)
+  let get_inits e =
+    match get_syntactic_form e with
+    | Some e -> get_inits_internal e
+    | None -> get_inits_internal e
 
   let pp fmt e =
     F.fprintf fmt "{";
@@ -766,14 +791,19 @@ and BinaryConditionalOperator :
 
   external get_cond : t -> t = "clang_binary_conditional_operator_get_cond"
 
-  external get_true_expr : t -> t
-    = "clang_binary_conditional_operator_get_true_expr"
+  let get_true_expr _ = None
 
   external get_false_expr : t -> t
     = "clang_binary_conditional_operator_get_false_expr"
 
   let pp fmt e =
-    F.fprintf fmt "%a ? : %a" Expr.pp (get_cond e) Expr.pp (get_false_expr e)
+    match get_true_expr e with
+    | Some te ->
+        F.fprintf fmt "%a ? %a : %a" Expr.pp (get_cond e) Expr.pp te Expr.pp
+          (get_false_expr e)
+    | None ->
+        F.fprintf fmt "%a ?  : %a" Expr.pp (get_cond e) Expr.pp
+          (get_false_expr e)
 end
 
 and ConditionalOperator : (Sig.CONDITIONAL_OPERATOR with type t = Stmt.t) =
@@ -782,13 +812,19 @@ struct
 
   external get_cond : t -> t = "clang_conditional_operator_get_cond"
 
-  external get_true_expr : t -> t = "clang_conditional_operator_get_true_expr"
+  external get_true_expr : t -> t option
+    = "clang_conditional_operator_get_true_expr"
 
   external get_false_expr : t -> t = "clang_conditional_operator_get_false_expr"
 
   let pp fmt e =
-    F.fprintf fmt "%a ? %a : %a" Expr.pp (get_cond e) Expr.pp (get_true_expr e)
-      Expr.pp (get_false_expr e)
+    match get_true_expr e with
+    | Some te ->
+        F.fprintf fmt "%a ? %a : %a" Expr.pp (get_cond e) Expr.pp te Expr.pp
+          (get_false_expr e)
+    | None ->
+        F.fprintf fmt "%a ?  : %a" Expr.pp (get_cond e) Expr.pp
+          (get_false_expr e)
 end
 
 and ArraySubscriptExpr : (Sig.ARRAY_SUBSCRIPT_EXPR with type t = Stmt.t) =
@@ -965,22 +1001,35 @@ struct
   let pp fmt d = F.fprintf fmt "%s" (get_decl d |> NamedDecl.get_name)
 end
 
-and IfStmt : (Sig.IF_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) =
-struct
+and IfStmt :
+  (Sig.IF_STMT
+    with type t = Stmt.t
+     and type Stmt.t = Stmt.t
+     and type Expr.t = Expr.t
+     and type Stmt.t = Stmt.t
+     and type VarDecl.t = VarDecl.t) = struct
   include Stmt
   module Stmt = Stmt
+  module Expr = Expr
+  module VarDecl = VarDecl
+
+  external get_init : t -> Stmt.t option = "clang_if_stmt_get_init"
 
   external get_cond : t -> Stmt.t = "clang_if_stmt_get_cond"
 
+  external get_condition_variable : t -> VarDecl.t option
+    = "clang_if_stmt_get_condition_variable"
+
   external get_then : t -> Stmt.t = "clang_if_stmt_get_then"
 
-  external get_else : t -> Stmt.t = "clang_if_stmt_get_else"
+  external get_else : t -> Stmt.t option = "clang_if_stmt_get_else"
 
   external has_else_storage : t -> bool = "clang_if_stmt_has_else_storage"
 
   let pp fmt d =
     F.fprintf fmt "if (%a) %a" Stmt.pp (get_cond d) Stmt.pp (get_then d);
-    if has_else_storage d then F.fprintf fmt " else %a" Stmt.pp (get_else d)
+    if has_else_storage d then
+      F.fprintf fmt " else %a" Stmt.pp (get_else d |> Option.get)
     else ()
 end
 
@@ -1018,14 +1067,21 @@ struct
     | _ -> ()
 end
 
-and WhileStmt : (Sig.WHILE_STMT with type t = Stmt.t and type Stmt.t = Stmt.t) =
-struct
+and WhileStmt :
+  (Sig.WHILE_STMT
+    with type t = Stmt.t
+     and type Stmt.t = Stmt.t
+     and type VarDecl.t = VarDecl.t) = struct
   include Stmt
   module Stmt = Stmt
+  module VarDecl = VarDecl
 
   external get_cond : t -> Stmt.t = "clang_while_stmt_get_cond"
 
   external get_body : t -> Stmt.t = "clang_while_stmt_get_body"
+
+  external get_condition_variable : t -> VarDecl.t option
+    = "clang_while_stmt_get_condition_variable"
 
   let pp fmt d =
     F.fprintf fmt "while (%a) %a" Stmt.pp (get_cond d) Stmt.pp (get_body d)
@@ -1092,7 +1148,8 @@ and MemberExpr :
       (get_member_decl e |> NamedDecl.get_name)
 end
 
-and OpaqueValueExpr : (Sig.OPAQUE_VALUE_EXPR with type t = Stmt.t) = struct
+and OpaqueValueExpr :
+  (Sig.OPAQUE_VALUE_EXPR with type t = Stmt.t and type Expr.t = Expr.t) = struct
   include Expr
   module Expr = Expr
 
@@ -1102,7 +1159,8 @@ and OpaqueValueExpr : (Sig.OPAQUE_VALUE_EXPR with type t = Stmt.t) = struct
   let pp fmt e = F.fprintf fmt "%a" Expr.pp (get_source_expr e)
 end
 
-and ParenExpr : (Sig.PAREN_EXPR with type t = Stmt.t) = struct
+and ParenExpr : (Sig.PAREN_EXPR with type t = Stmt.t and type Expr.t = Expr.t) =
+struct
   include Expr
   module Expr = Expr
 
@@ -1204,13 +1262,22 @@ and ConstantArrayType :
       (get_size t |> Int64.to_int)
 end
 
-and IncompleteArrayType : (Sig.ARRAY_TYPE with type t = Type.t) = struct
+and IncompleteArrayType :
+  (Sig.ARRAY_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include ArrayType
 
   let pp fmt t = F.fprintf fmt "%a []" QualType.pp (get_element_type t)
 end
 
-and VariableArrayType : (Sig.VARIABLE_ARRAY_TYPE with type t = Type.t) = struct
+and VariableArrayType :
+  (Sig.VARIABLE_ARRAY_TYPE
+    with type t = Type.t
+     and type Expr.t = Expr.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include ArrayType
   module Expr = Expr
 
@@ -1285,7 +1352,11 @@ and FunctionProtoType :
   let pp fmt t = ()
 end
 
-and ParenType : (Sig.PAREN_TYPE with type t = Type.t) = struct
+and ParenType :
+  (Sig.PAREN_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
   include Type
   module QualType = QualType
 
@@ -1376,6 +1447,8 @@ and QualType : (Sig.QUAL_TYPE with type Type.t = Type.t) = struct
   module Type = Type
 
   type t = { ty : Type.t; const : bool }
+
+  external is_null : t -> bool = "clang_qual_type_is_null"
 
   external to_string : t -> string = "clang_qual_type_to_string"
 

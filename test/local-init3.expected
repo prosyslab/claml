@@ -25,17 +25,8 @@ typedef _B B;
 int main() {
 #line 12 "local-init3.c"
   B b = {
-      {
-          {
-              {
-                  (float)1,
-              },
-              {
-                  2,
-                  3,
-              },
-          },
-      },
-      ,
+      (float)1,
+      2,
+      3,
   };
 }

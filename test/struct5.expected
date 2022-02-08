@@ -16,8 +16,6 @@ struct {
   a c;
 }[1] d = {
     {
-        {
-            2,
-        },
+        StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
     },
 };

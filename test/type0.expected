@@ -11,9 +11,7 @@ typedef _IO_FILE FILE;
 #line 3 "type0.c"
 extern _IO_FILE *stdout;
 #line 5 "type0.c"
-extern int vprintf(const char *, __va_list_tag *, ) {
-  return vfprintf(stdout, __fmt, __arg, );
-}
+extern int vprintf(const char *, __va_list_tag *, );
 #line 5 "type0.c"
 extern inline int vprintf(const char *__fmt, __builtin_va_list __arg, ) {
   return vfprintf(stdout, __fmt, __arg, );

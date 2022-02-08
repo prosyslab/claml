@@ -84,34 +84,20 @@ C my = {
     3,
     4,
     (double *(char *, int *, ) *)5,
-    {
-        6,
-        (enum {Sunday, Monday, Tuesday, Wednesday, Thursday, Friday,
-               Saturday} DayOfWeek)7,
-        {
-            (char)8,
-            (char)9,
-        },
-        {
-            10,
-            {
-                (char *)11,
-            },
-            {
-                (double)12,
-                (double)13,
-            },
-        },
-        14,
-    },
+    6,
+    (enum {Sunday, Monday, Tuesday, Wednesday, Thursday, Friday,
+           Saturday} DayOfWeek)7,
+    (char)8,
+    (char)9,
+    10,
+    (char *)11,
+    (double)12,
+    (double)13,
+    14,
     15,
-    {
-        (float)16,
-    },
-    {
-        17,
-        18,
-    },
+    (float)16,
+    17,
+    18,
 };
 #line 59 "init-list0.c"
 int main() {

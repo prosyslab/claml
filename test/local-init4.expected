@@ -28,12 +28,6 @@ int main() {
 #line 14 "local-init4.c"
   C c = {
       (double)1,
-      {
-          {
-              2,
-              ,
-              ,
-          },
-      },
+      2,
   };
 }

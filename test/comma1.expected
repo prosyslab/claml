@@ -18,11 +18,9 @@ typedef _B B;
 int foo() {
 #line 10 "comma1.c"
   B b = {
-      {
-          1,
-          2,
-          3,
-      },
+      1,
+      2,
+      3,
       {
           4,
       },

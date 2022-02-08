@@ -6,7 +6,7 @@
 #line 1 "local-fun0.c"
 int main() {
 #line 2 "local-fun0.c"
-  int f() { return 0; }
+  int f();
   f();
   return 0;
 }

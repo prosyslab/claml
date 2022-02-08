@@ -38,6 +38,8 @@ value clang_qual_type_to_string(value QT) {
   CAMLreturn(clang_to_string(qt->getAsString().c_str()));
 }
 
+WRAPPER_BOOL(clang_qual_type_is_null, QualType, isNull)
+
 WRAPPER_INT(clang_type_get_kind, Type, getTypeClass)
 
 WRAPPER_STR(clang_type_get_kind_name, Type, getTypeClassName)

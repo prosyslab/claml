@@ -15,10 +15,8 @@ void foo() {
 #line 6 "usertype-in-local2.c"
   A a = {
       1,
-      {
-          2,
-          3,
-          4,
-      },
+      2,
+      3,
+      4,
   };
 }
