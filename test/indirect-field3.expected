@@ -14,7 +14,7 @@ struct {
     int a;
   };
 #line 3 "indirect-field3.c"
-  int a(IndirectField, 68);
+  ;
 };
 #line 5 "indirect-field3.c"
 typedef struct {
@@ -27,7 +27,7 @@ typedef struct {
     int a;
   };
 #line 3 "indirect-field3.c"
-  int a(IndirectField, 68);
+  ;
 } b;
 #line 6 "indirect-field3.c"
 b *c;

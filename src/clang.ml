@@ -114,6 +114,7 @@ module rec Decl :
         pp_semicolon fmt
     | FieldDecl -> FieldDecl.pp fmt decl
     | EnumConstantDecl -> EnumConstantDecl.pp fmt decl
+    | IndirectFieldDecl -> IndirectFieldDecl.pp fmt decl
     | _ when is_value_decl decl ->
         F.fprintf fmt "%a %s (%s, %d)" QualType.pp (ValueDecl.get_type decl)
           (NamedDecl.get_name decl) (get_kind_name decl) (get_kind_enum decl)
@@ -328,6 +329,8 @@ and IndirectFieldDecl :
     = "clang_indirect_field_decl_get_decl_list_internal"
 
   let get_decl_list fd = get_decl_list_internal fd |> List.rev
+
+  let pp fmt decl = ()
 end
 
 and LabelDecl : Sig.LABEL_DECL = struct

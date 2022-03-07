@@ -28,9 +28,7 @@ struct {
     } b;
   };
 #line 5 "indirect-field2.c"
-  struct {
-    int c;
-  } b(IndirectField, 68);
+  ;
 };
 #line 7 "indirect-field2.c"
 struct {
@@ -57,9 +55,7 @@ struct {
     } b;
   };
 #line 5 "indirect-field2.c"
-  struct {
-    int c;
-  } b(IndirectField, 68);
+  ;
 } a;
 #line 8 "indirect-field2.c"
 int c() { return a..b.c; }
