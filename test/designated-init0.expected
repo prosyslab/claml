@@ -13,13 +13,13 @@ struct {
 int main() {
 #line 6 "designated-init0.c"
   Point p1 = {
-      StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
-      StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
-      StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
+      .y = 0,
+      .z = 1,
+      .x = 2,
   };
 #line 7 "designated-init0.c"
   Point p2 = {
-      StmtKind.DesignatedInitExpr(DesignatedInitExpr, 155),
+      .x = 20,
   };
   return 0;
 }

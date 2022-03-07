@@ -400,6 +400,7 @@ and Stmt : (Sig.STMT with type SourceLocation.t = SourceLocation.t) = struct
     | LabelStmt -> LabelStmt.pp fmt exp
     | WhileStmt -> WhileStmt.pp fmt exp
     | ForStmt -> ForStmt.pp fmt exp
+    | DesignatedInitExpr -> DesignatedInitExpr.pp fmt exp
     | k ->
         F.fprintf fmt "%a (%s, %d)" pp_kind k (get_kind_name exp)
           (get_kind_enum exp)
@@ -633,6 +634,10 @@ and Designator : Sig.DESIGNATOR = struct
     = "clang_designator_is_array_range_designator"
 
   external get_field_name : t -> string = "clang_designator_get_field_name"
+
+  let pp fmt d =
+    if is_field_designator d then F.fprintf fmt "%s" (get_field_name d)
+    else failwith "Array designators are not implimented yet"
 end
 
 and DesignatedInitExpr :
@@ -649,8 +654,11 @@ and DesignatedInitExpr :
   external get_designators : t -> Designator.t list
     = "clang_designated_init_expr_get_designators"
 
-  (* TODO *)
-  let pp fmt e = F.fprintf fmt "designated init"
+  (* TODO: when does it have handle multiple designators? *)
+  let pp fmt e =
+    List.iter
+      (fun i -> F.fprintf fmt ".%a = %a\n" Designator.pp i Expr.pp (get_init e))
+      (get_designators e)
 end
 
 and IntegerLiteral :

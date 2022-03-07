@@ -560,7 +560,7 @@ module type SWITCH_STMT = sig
 end
 
 module type DESIGNATOR = sig
-  type t
+  include NODE
 
   val is_field_designator : t -> bool
 
