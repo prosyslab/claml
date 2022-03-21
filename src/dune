@@ -1,5 +1,5 @@
 (library
- (name clang)
+ (name claml)
  (public_name claml)
  (modules
   clang

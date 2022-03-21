@@ -1,7 +1,7 @@
 opam-version: "2.0"
 name: "claml"
 maintainer: "Kihong Heo <kihong.heo@kaist.ac.kr>"
-authors: "The LLVM team"
+authors: "Prosys Lab"
 homepage: "https://github.com/prosyslab/claml"
 bug-reports: "https://github.com/prosyslab/claml/issues"
 license: "MIT"
