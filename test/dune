@@ -1,8 +1,8 @@
 (executable
  (name test)
  (modules test)
- (libraries clang))
- 
+ (libraries claml))
+
 (rule
  (deps alignof0.c)
  (targets alignof0.output)
@@ -1906,4 +1906,3 @@
  (alias runtest)
  (action
   (diff nested-init0.expected nested-init0.output)))
-
