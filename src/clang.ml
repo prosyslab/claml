@@ -401,6 +401,7 @@ and Stmt : (Sig.STMT with type SourceLocation.t = SourceLocation.t) = struct
     | WhileStmt -> WhileStmt.pp fmt exp
     | ForStmt -> ForStmt.pp fmt exp
     | DesignatedInitExpr -> DesignatedInitExpr.pp fmt exp
+    | CompoundLiteralExpr -> CompoundLiteralExpr.pp fmt exp
     | k ->
         F.fprintf fmt "%a (%s, %d)" pp_kind k (get_kind_name exp)
           (get_kind_enum exp)
@@ -606,6 +607,9 @@ and InitListExpr :
   external get_syntactic_form : t -> t option
     = "clang_init_list_expr_get_syntactic_form"
 
+  external get_semantic_form : t -> t option
+    = "clang_init_list_expr_get_semantic_form"
+
   external get_inits_internal : t -> Expr.t list
     = "clang_init_list_expr_get_inits"
 
@@ -659,6 +663,24 @@ and DesignatedInitExpr :
     List.iter
       (fun i -> F.fprintf fmt ".%a = %a\n" Designator.pp i Expr.pp (get_init e))
       (get_designators e)
+end
+
+and CompoundLiteralExpr :
+  (Sig.COMPOUND_LITERAL_EXPR
+    with type t = Stmt.t
+     and type Expr.t = Expr.t
+     and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+  include Expr
+  module Expr = Expr
+  module QualType = QualType
+
+  external get_initializer : t -> Expr.t
+    = "clang_compound_literal_expr_get_initializer"
+
+  let pp fmt e =
+    F.fprintf fmt "(%a) {%a}" QualType.pp (get_type e) Expr.pp
+      (get_initializer e)
 end
 
 and IntegerLiteral :

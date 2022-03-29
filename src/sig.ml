@@ -583,6 +583,14 @@ module type DESIGNATED_INIT_EXPR = sig
   val get_designators : t -> Designator.t list
 end
 
+module type COMPOUND_LITERAL_EXPR = sig
+  include EXPR
+
+  module Expr : EXPR
+
+  val get_initializer : t -> Expr.t
+end
+
 module type ATTRIBUTED_STMT = STMT
 
 module type BINARY_CONDITIONAL_OPERATOR = sig

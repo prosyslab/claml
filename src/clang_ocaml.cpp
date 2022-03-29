@@ -580,10 +580,15 @@ WRAPPER_BOOL(clang_init_list_expr_is_semantic_form, InitListExpr,
              isSemanticForm)
 WRAPPER_PTR_OPTION(clang_init_list_expr_get_syntactic_form, InitListExpr,
                    InitListExpr, getSyntacticForm)
+WRAPPER_PTR_OPTION(clang_init_list_expr_get_semantic_form, InitListExpr,
+                   InitListExpr, getSemanticForm)
 WRAPPER_LIST_WITH_IDX(clang_init_list_expr_get_inits, InitListExpr, Expr,
                       getNumInits, getInit)
 
 WRAPPER_INT(clang_attr_get_kind, Attr, getKind)
 
 WRAPPER_STR(clang_attr_get_spelling, Attr, getSpelling)
+
+WRAPPER_PTR(clang_compound_literal_expr_get_initializer, CompoundLiteralExpr,
+            Expr, getInitializer)
 }
