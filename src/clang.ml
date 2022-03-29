@@ -213,9 +213,9 @@ and VarDecl :
     with type t = Decl.t
      and type QualType.Type.t = QualType.Type.t
      and type QualType.t = QualType.t
-     and type Stmt.t = Stmt.t) = struct
+     and type Expr.t = Expr.t) = struct
   include ValueDecl
-  module Stmt = Stmt
+  module Expr = Expr
 
   external has_init : t -> bool = "clang_vardecl_has_init"
 

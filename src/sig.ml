@@ -126,6 +126,16 @@ module type STMT = sig
   val is_expr : t -> bool
 end
 
+module type EXPR = sig
+  include STMT
+
+  module QualType : QUAL_TYPE
+
+  val get_type : t -> QualType.t
+
+  val is_cast : t -> bool
+end
+
 module type FUNCTION_DECL = sig
   include VALUE_DECL
 
@@ -151,11 +161,11 @@ end
 module type VAR_DECL = sig
   include VALUE_DECL
 
-  module Stmt : STMT
+  module Expr : EXPR
 
   val has_init : t -> bool
 
-  val get_init : t -> Stmt.t option
+  val get_init : t -> Expr.t option
 end
 
 module type FIELD_DECL = VALUE_DECL
@@ -176,16 +186,6 @@ module type TYPEDEF_DECL = sig
   module QualType : QUAL_TYPE
 
   val get_underlying_type : t -> QualType.t
-end
-
-module type EXPR = sig
-  include STMT
-
-  module QualType : QUAL_TYPE
-
-  val get_type : t -> QualType.t
-
-  val is_cast : t -> bool
 end
 
 module type ENUM_CONSTANT_DECL = sig
