@@ -1,0 +1,15 @@
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+// implicit typedef
+#line 1 "compound-literal0.c"
+struct {
+  int i;
+} a;
+#line 2 "compound-literal0.c"
+int b() {
+  &(a) {
+    { 0, }
+  }
+}

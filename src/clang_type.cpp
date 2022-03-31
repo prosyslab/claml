@@ -15,6 +15,7 @@ extern "C" {
 value clang_type_ptr(value QT) {
   CAMLparam1(QT);
   CAMLlocal1(result);
+  LOG(__FUNCTION__);
   clang::QualType *qt = *((clang::QualType **)Data_abstract_val(QT));
   result = caml_alloc(1, Abstract_tag);
   *((const clang::Type **)Data_abstract_val(result)) = qt->getTypePtr();
@@ -23,6 +24,7 @@ value clang_type_ptr(value QT) {
 
 value clang_builtin_type_get_kind(value T) {
   CAMLparam1(T);
+  LOG(__FUNCTION__);
   clang::Type *Ty = *((clang::Type **)Data_abstract_val(T));
   if (clang::BuiltinType *BT = llvm::dyn_cast<clang::BuiltinType>(Ty)) {
     CAMLreturn(Val_int(BT->getKind()));
@@ -34,6 +36,7 @@ value clang_builtin_type_get_kind(value T) {
 value clang_qual_type_to_string(value QT) {
   CAMLparam1(QT);
   CAMLlocal1(result);
+  LOG(__FUNCTION__);
   clang::QualType *qt = *((clang::QualType **)Data_abstract_val(QT));
   CAMLreturn(clang_to_string(qt->getAsString().c_str()));
 }
@@ -44,14 +47,11 @@ WRAPPER_INT(clang_type_get_kind, Type, getTypeClass)
 
 WRAPPER_STR(clang_type_get_kind_name, Type, getTypeClassName)
 
-value clang_type_get_kind_enum(value Type) {
-  CAMLparam1(Type);
-  clang::Type *Ty = *((clang::Type **)Data_abstract_val(Type));
-  CAMLreturn(Val_int(Ty->getTypeClass()));
-}
+WRAPPER_INT(clang_type_get_kind_enum, Type, getTypeClass)
 
 value clang_function_type_get_return_type(value QT) {
   CAMLparam1(QT);
+  LOG(__FUNCTION__);
   clang::FunctionType *FT = *((clang::FunctionType **)Data_abstract_val(QT));
   CAMLreturn(clang_to_qual_type(FT->getReturnType()));
 }
@@ -62,14 +62,15 @@ WRAPPER_BOOL(clang_function_proto_type_is_variadic, FunctionProtoType,
 value clang_function_type_get_param_types(value T) {
   CAMLparam1(T);
   CAMLlocal4(Hd, Tl, AT, PT);
+  LOG(__FUNCTION__);
   clang::FunctionProtoType *FT =
       *((clang::FunctionProtoType **)Data_abstract_val(T));
   Tl = Val_int(0);
   for (unsigned int i = FT->getNumParams(); i > 0; i--) {
     Hd = clang_to_qual_type(FT->getParamType(i - 1));
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
+    value Tmp = caml_alloc(2, 0);
+    Store_field(Tmp, 0, Hd);
+    Store_field(Tmp, 1, Tl);
     Tl = Tmp;
   }
   CAMLreturn(Tl);

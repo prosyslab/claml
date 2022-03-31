@@ -8,11 +8,15 @@
 #include "caml/memory.h"
 #include "caml/mlvalues.h"
 
-#ifdef DEBUG
-#define LOG(s) fprintf(stderr, "%s @ %s:%d\n", s, __FILE__, __LINE__);
-#else
-#define LOG(s)
-#endif
+extern "C" {
+extern int debug;
+}
+
+#define LOG(s)                                                                 \
+  if (debug) {                                                                 \
+    fprintf(stderr, "%s @ %s:%d\n", s, __FILE__, __LINE__);                    \
+    fflush(stderr);                                                            \
+  }
 
 #define WRAPPER_INT(fname, param_type, fun)                                    \
   value fname(value Param) {                                                   \
@@ -36,6 +40,7 @@
     CAMLparam1(Param);                                                         \
     LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
+    assert(P != NULL);                                                         \
     CAMLreturn(clang_to_string(P->fun()));                                     \
   }
 
@@ -95,7 +100,7 @@
                               fun_access)                                      \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
-    CAMLlocal4(Hd, Tl, AT, PT);                                                \
+    CAMLlocal3(Hd, Tl, Tmp);                                                   \
     LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     Tl = Val_int(0);                                                           \
@@ -103,9 +108,9 @@
       Hd = caml_alloc(1, Abstract_tag);                                        \
       *((const clang::elem_type **)Data_abstract_val(Hd)) =                    \
           P->fun_access(i - 1);                                                \
-      value Tmp = caml_alloc(2, Abstract_tag);                                 \
-      Field(Tmp, 0) = Hd;                                                      \
-      Field(Tmp, 1) = Tl;                                                      \
+      Tmp = caml_alloc(2, 0);                                                  \
+      Store_field(Tmp, 0, Hd);                                                 \
+      Store_field(Tmp, 1, Tl);                                                 \
       Tl = Tmp;                                                                \
     }                                                                          \
     CAMLreturn(Tl);                                                            \
@@ -122,9 +127,9 @@
     for (auto i = P->fun_rbegin(); i != P->fun_rend(); i++) {                  \
       Hd = caml_alloc(1, Abstract_tag);                                        \
       *((const clang::elem_type **)Data_abstract_val(Hd)) = *i;                \
-      value Tmp = caml_alloc(2, Abstract_tag);                                 \
-      Field(Tmp, 0) = Hd;                                                      \
-      Field(Tmp, 1) = Tl;                                                      \
+      value Tmp = caml_alloc(2, 0);                                            \
+      Store_field(Tmp, 0, Hd);                                                 \
+      Store_field(Tmp, 1, Tl);                                                 \
       Tl = Tmp;                                                                \
     }                                                                          \
     CAMLreturn(Tl);                                                            \

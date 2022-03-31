@@ -1493,13 +1493,19 @@ end
 module TranslationUnit = struct
   type t
 
-  external parse_file : string array -> t = "clang_parse_file"
+  type ast
+
+  external parse_file_internal : string array -> ast = "clang_parse_file"
+
+  external get_translation_unit : ast -> t = "clang_get_translation_unit"
 
   external dump_translation_unit : t -> unit = "clang_dump_translation_unit"
 
   external decls_begin : t -> Decl.t option = "clang_decls_begin"
 
   external decls_succ : Decl.t -> Decl.t option = "clang_decls_succ"
+
+  let parse_file argv = parse_file_internal argv |> get_translation_unit
 
   let rec fold_left_decls_range f init i =
     match i with
@@ -1519,3 +1525,7 @@ module TranslationUnit = struct
 
   let pp fmt tu = iter_decls (fun decl -> F.fprintf fmt "%a\n" Decl.pp decl) tu
 end
+
+external initialize_internal : bool -> unit = "clang_initialize"
+
+let initialize ?(debug = false) () = initialize_internal debug

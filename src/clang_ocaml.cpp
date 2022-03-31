@@ -12,19 +12,19 @@
 #include "utils.h"
 
 extern "C" {
-clang::ASTContext *AC = NULL;
-
-// https://github.com/llvm/llvm-project/blob/a2e2fbba17ace0958d9b188aef68f80bcf63332d/clang/tools/libclang/CIndex.cpp#L3572
-value clang_parse_file(value args) {
+int debug;
+void clang_initialize(value args) {
   CAMLparam1(args);
-  CAMLlocal1(v);
-  int num_args = Wosize_val(args);
-  int i;
-  char const **clang_args =
-      (char const **)malloc(num_args * sizeof(const char *const));
-  for (i = 0; i < num_args; i++) {
-    clang_args[i] = String_val(Field(args, i));
-  }
+  debug = Bool_val(args);
+  CAMLreturn0;
+}
+
+value AC;
+static struct custom_operations astunit_ops = {
+    "ASTUnit",           custom_finalize_default,  custom_compare_default,
+    custom_hash_default, custom_serialize_default, custom_deserialize_default};
+
+clang::ASTUnit *parse_internal(int argc, char const **argv) {
   clang::IntrusiveRefCntPtr<clang::DiagnosticsEngine> Diags =
       clang::CompilerInstance::createDiagnostics(
           new clang::DiagnosticOptions());
@@ -35,16 +35,42 @@ value clang_parse_file(value args) {
   Args.push_back("clang");
   Args.push_back("-cc1");
   Args.push_back("-fsyntax-only");
-  Args.push_back(clang_args[0]);
+  Args.push_back(argv[0]);
   std::shared_ptr<clang::PCHContainerOperations> PCHContainerOps =
       std::make_shared<clang::PCHContainerOperations>();
   clang::ASTUnit *Unit(clang::ASTUnit::LoadFromCommandLine(
       Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
-  AC = &Unit->getASTContext();
-  clang::TranslationUnitDecl *TU = AC->getTranslationUnitDecl();
-  v = caml_alloc(0, Abstract_tag);
-  *((clang::TranslationUnitDecl **)Data_abstract_val(v)) = TU;
-  CAMLreturn(v);
+  return Unit;
+}
+
+// https://github.com/llvm/llvm-project/blob/a2e2fbba17ace0958d9b188aef68f80bcf63332d/clang/tools/libclang/CIndex.cpp#L3572
+value clang_parse_file(value args) {
+  CAMLparam1(args);
+  CAMLlocal1(u);
+  int num_args = Wosize_val(args);
+  int i;
+  char const **clang_args =
+      (char const **)malloc(num_args * sizeof(const char *const));
+  for (i = 0; i < num_args; i++) {
+    clang_args[i] = String_val(Field(args, i));
+  }
+  clang::ASTUnit *Unit = parse_internal(num_args, clang_args);
+  u = caml_alloc_custom(&astunit_ops, sizeof(clang::ASTUnit *), 0, 1);
+  *((clang::ASTUnit **)Data_custom_val(u)) = Unit;
+  CAMLreturn(u);
+}
+
+value clang_get_translation_unit(value Unit) {
+  CAMLparam1(Unit);
+  CAMLlocal1(R);
+  clang::ASTUnit *U = *((clang::ASTUnit **)Data_custom_val(Unit));
+  R = caml_alloc(1, Abstract_tag);
+  caml_register_global_root(&AC);
+  AC = caml_alloc(1, Abstract_tag);
+  *((clang::ASTContext **)Data_abstract_val(AC)) = &U->getASTContext();
+  *((clang::TranslationUnitDecl **)Data_abstract_val(R)) =
+      U->getASTContext().getTranslationUnitDecl();
+  CAMLreturn(R);
 }
 
 void clang_dump_translation_unit(value TU) {
@@ -58,6 +84,7 @@ void clang_dump_translation_unit(value TU) {
 value clang_decls_begin(value TU) {
   CAMLparam1(TU);
   CAMLlocal1(v);
+  LOG(__FUNCTION__);
   clang::TranslationUnitDecl *TTU =
       *((clang::TranslationUnitDecl **)Data_abstract_val(TU));
   v = caml_alloc(1, Abstract_tag);
@@ -73,6 +100,7 @@ value clang_decls_begin(value TU) {
 value clang_decls_succ(value Decl) {
   CAMLparam1(Decl);
   CAMLlocal1(v);
+  LOG(__FUNCTION__);
   clang::Decl *TTU = *((clang::Decl **)Data_abstract_val(Decl));
   v = caml_alloc(1, Abstract_tag);
   clang::Decl *Next = TTU->getNextDeclInContext();
@@ -87,6 +115,7 @@ value clang_decls_succ(value Decl) {
 value clang_decl_get_ast_context(value Decl) {
   CAMLparam1(Decl);
   CAMLlocal1(V);
+  LOG(__FUNCTION__);
   clang::Decl *TTU = *((clang::Decl **)Data_abstract_val(Decl));
   V = caml_alloc(1, Abstract_tag);
   *((clang::ASTContext **)Data_abstract_val(V)) = &TTU->getASTContext();
@@ -103,6 +132,7 @@ WRAPPER_VOID(clang_decl_dump, Decl, dump)
 WRAPPER_BOOL(clang_decl_is_implicit, Decl, isImplicit)
 value clang_decl_is_value_decl(value Decl) {
   CAMLparam1(Decl);
+  LOG(__FUNCTION__);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
   if (clang::ValueDecl *VD = llvm::dyn_cast<clang::ValueDecl>(D)) {
     CAMLreturn(Val_int(1));
@@ -120,6 +150,7 @@ value clang_decl_hash(value Param) {
 value clang_decl_get_attrs(value Param) {
   CAMLparam1(Param);
   CAMLlocal4(Hd, Tl, AT, PT);
+  LOG(__FUNCTION__);
   clang::Decl *P = *((clang::Decl **)Data_abstract_val(Param));
   Tl = Val_int(0);
   clang::AttrVec &Attrs = P->getAttrs();
@@ -127,8 +158,8 @@ value clang_decl_get_attrs(value Param) {
     Hd = caml_alloc(1, Abstract_tag);
     *((const clang::Attr **)Data_abstract_val(Hd)) = *i;
     value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
+    Store_field(Tmp, 0, Hd);
+    Store_field(Tmp, 1, Tl);
     Tl = Tmp;
   }
   CAMLreturn(Tl);
@@ -159,6 +190,7 @@ WRAPPER_BOOL(clang_record_decl_is_union, RecordDecl, isUnion)
 value clang_record_decl_field_begin(value Decl) {
   CAMLparam1(Decl);
   CAMLlocal1(R);
+  LOG(__FUNCTION__);
   clang::RecordDecl *RD = *((clang::RecordDecl **)Data_abstract_val(Decl));
   if (RD->field_empty())
     CAMLreturn(Val_none);
@@ -174,26 +206,16 @@ value clang_record_decl_field_begin(value Decl) {
 
 value clang_record_decl_field_list_internal(value Decl) {
   CAMLparam1(Decl);
-  CAMLlocal3(Hd, Tl, R);
+  CAMLlocal2(Hd, Tl);
+  LOG(__FUNCTION__);
   clang::RecordDecl *RD = *((clang::RecordDecl **)Data_abstract_val(Decl));
-  /*  R = caml_alloc(1, Abstract_tag);
-    Tl = Val_int(0);
-    for (auto i = RD->field_begin(); i != RD->field_end(); i++) {
-      Hd = caml_alloc(1, Abstract_tag);
-      *((clang::FieldDecl **)Data_abstract_val(Hd)) = *i;
-      value Tmp = caml_alloc(2, Abstract_tag);
-      Field(Tmp, 0) = Hd;
-      Field(Tmp, 1) = Tl;
-      Tl = Tmp;
-    }*/
-  R = caml_alloc(1, Abstract_tag);
   Tl = Val_int(0);
   for (auto i = RD->decls_begin(); i != RD->decls_end(); i++) {
     Hd = caml_alloc(1, Abstract_tag);
     *((clang::Decl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
+    value Tmp = caml_alloc(2, 0);
+    Store_field(Tmp, 0, Hd);
+    Store_field(Tmp, 1, Tl);
     Tl = Tmp;
   }
   CAMLreturn(Tl);
@@ -209,9 +231,9 @@ value clang_indirect_field_decl_get_decl_list_internal(value Decl) {
   for (auto i = RD->chain_begin(); i != RD->chain_end(); i++) {
     Hd = caml_alloc(1, Abstract_tag);
     *((clang::NamedDecl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
+    value Tmp = caml_alloc(2, 0);
+    Store_field(Tmp, 0, Hd);
+    Store_field(Tmp, 1, Tl);
     Tl = Tmp;
   }
   CAMLreturn(Tl);
@@ -220,6 +242,7 @@ value clang_indirect_field_decl_get_decl_list_internal(value Decl) {
 value clang_decl_get_name(value Decl) {
   CAMLparam1(Decl);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
+  LOG(__FUNCTION__);
   if (clang::NamedDecl *VD = llvm::dyn_cast<clang::NamedDecl>(D)) {
     CAMLreturn(clang_to_string(VD->getName().data()));
   } else {
@@ -230,6 +253,7 @@ value clang_decl_get_name(value Decl) {
 value clang_decl_get_type(value Decl) {
   CAMLparam1(Decl);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
+  LOG(__FUNCTION__);
   if (clang::ValueDecl *VD = llvm::dyn_cast<clang::ValueDecl>(D)) {
     CAMLreturn(clang_to_qual_type(VD->getType()));
   } else {
@@ -240,6 +264,7 @@ value clang_decl_get_type(value Decl) {
 value clang_decl_get_source_location(value decl) {
   CAMLparam1(decl);
   CAMLlocal1(result);
+  LOG(__FUNCTION__);
   clang::Decl *d = *((clang::Decl **)Data_abstract_val(decl));
   const clang::PresumedLoc &loc =
       d->getASTContext().getSourceManager().getPresumedLoc(d->getLocation());
@@ -256,6 +281,7 @@ value clang_decl_get_source_location(value decl) {
 
 value clang_decl_get_storage_class(value Decl) {
   CAMLparam1(Decl);
+  LOG(__FUNCTION__);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
   if (clang::FunctionDecl *FD = llvm::dyn_cast<clang::FunctionDecl>(D)) {
     CAMLreturn(Val_int(FD->getStorageClass()));
@@ -271,6 +297,7 @@ WRAPPER_BOOL(clang_vardecl_has_init, VarDecl, hasInit)
 value clang_vardecl_get_init(value VarDecl) {
   CAMLparam1(VarDecl);
   CAMLlocal1(R);
+  LOG(__FUNCTION__);
   clang::VarDecl *VD = *((clang::VarDecl **)Data_abstract_val(VarDecl));
   R = caml_alloc(1, Abstract_tag);
   if (VD->hasInit()) {
@@ -328,6 +355,7 @@ WRAPPER_BOOL(clang_designator_is_array_range_designator,
 value clang_designator_get_field_name(value Param) {
   CAMLparam1(Param);
   CAMLlocal1(Result);
+  LOG(__FUNCTION__);
   clang::DesignatedInitExpr::Designator *S =
       *((clang::DesignatedInitExpr::Designator **)Data_abstract_val(Param));
   CAMLreturn(clang_to_string(S->getFieldName()->getName().data()));
@@ -339,14 +367,15 @@ WRAPPER_QUAL_TYPE(clang_typedef_decl_get_underlying_type, TypedefDecl,
 value clang_enum_decl_get_enums(value T) {
   CAMLparam1(T);
   CAMLlocal4(Hd, Tl, AT, PT);
+  LOG(__FUNCTION__);
   clang::EnumDecl *D = *((clang::EnumDecl **)Data_abstract_val(T));
   Tl = Val_int(0);
   for (auto i = D->enumerator_begin(); i != D->enumerator_end(); i++) {
     Hd = caml_alloc(1, Abstract_tag);
     *((const clang::EnumConstantDecl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
+    value Tmp = caml_alloc(2, 0);
+    Store_field(Tmp, 0, Hd);
+    Store_field(Tmp, 1, Tl);
     Tl = Tmp;
   }
   CAMLreturn(Tl);
@@ -366,6 +395,7 @@ WRAPPER_STR(clang_stmt_get_kind_name, Stmt, getStmtClassName)
 
 value clang_stmt_is_expr(value Stmt) {
   CAMLparam1(Stmt);
+  LOG(__FUNCTION__);
   clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(Stmt));
   if (clang::Expr *E = llvm::dyn_cast<clang::Expr>(S)) {
     CAMLreturn(Val_true);
@@ -377,22 +407,25 @@ value clang_stmt_is_expr(value Stmt) {
 value clang_stmt_get_source_location(value Stmt) {
   CAMLparam1(Stmt);
   CAMLlocal1(Result);
+  LOG(__FUNCTION__);
   clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(Stmt));
+  clang::ASTContext *A = *((clang::ASTContext **)Data_abstract_val(AC));
   const clang::PresumedLoc &loc =
-      AC->getSourceManager().getPresumedLoc(S->getBeginLoc());
+      A->getSourceManager().getPresumedLoc(S->getBeginLoc());
   if (loc.isValid()) {
     Result = caml_alloc(3, 0);
     Store_field(Result, 0, clang_to_string(loc.getFilename()));
     Store_field(Result, 1, Val_int(loc.getLine()));
     Store_field(Result, 2, Val_int(loc.getColumn()));
     CAMLreturn(caml_alloc_some(Result));
-  } else {
-    CAMLreturn(Val_none);
-  }
+    } else {
+  CAMLreturn(Val_none);
+    }
 }
 
 value clang_integer_literal_to_int(value Expr) {
   CAMLparam1(Expr);
+  LOG(__FUNCTION__);
   clang::IntegerLiteral *E =
       *((clang::IntegerLiteral **)Data_abstract_val(Expr));
   llvm::APInt V = E->getValue();
@@ -412,6 +445,7 @@ WRAPPER_INT(clang_character_literal_get_value, CharacterLiteral, getValue)
 
 value clang_floating_literal_to_float(value Expr) {
   CAMLparam1(Expr);
+  LOG(__FUNCTION__);
   clang::FloatingLiteral *E =
       *((clang::FloatingLiteral **)Data_abstract_val(Expr));
   llvm::APFloat V = E->getValue();
@@ -434,6 +468,7 @@ WRAPPER_QUAL_TYPE(clang_expr_get_type, Expr, getType)
 
 value clang_expr_is_cast(value Expr) {
   CAMLparam1(Expr);
+  LOG(__FUNCTION__);
   clang::Expr *E = *((clang::Expr **)Data_abstract_val(Expr));
   if (clang::CastExpr *C = llvm::dyn_cast<clang::CastExpr>(E)) {
     CAMLreturn(Val_true);
@@ -456,6 +491,7 @@ WRAPPER_LIST_WITH_REV_ITER(clang_decl_stmt_decl_list, DeclStmt, Decl,
 value clang_return_stmt_get_ret_value(value Stmt) {
   CAMLparam1(Stmt);
   CAMLlocal1(R);
+  LOG(__FUNCTION__);
   clang::ReturnStmt *S = *((clang::ReturnStmt **)Data_abstract_val(Stmt));
   R = caml_alloc(1, Abstract_tag);
   clang::Expr *D = S->getRetValue();
@@ -530,6 +566,7 @@ WRAPPER_PTR(clang_switch_stmt_get_body, SwitchStmt, Stmt, getBody)
 value clang_attributed_stmt_get_attrs(value Param) {
   CAMLparam1(Param);
   CAMLlocal4(Hd, Tl, AT, PT);
+  LOG(__FUNCTION__);
   clang::AttributedStmt *P =
       *((clang::AttributedStmt **)Data_abstract_val(Param));
   Tl = Val_int(0);
@@ -537,9 +574,9 @@ value clang_attributed_stmt_get_attrs(value Param) {
   for (auto i = Attrs.rbegin(); i != Attrs.rend(); i++) {
     Hd = caml_alloc(1, Abstract_tag);
     *((const clang::Attr **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, Abstract_tag);
-    Field(Tmp, 0) = Hd;
-    Field(Tmp, 1) = Tl;
+    value Tmp = caml_alloc(2, 0);
+    Store_field(Tmp, 0, Hd);
+    Store_field(Tmp, 1, Tl);
     Tl = Tmp;
   }
   CAMLreturn(Tl);
