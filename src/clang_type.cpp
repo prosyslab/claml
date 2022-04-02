@@ -59,7 +59,7 @@ value clang_function_type_get_return_type(value QT) {
 WRAPPER_BOOL(clang_function_proto_type_is_variadic, FunctionProtoType,
              isVariadic)
 
-value clang_function_type_get_param_types(value T) {
+value clang_function_proto_type_get_param_types(value T) {
   CAMLparam1(T);
   CAMLlocal4(Hd, Tl, AT, PT);
   LOG(__FUNCTION__);

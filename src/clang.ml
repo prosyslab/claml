@@ -1227,7 +1227,7 @@ and Type : Sig.TYPE = struct
         F.fprintf fmt "%a (" QualType.pp (FunctionType.return_type t);
         List.iter
           (fun at -> F.fprintf fmt "%a, " QualType.pp at)
-          (FunctionType.param_types t);
+          (FunctionProtoType.param_types t);
         F.fprintf fmt ")"
     | ParenType -> F.fprintf fmt "%a" ParenType.pp t
     | PointerType -> F.fprintf fmt "%a" PointerType.pp t
@@ -1366,9 +1366,6 @@ and FunctionType :
 
   external return_type : t -> QualType.t = "clang_function_type_get_return_type"
 
-  external param_types : t -> QualType.t list
-    = "clang_function_type_get_param_types"
-
   let pp fmt t = ()
 end
 
@@ -1380,6 +1377,9 @@ and FunctionProtoType :
   include FunctionType
 
   external is_variadic : t -> bool = "clang_function_proto_type_is_variadic"
+
+  external param_types : t -> QualType.t list
+    = "clang_function_proto_type_get_param_types"
 
   (* TODO *)
   let pp fmt t = ()

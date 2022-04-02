@@ -19,10 +19,7 @@ void clang_initialize(value args) {
   CAMLreturn0;
 }
 
-value AC;
-static struct custom_operations astunit_ops = {
-    "ASTUnit",           custom_finalize_default,  custom_compare_default,
-    custom_hash_default, custom_serialize_default, custom_deserialize_default};
+clang::ASTContext *AC;
 
 clang::ASTUnit *parse_internal(int argc, char const **argv) {
   clang::IntrusiveRefCntPtr<clang::DiagnosticsEngine> Diags =
@@ -55,19 +52,17 @@ value clang_parse_file(value args) {
     clang_args[i] = String_val(Field(args, i));
   }
   clang::ASTUnit *Unit = parse_internal(num_args, clang_args);
-  u = caml_alloc_custom(&astunit_ops, sizeof(clang::ASTUnit *), 0, 1);
-  *((clang::ASTUnit **)Data_custom_val(u)) = Unit;
+  u = caml_alloc(1, Abstract_tag);
+  *((clang::ASTUnit **)Data_abstract_val(u)) = Unit;
   CAMLreturn(u);
 }
 
 value clang_get_translation_unit(value Unit) {
   CAMLparam1(Unit);
   CAMLlocal1(R);
-  clang::ASTUnit *U = *((clang::ASTUnit **)Data_custom_val(Unit));
+  clang::ASTUnit *U = *((clang::ASTUnit **)Data_abstract_val(Unit));
   R = caml_alloc(1, Abstract_tag);
-  caml_register_global_root(&AC);
-  AC = caml_alloc(1, Abstract_tag);
-  *((clang::ASTContext **)Data_abstract_val(AC)) = &U->getASTContext();
+  AC = &U->getASTContext();
   *((clang::TranslationUnitDecl **)Data_abstract_val(R)) =
       U->getASTContext().getTranslationUnitDecl();
   CAMLreturn(R);
@@ -409,9 +404,8 @@ value clang_stmt_get_source_location(value Stmt) {
   CAMLlocal1(Result);
   LOG(__FUNCTION__);
   clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(Stmt));
-  clang::ASTContext *A = *((clang::ASTContext **)Data_abstract_val(AC));
   const clang::PresumedLoc &loc =
-      A->getSourceManager().getPresumedLoc(S->getBeginLoc());
+      AC->getSourceManager().getPresumedLoc(S->getBeginLoc());
   if (loc.isValid()) {
     Result = caml_alloc(3, 0);
     Store_field(Result, 0, clang_to_string(loc.getFilename()));

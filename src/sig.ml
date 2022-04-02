@@ -681,14 +681,14 @@ module type FUNCTION_TYPE = sig
   module QualType : QUAL_TYPE
 
   val return_type : t -> QualType.t
-
-  val param_types : t -> QualType.t list
 end
 
 module type FUNCTION_PROTO_TYPE = sig
   include FUNCTION_TYPE
 
   val is_variadic : t -> bool
+
+  val param_types : t -> QualType.t list
 end
 
 module type FUNCTION_NO_PROTO_TYPE = FUNCTION_TYPE

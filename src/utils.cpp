@@ -20,10 +20,8 @@ value clang_to_qual_type(clang::QualType QT) {
   R = caml_alloc(2, 0);
   T = caml_alloc(1, Abstract_tag);
   *((const clang::Type **)Data_abstract_val(T)) = QT.getTypePtr();
-  LOG(__FUNCTION__);
   Store_field(R, 0, T);
   Store_field(R, 1, Val_bool(QT.isConstQualified()));
-  LOG(__FUNCTION__);
   CAMLreturn(R);
 }
 

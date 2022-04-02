@@ -1,6 +1,7 @@
 (executable
  (name test)
  (modules test)
+ (flags -runtime-variant d -g)
  (libraries claml))
 
 (rule
