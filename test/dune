@@ -3,7 +3,7 @@
  (modules test)
  (flags -runtime-variant d -g)
  (libraries claml))
-
+ 
 (rule
  (deps alignof0.c)
  (targets alignof0.output)
@@ -1923,3 +1923,4 @@
  (alias runtest)
  (action
   (diff compound-literal0.expected compound-literal0.output)))
+

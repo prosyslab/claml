@@ -151,7 +151,8 @@ gen_test() {
   echo "(executable
  (name test)
  (modules test)
- (libraries clang))
+ (flags -runtime-variant d -g)
+ (libraries claml))
  " >$TARGET
   for cfile in $(find test -name "*.c"); do
     cfile=$(basename $cfile)
