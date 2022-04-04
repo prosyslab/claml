@@ -741,6 +741,14 @@ module type TYPE_OF_EXPR_TYPE = sig
   val get_underlying_expr : t -> Expr.t
 end
 
+module type TYPE_OF_TYPE = sig
+  include TYPE
+
+  module QualType : QUAL_TYPE
+
+  val get_underlying_type : t -> QualType.t
+end
+
 module type TYPEDEF_TYPE = sig
   include TYPE
 

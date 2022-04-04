@@ -93,6 +93,9 @@ WRAPPER_PTR(clang_record_type_get_decl, RecordType, RecordDecl, getDecl)
 WRAPPER_PTR(clang_type_of_expr_type_get_underlying_expr, TypeOfExprType, Expr,
             getUnderlyingExpr)
 
+WRAPPER_QUAL_TYPE(clang_type_of_type_get_underlying_type, TypeOfType,
+                  getUnderlyingType)
+
 WRAPPER_PTR(clang_typedef_type_get_decl, TypedefType, TypedefNameDecl, getDecl)
 
 WRAPPER_QUAL_TYPE(clang_decayed_type_get_decayed_type, DecayedType,
