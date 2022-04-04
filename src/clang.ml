@@ -613,13 +613,11 @@ and InitListExpr :
   external get_inits_internal : t -> Expr.t list
     = "clang_init_list_expr_get_inits"
 
-  (* TODO: use semantic form *)
-  let get_inits e =
-    match get_syntactic_form e with
-    | Some e -> get_inits_internal e
-    | None -> get_inits_internal e
+  (* By default, semantic form is used *)
+  let get_inits e = get_inits_internal e
 
   let pp fmt e =
+    let e = match get_syntactic_form e with Some e -> e | None -> e in
     F.fprintf fmt "{";
     List.iter (F.fprintf fmt "%a," Expr.pp) (get_inits e);
     F.fprintf fmt "}"
