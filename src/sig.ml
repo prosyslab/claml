@@ -283,6 +283,14 @@ module type INIT_LIST_EXPR = sig
 
   module Expr : EXPR
 
+  val is_syntactic_form : t -> bool
+
+  val is_semantic_form : t -> bool
+
+  val get_syntactic_form : t -> t option
+
+  val get_semantic_form : t -> t option
+
   val get_inits : t -> Expr.t list
 end
 
