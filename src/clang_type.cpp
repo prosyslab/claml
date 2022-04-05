@@ -12,16 +12,6 @@
 #include "utils.h"
 
 extern "C" {
-value clang_type_ptr(value QT) {
-  CAMLparam1(QT);
-  CAMLlocal1(result);
-  LOG(__FUNCTION__);
-  clang::QualType *qt = *((clang::QualType **)Data_abstract_val(QT));
-  result = caml_alloc(1, Abstract_tag);
-  *((const clang::Type **)Data_abstract_val(result)) = qt->getTypePtr();
-  CAMLreturn((result));
-}
-
 value clang_builtin_type_get_kind(value T) {
   CAMLparam1(T);
   LOG(__FUNCTION__);
@@ -49,12 +39,8 @@ WRAPPER_STR(clang_type_get_kind_name, Type, getTypeClassName)
 
 WRAPPER_INT(clang_type_get_kind_enum, Type, getTypeClass)
 
-value clang_function_type_get_return_type(value QT) {
-  CAMLparam1(QT);
-  LOG(__FUNCTION__);
-  clang::FunctionType *FT = *((clang::FunctionType **)Data_abstract_val(QT));
-  CAMLreturn(clang_to_qual_type(FT->getReturnType()));
-}
+WRAPPER_QUAL_TYPE(clang_function_type_get_return_type, FunctionType,
+                  getReturnType)
 
 WRAPPER_BOOL(clang_function_proto_type_is_variadic, FunctionProtoType,
              isVariadic)
@@ -86,17 +72,18 @@ WRAPPER_QUAL_TYPE(clang_elaborated_type_desugar, ElaboratedType, desugar)
 WRAPPER_QUAL_TYPE(clang_elaborated_type_get_named_type, ElaboratedType,
                   getNamedType)
 
-WRAPPER_PTR(clang_enum_type_get_decl, EnumType, EnumDecl, getDecl)
+WRAPPER_PTR(clang_enum_type_get_decl, Type, EnumType, EnumDecl, getDecl)
 
-WRAPPER_PTR(clang_record_type_get_decl, RecordType, RecordDecl, getDecl)
+WRAPPER_PTR(clang_record_type_get_decl, Type, RecordType, RecordDecl, getDecl)
 
-WRAPPER_PTR(clang_type_of_expr_type_get_underlying_expr, TypeOfExprType, Expr,
-            getUnderlyingExpr)
+WRAPPER_PTR(clang_type_of_expr_type_get_underlying_expr, Type, TypeOfExprType,
+            Expr, getUnderlyingExpr)
 
 WRAPPER_QUAL_TYPE(clang_type_of_type_get_underlying_type, TypeOfType,
                   getUnderlyingType)
 
-WRAPPER_PTR(clang_typedef_type_get_decl, TypedefType, TypedefNameDecl, getDecl)
+WRAPPER_PTR(clang_typedef_type_get_decl, Type, TypedefType, TypedefNameDecl,
+            getDecl)
 
 WRAPPER_QUAL_TYPE(clang_decayed_type_get_decayed_type, DecayedType,
                   getDecayedType)
@@ -109,6 +96,6 @@ WRAPPER_QUAL_TYPE(clang_array_type_get_element_type, ArrayType, getElementType)
 WRAPPER_INT64(clang_constant_array_type_get_size_expr, ConstantArrayType,
               getSize)
 
-WRAPPER_PTR(clang_variable_array_type_get_size_expr, VariableArrayType, Expr,
-            getSizeExpr)
+WRAPPER_PTR(clang_variable_array_type_get_size_expr, Type, VariableArrayType,
+            Expr, getSizeExpr)
 }

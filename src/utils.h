@@ -60,30 +60,40 @@ extern int debug;
     CAMLreturn(Val_bool(P->fun()));                                            \
   }
 
-#define WRAPPER_PTR(fname, param_type, return_type, fun)                       \
+#define WRAPPER_PTR(fname, parent_type, param_type, return_type, fun)          \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal1(R);                                                             \
     LOG("" #fname "");                                                         \
-    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
-    R = caml_alloc(1, Abstract_tag);                                           \
-    *((clang::return_type **)Data_abstract_val(R)) = P->fun();                 \
-    CAMLreturn(R);                                                             \
+    clang::parent_type *Parent =                                               \
+        *((clang::parent_type **)Data_abstract_val(Param));                    \
+    if (clang::param_type *P = llvm::dyn_cast<clang::param_type>(Parent)) {    \
+      R = caml_alloc(1, Abstract_tag);                                         \
+      *((clang::return_type **)Data_abstract_val(R)) = P->fun();               \
+      CAMLreturn(R);                                                           \
+    } else {                                                                   \
+      assert(false && "Type error");                                           \
+    }                                                                          \
   }
 
-#define WRAPPER_PTR_OPTION(fname, param_type, return_type, fun)                \
+#define WRAPPER_PTR_OPTION(fname, parent_type, param_type, return_type, fun)   \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal1(R);                                                             \
     LOG("" #fname "");                                                         \
-    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
-    clang::return_type *Ret = P->fun();                                        \
-    if (Ret) {                                                                 \
-      R = caml_alloc(1, Abstract_tag);                                         \
-      *((clang::return_type **)Data_abstract_val(R)) = Ret;                    \
-      CAMLreturn(caml_alloc_some(R));                                          \
+    clang::parent_type *Parent =                                               \
+        *((clang::parent_type **)Data_abstract_val(Param));                    \
+    if (clang::param_type *P = llvm::dyn_cast<clang::param_type>(Parent)) {    \
+      clang::return_type *Ret = P->fun();                                      \
+      if (Ret) {                                                               \
+        R = caml_alloc(1, Abstract_tag);                                       \
+        *((clang::return_type **)Data_abstract_val(R)) = Ret;                  \
+        CAMLreturn(caml_alloc_some(R));                                        \
+      } else {                                                                 \
+        CAMLreturn(Val_none);                                                  \
+      }                                                                        \
     } else {                                                                   \
-      CAMLreturn(Val_none);                                                    \
+      assert(false && "Type error");                                           \
     }                                                                          \
   }
 
@@ -96,35 +106,40 @@ extern int debug;
     CAMLreturn0;                                                               \
   }
 
-#define WRAPPER_LIST_WITH_IDX(fname, param_type, elem_type, fun_size,          \
-                              fun_access)                                      \
+#define WRAPPER_LIST_WITH_IDX(fname, parent_type, param_type, elem_type,       \
+                              fun_size, fun_access)                            \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal3(Hd, Tl, Tmp);                                                   \
     LOG("" #fname "");                                                         \
-    clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
-    Tl = Val_int(0);                                                           \
-    for (unsigned int i = P->fun_size(); i > 0; i--) {                         \
-      Hd = caml_alloc(1, Abstract_tag);                                        \
-      *((const clang::elem_type **)Data_abstract_val(Hd)) =                    \
-          P->fun_access(i - 1);                                                \
-      Tmp = caml_alloc(2, 0);                                                  \
-      Store_field(Tmp, 0, Hd);                                                 \
-      Store_field(Tmp, 1, Tl);                                                 \
-      Tl = Tmp;                                                                \
+    clang::param_type *Parent =                                                \
+        *((clang::param_type **)Data_abstract_val(Param));                     \
+    if (clang::param_type *P = llvm::dyn_cast<clang::param_type>(Parent)) {    \
+      Tl = Val_int(0);                                                         \
+      for (unsigned int i = P->fun_size(); i > 0; i--) {                       \
+        Hd = caml_alloc(1, Abstract_tag);                                      \
+        *((const clang::elem_type **)Data_abstract_val(Hd)) =                  \
+            P->fun_access(i - 1);                                              \
+        Tmp = caml_alloc(2, 0);                                                \
+        Store_field(Tmp, 0, Hd);                                               \
+        Store_field(Tmp, 1, Tl);                                               \
+        Tl = Tmp;                                                              \
+      }                                                                        \
+      CAMLreturn(Tl);                                                          \
+    } else {                                                                   \
+      assert(false && "Type error");                                           \
     }                                                                          \
-    CAMLreturn(Tl);                                                            \
   }
 
-#define WRAPPER_LIST_WITH_REV_ITER(fname, param_type, elem_type, fun_rbegin,   \
-                                   fun_rend)                                   \
+#define WRAPPER_LIST_WITH_ITER(fname, param_type, elem_type, fun_begin,        \
+                               fun_end)                                        \
   value fname(value Param) {                                                   \
     CAMLparam1(Param);                                                         \
     CAMLlocal4(Hd, Tl, AT, PT);                                                \
     LOG("" #fname "");                                                         \
     clang::param_type *P = *((clang::param_type **)Data_abstract_val(Param));  \
     Tl = Val_int(0);                                                           \
-    for (auto i = P->fun_rbegin(); i != P->fun_rend(); i++) {                  \
+    for (auto i = P->fun_begin(); i != P->fun_end(); i++) {                    \
       Hd = caml_alloc(1, Abstract_tag);                                        \
       *((const clang::elem_type **)Data_abstract_val(Hd)) = *i;                \
       value Tmp = caml_alloc(2, 0);                                            \

@@ -76,6 +76,10 @@ void clang_dump_translation_unit(value TU) {
   CAMLreturn0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Decl
+////////////////////////////////////////////////////////////////////////////////
+
 value clang_decls_begin(value TU) {
   CAMLparam1(TU);
   CAMLlocal1(v);
@@ -116,10 +120,6 @@ value clang_decl_get_ast_context(value Decl) {
   *((clang::ASTContext **)Data_abstract_val(V)) = &TTU->getASTContext();
   CAMLreturn(V);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Begin Decl
-////////////////////////////////////////////////////////////////////////////////
 
 WRAPPER_INT(clang_decl_get_kind, Decl, getKind)
 WRAPPER_STR(clang_decl_get_kind_name, Decl, getDeclKindName)
@@ -165,8 +165,8 @@ WRAPPER_INT(clang_decl_get_global_id, Decl, getID)
 WRAPPER_BOOL(clang_tag_decl_is_complete_definition, TagDecl,
              isCompleteDefinition)
 
-WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, FunctionDecl, ParmVarDecl,
-                      getNumParams, getParamDecl)
+WRAPPER_LIST_WITH_IDX(clang_function_decl_get_params, Decl, FunctionDecl,
+                      ParmVarDecl, getNumParams, getParamDecl)
 WRAPPER_QUAL_TYPE(clang_function_decl_get_return_type, FunctionDecl,
                   getReturnType)
 WRAPPER_BOOL(clang_function_decl_has_body, FunctionDecl, hasBody)
@@ -175,64 +175,19 @@ WRAPPER_BOOL(clang_function_decl_does_this_declaration_have_a_body,
 WRAPPER_BOOL(clang_function_decl_is_inline_specified, FunctionDecl,
              isInlineSpecified)
 WRAPPER_BOOL(clang_function_decl_is_variadic, FunctionDecl, isVariadic)
-WRAPPER_PTR_OPTION(clang_function_decl_get_body, FunctionDecl, Stmt, getBody)
+WRAPPER_PTR_OPTION(clang_function_decl_get_body, Decl, FunctionDecl, Stmt,
+                   getBody)
 
 WRAPPER_BOOL(clang_record_decl_is_anonymous, RecordDecl,
              isAnonymousStructOrUnion)
 WRAPPER_BOOL(clang_record_decl_is_struct, RecordDecl, isStruct)
 WRAPPER_BOOL(clang_record_decl_is_union, RecordDecl, isUnion)
 
-value clang_record_decl_field_begin(value Decl) {
-  CAMLparam1(Decl);
-  CAMLlocal1(R);
-  LOG(__FUNCTION__);
-  clang::RecordDecl *RD = *((clang::RecordDecl **)Data_abstract_val(Decl));
-  if (RD->field_empty())
-    CAMLreturn(Val_none);
-  clang::FieldDecl *FD = *(RD->field_begin());
-  if (FD) {
-    R = caml_alloc(1, Abstract_tag);
-    *((clang::FieldDecl **)Data_abstract_val(R)) = FD;
-    CAMLreturn(caml_alloc_some(R));
-  } else {
-    CAMLreturn(Val_none);
-  }
-}
+WRAPPER_LIST_WITH_ITER(clang_record_decl_field_list_internal, RecordDecl, Decl,
+                       decls_begin, decls_end)
 
-value clang_record_decl_field_list_internal(value Decl) {
-  CAMLparam1(Decl);
-  CAMLlocal2(Hd, Tl);
-  LOG(__FUNCTION__);
-  clang::RecordDecl *RD = *((clang::RecordDecl **)Data_abstract_val(Decl));
-  Tl = Val_int(0);
-  for (auto i = RD->decls_begin(); i != RD->decls_end(); i++) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((clang::Decl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, 0);
-    Store_field(Tmp, 0, Hd);
-    Store_field(Tmp, 1, Tl);
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
-
-value clang_indirect_field_decl_get_decl_list_internal(value Decl) {
-  CAMLparam1(Decl);
-  CAMLlocal3(Hd, Tl, R);
-  clang::IndirectFieldDecl *RD =
-      *((clang::IndirectFieldDecl **)Data_abstract_val(Decl));
-  R = caml_alloc(1, Abstract_tag);
-  Tl = Val_int(0);
-  for (auto i = RD->chain_begin(); i != RD->chain_end(); i++) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((clang::NamedDecl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, 0);
-    Store_field(Tmp, 0, Hd);
-    Store_field(Tmp, 1, Tl);
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_ITER(clang_indirect_field_decl_get_decl_list_internal,
+                       IndirectFieldDecl, NamedDecl, chain_begin, chain_end)
 
 value clang_decl_get_name(value Decl) {
   CAMLparam1(Decl);
@@ -303,38 +258,38 @@ value clang_vardecl_get_init(value VarDecl) {
   }
 }
 
-WRAPPER_PTR(clang_goto_stmt_get_label, GotoStmt, LabelDecl, getLabel)
+WRAPPER_PTR(clang_goto_stmt_get_label, Stmt, GotoStmt, LabelDecl, getLabel)
 
-WRAPPER_PTR_OPTION(clang_if_stmt_get_init, IfStmt, Stmt, getInit)
-WRAPPER_PTR_OPTION(clang_if_stmt_get_condition_variable, IfStmt, VarDecl,
+WRAPPER_PTR_OPTION(clang_if_stmt_get_init, Stmt, IfStmt, Stmt, getInit)
+WRAPPER_PTR_OPTION(clang_if_stmt_get_condition_variable, Stmt, IfStmt, VarDecl,
                    getConditionVariable)
-WRAPPER_PTR(clang_if_stmt_get_cond, IfStmt, Expr, getCond)
-WRAPPER_PTR(clang_if_stmt_get_then, IfStmt, Stmt, getThen)
-WRAPPER_PTR_OPTION(clang_if_stmt_get_else, IfStmt, Stmt, getElse)
+WRAPPER_PTR(clang_if_stmt_get_cond, Stmt, IfStmt, Expr, getCond)
+WRAPPER_PTR(clang_if_stmt_get_then, Stmt, IfStmt, Stmt, getThen)
+WRAPPER_PTR_OPTION(clang_if_stmt_get_else, Stmt, IfStmt, Stmt, getElse)
 WRAPPER_BOOL(clang_if_stmt_has_else_storage, IfStmt, hasElseStorage)
 
 WRAPPER_STR(clang_label_stmt_get_name, LabelStmt, getName)
-WRAPPER_PTR(clang_label_stmt_get_sub_stmt, LabelStmt, Stmt, getSubStmt)
+WRAPPER_PTR(clang_label_stmt_get_sub_stmt, Stmt, LabelStmt, Stmt, getSubStmt)
 
-WRAPPER_PTR(clang_while_stmt_get_cond, WhileStmt, Expr, getCond)
-WRAPPER_PTR(clang_while_stmt_get_body, WhileStmt, Stmt, getBody)
-WRAPPER_PTR_OPTION(clang_while_stmt_get_condition_variable, WhileStmt, VarDecl,
-                   getConditionVariable)
+WRAPPER_PTR(clang_while_stmt_get_cond, Stmt, WhileStmt, Expr, getCond)
+WRAPPER_PTR(clang_while_stmt_get_body, Stmt, WhileStmt, Stmt, getBody)
+WRAPPER_PTR_OPTION(clang_while_stmt_get_condition_variable, Stmt, WhileStmt,
+                   VarDecl, getConditionVariable)
 
-WRAPPER_PTR(clang_do_stmt_get_cond, DoStmt, Expr, getCond)
-WRAPPER_PTR(clang_do_stmt_get_body, DoStmt, Expr, getCond)
+WRAPPER_PTR(clang_do_stmt_get_cond, Stmt, DoStmt, Expr, getCond)
+WRAPPER_PTR(clang_do_stmt_get_body, Stmt, DoStmt, Expr, getCond)
 
-WRAPPER_PTR_OPTION(clang_for_stmt_get_cond, ForStmt, Expr, getCond)
-WRAPPER_PTR_OPTION(clang_for_stmt_get_inc, ForStmt, Expr, getInc)
-WRAPPER_PTR(clang_for_stmt_get_body, ForStmt, Stmt, getBody)
-WRAPPER_PTR_OPTION(clang_for_stmt_get_init, ForStmt, Stmt, getInit)
-WRAPPER_PTR_OPTION(clang_for_stmt_get_condition_variable, ForStmt, VarDecl,
-                   getConditionVariable)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_cond, Stmt, ForStmt, Expr, getCond)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_inc, Stmt, ForStmt, Expr, getInc)
+WRAPPER_PTR(clang_for_stmt_get_body, Stmt, ForStmt, Stmt, getBody)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_init, Stmt, ForStmt, Stmt, getInit)
+WRAPPER_PTR_OPTION(clang_for_stmt_get_condition_variable, Stmt, ForStmt,
+                   VarDecl, getConditionVariable)
 
-WRAPPER_PTR(clang_designated_init_expr_get_init, DesignatedInitExpr, Expr,
+WRAPPER_PTR(clang_designated_init_expr_get_init, Stmt, DesignatedInitExpr, Expr,
             getInit)
 
-WRAPPER_LIST_WITH_IDX(clang_designated_init_expr_get_designators,
+WRAPPER_LIST_WITH_IDX(clang_designated_init_expr_get_designators, Stmt,
                       DesignatedInitExpr, DesignatedInitExpr::Designator, size,
                       getDesignator)
 
@@ -359,25 +314,11 @@ value clang_designator_get_field_name(value Param) {
 WRAPPER_QUAL_TYPE(clang_typedef_decl_get_underlying_type, TypedefDecl,
                   getUnderlyingType)
 
-value clang_enum_decl_get_enums(value T) {
-  CAMLparam1(T);
-  CAMLlocal4(Hd, Tl, AT, PT);
-  LOG(__FUNCTION__);
-  clang::EnumDecl *D = *((clang::EnumDecl **)Data_abstract_val(T));
-  Tl = Val_int(0);
-  for (auto i = D->enumerator_begin(); i != D->enumerator_end(); i++) {
-    Hd = caml_alloc(1, Abstract_tag);
-    *((const clang::EnumConstantDecl **)Data_abstract_val(Hd)) = *i;
-    value Tmp = caml_alloc(2, 0);
-    Store_field(Tmp, 0, Hd);
-    Store_field(Tmp, 1, Tl);
-    Tl = Tmp;
-  }
-  CAMLreturn(Tl);
-}
+WRAPPER_LIST_WITH_ITER(clang_enum_decl_get_enums, EnumDecl, EnumConstantDecl,
+                       enumerator_begin, enumerator_end)
 
-WRAPPER_PTR(clang_enum_constant_decl_get_init_expr, EnumConstantDecl, Expr,
-            getInitExpr)
+WRAPPER_PTR(clang_enum_constant_decl_get_init_expr, Decl, EnumConstantDecl,
+            Expr, getInitExpr)
 WRAPPER_INT64(clang_enum_constant_decl_get_init_val, EnumConstantDecl,
               getInitVal)
 
@@ -412,9 +353,9 @@ value clang_stmt_get_source_location(value Stmt) {
     Store_field(Result, 1, Val_int(loc.getLine()));
     Store_field(Result, 2, Val_int(loc.getColumn()));
     CAMLreturn(caml_alloc_some(Result));
-    } else {
-  CAMLreturn(Val_none);
-    }
+  } else {
+    CAMLreturn(Val_none);
+  }
 }
 
 value clang_integer_literal_to_int(value Expr) {
@@ -446,9 +387,11 @@ value clang_floating_literal_to_float(value Expr) {
   CAMLreturn(caml_copy_double(V.convertToDouble()));
 }
 
-WRAPPER_PTR(clang_constant_expr_get_sub_expr, ConstantExpr, Expr, getSubExpr)
+WRAPPER_PTR(clang_constant_expr_get_sub_expr, Stmt, ConstantExpr, Expr,
+            getSubExpr)
 
-WRAPPER_PTR(clang_stmt_expr_get_sub_stmt, StmtExpr, CompoundStmt, getSubStmt)
+WRAPPER_PTR(clang_stmt_expr_get_sub_stmt, Stmt, StmtExpr, CompoundStmt,
+            getSubStmt)
 
 WRAPPER_INT(clang_cast_expr_get_kind, CastExpr, getCastKind)
 
@@ -456,7 +399,7 @@ WRAPPER_INT(clang_cast_expr_get_kind_enum, CastExpr, getCastKind)
 
 WRAPPER_STR(clang_cast_expr_get_kind_name, CastExpr, getCastKindName)
 
-WRAPPER_PTR(clang_cast_expr_get_sub_expr, CastExpr, Expr, getSubExpr)
+WRAPPER_PTR(clang_cast_expr_get_sub_expr, Stmt, CastExpr, Expr, getSubExpr)
 
 WRAPPER_QUAL_TYPE(clang_expr_get_type, Expr, getType)
 
@@ -471,45 +414,34 @@ value clang_expr_is_cast(value Expr) {
   }
 }
 
-WRAPPER_PTR(clang_predefined_expr_get_function_name, PredefinedExpr,
+WRAPPER_PTR(clang_predefined_expr_get_function_name, Stmt, PredefinedExpr,
             StringLiteral, getFunctionName)
 
 WRAPPER_INT(clang_predefined_expr_get_ident_kind, PredefinedExpr, getIdentKind)
 
-WRAPPER_LIST_WITH_REV_ITER(clang_compound_stmt_body_list, CompoundStmt, Stmt,
-                           body_rbegin, body_rend)
+WRAPPER_LIST_WITH_ITER(clang_compound_stmt_body_list, CompoundStmt, Stmt,
+                       body_rbegin, body_rend)
 
-WRAPPER_LIST_WITH_REV_ITER(clang_decl_stmt_decl_list, DeclStmt, Decl,
-                           decl_rbegin, decl_rend)
+WRAPPER_LIST_WITH_ITER(clang_decl_stmt_decl_list, DeclStmt, Decl, decl_rbegin,
+                       decl_rend)
 
-value clang_return_stmt_get_ret_value(value Stmt) {
-  CAMLparam1(Stmt);
-  CAMLlocal1(R);
-  LOG(__FUNCTION__);
-  clang::ReturnStmt *S = *((clang::ReturnStmt **)Data_abstract_val(Stmt));
-  R = caml_alloc(1, Abstract_tag);
-  clang::Expr *D = S->getRetValue();
-  if (D) {
-    *((clang::Stmt **)Data_abstract_val(R)) = D;
-    CAMLreturn(caml_alloc_some(R));
-  } else {
-    CAMLreturn(Val_none);
-  }
-}
+WRAPPER_PTR_OPTION(clang_return_stmt_get_ret_value, Stmt, ReturnStmt, Stmt,
+                   getRetValue)
 
 WRAPPER_INT(clang_binary_operator_kind, BinaryOperator, getOpcode)
 
 WRAPPER_STRREF(clang_binary_operator_kind_name, BinaryOperator, getOpcodeStr)
 
-WRAPPER_PTR(clang_binary_operator_get_lhs, BinaryOperator, Expr, getLHS)
+WRAPPER_PTR(clang_binary_operator_get_lhs, Stmt, BinaryOperator, Expr, getLHS)
 
-WRAPPER_PTR(clang_binary_operator_get_rhs, BinaryOperator, Expr, getRHS)
+WRAPPER_PTR(clang_binary_operator_get_rhs, Stmt, BinaryOperator, Expr, getRHS)
 
 WRAPPER_INT(clang_unary_operator_kind, UnaryOperator, getOpcode)
 
-WRAPPER_PTR(clang_unary_operator_get_sub_expr, UnaryOperator, Expr, getSubExpr)
+WRAPPER_PTR(clang_unary_operator_get_sub_expr, Stmt, UnaryOperator, Expr,
+            getSubExpr)
 
-WRAPPER_PTR(clang_decl_ref_get_decl, DeclRefExpr, ValueDecl, getDecl)
+WRAPPER_PTR(clang_decl_ref_get_decl, Stmt, DeclRefExpr, ValueDecl, getDecl)
 
 WRAPPER_INT(clang_unary_expr_or_type_trait_expr_get_kind,
             UnaryExprOrTypeTraitExpr, getKind)
@@ -517,45 +449,46 @@ WRAPPER_INT(clang_unary_expr_or_type_trait_expr_get_kind,
 WRAPPER_BOOL(clang_unary_expr_or_type_trait_expr_is_argument_type,
              UnaryExprOrTypeTraitExpr, isArgumentType)
 
-WRAPPER_PTR(clang_unary_expr_or_type_trait_expr_get_argument_expr,
+WRAPPER_PTR(clang_unary_expr_or_type_trait_expr_get_argument_expr, Stmt,
             UnaryExprOrTypeTraitExpr, Expr, getArgumentExpr)
 
 WRAPPER_QUAL_TYPE(clang_unary_expr_or_type_trait_expr_get_argument_type,
                   UnaryExprOrTypeTraitExpr, getArgumentType)
 
-WRAPPER_PTR(clang_member_expr_get_base, MemberExpr, Expr, getBase)
+WRAPPER_PTR(clang_member_expr_get_base, Stmt, MemberExpr, Expr, getBase)
 
-WRAPPER_PTR(clang_member_expr_get_member_decl, MemberExpr, ValueDecl,
+WRAPPER_PTR(clang_member_expr_get_member_decl, Stmt, MemberExpr, ValueDecl,
             getMemberDecl)
 
 WRAPPER_BOOL(clang_member_expr_is_arrow, MemberExpr, isArrow)
 
-WRAPPER_PTR(clang_opaque_value_expr_get_source_expr, OpaqueValueExpr, Expr,
-            getSourceExpr)
+WRAPPER_PTR(clang_opaque_value_expr_get_source_expr, Stmt, OpaqueValueExpr,
+            Expr, getSourceExpr)
 
-WRAPPER_PTR(clang_paren_expr_get_sub_expr, ParenExpr, Expr, getSubExpr)
+WRAPPER_PTR(clang_paren_expr_get_sub_expr, Stmt, ParenExpr, Expr, getSubExpr)
 
-WRAPPER_PTR(clang_call_expr_get_callee, CallExpr, Expr, getCallee)
+WRAPPER_PTR(clang_call_expr_get_callee, Stmt, CallExpr, Expr, getCallee)
 
-WRAPPER_LIST_WITH_IDX(clang_call_expr_get_args, CallExpr, Expr, getNumArgs,
-                      getArg)
+WRAPPER_LIST_WITH_IDX(clang_call_expr_get_args, Stmt, CallExpr, Expr,
+                      getNumArgs, getArg)
 
-WRAPPER_PTR(clang_case_stmt_get_lhs, CaseStmt, Expr, getLHS)
+WRAPPER_PTR(clang_case_stmt_get_lhs, Stmt, CaseStmt, Expr, getLHS)
 
-WRAPPER_PTR(clang_case_stmt_get_rhs, CaseStmt, Expr, getRHS)
+WRAPPER_PTR(clang_case_stmt_get_rhs, Stmt, CaseStmt, Expr, getRHS)
 
-WRAPPER_PTR(clang_case_stmt_get_sub_stmt, CaseStmt, Stmt, getSubStmt)
+WRAPPER_PTR(clang_case_stmt_get_sub_stmt, Stmt, CaseStmt, Stmt, getSubStmt)
 
-WRAPPER_PTR(clang_default_stmt_get_sub_stmt, DefaultStmt, Stmt, getSubStmt)
+WRAPPER_PTR(clang_default_stmt_get_sub_stmt, Stmt, DefaultStmt, Stmt,
+            getSubStmt)
 
-WRAPPER_PTR_OPTION(clang_switch_stmt_get_init, SwitchStmt, Stmt, getInit)
+WRAPPER_PTR_OPTION(clang_switch_stmt_get_init, Stmt, SwitchStmt, Stmt, getInit)
 
-WRAPPER_PTR_OPTION(clang_switch_stmt_get_condition_variable, SwitchStmt,
+WRAPPER_PTR_OPTION(clang_switch_stmt_get_condition_variable, Stmt, SwitchStmt,
                    VarDecl, getConditionVariable)
 
-WRAPPER_PTR(clang_switch_stmt_get_cond, SwitchStmt, Expr, getCond)
+WRAPPER_PTR(clang_switch_stmt_get_cond, Stmt, SwitchStmt, Expr, getCond)
 
-WRAPPER_PTR(clang_switch_stmt_get_body, SwitchStmt, Stmt, getBody)
+WRAPPER_PTR(clang_switch_stmt_get_body, Stmt, SwitchStmt, Stmt, getBody)
 
 value clang_attributed_stmt_get_attrs(value Param) {
   CAMLparam1(Param);
@@ -576,50 +509,50 @@ value clang_attributed_stmt_get_attrs(value Param) {
   CAMLreturn(Tl);
 }
 
-WRAPPER_PTR(clang_attributed_stmt_get_sub_stmt, AttributedStmt, Stmt,
+WRAPPER_PTR(clang_attributed_stmt_get_sub_stmt, Stmt, AttributedStmt, Stmt,
             getSubStmt)
 
-WRAPPER_PTR(clang_binary_conditional_operator_get_cond,
+WRAPPER_PTR(clang_binary_conditional_operator_get_cond, Stmt,
             BinaryConditionalOperator, Expr, getCond)
 
-WRAPPER_PTR_OPTION(clang_binary_conditional_operator_get_true_expr,
+WRAPPER_PTR_OPTION(clang_binary_conditional_operator_get_true_expr, Stmt,
                    BinaryConditionalOperator, Expr, getTrueExpr)
 
-WRAPPER_PTR(clang_binary_conditional_operator_get_false_expr,
+WRAPPER_PTR(clang_binary_conditional_operator_get_false_expr, Stmt,
             BinaryConditionalOperator, Expr, getFalseExpr)
 
-WRAPPER_PTR(clang_conditional_operator_get_cond, ConditionalOperator, Expr,
-            getCond)
+WRAPPER_PTR(clang_conditional_operator_get_cond, Stmt, ConditionalOperator,
+            Expr, getCond)
 
-WRAPPER_PTR_OPTION(clang_conditional_operator_get_true_expr,
+WRAPPER_PTR_OPTION(clang_conditional_operator_get_true_expr, Stmt,
                    ConditionalOperator, Expr, getTrueExpr)
 
-WRAPPER_PTR(clang_conditional_operator_get_false_expr, ConditionalOperator,
-            Expr, getFalseExpr)
+WRAPPER_PTR(clang_conditional_operator_get_false_expr, Stmt,
+            ConditionalOperator, Expr, getFalseExpr)
 
-WRAPPER_PTR(clang_array_subscript_expr_get_base, ArraySubscriptExpr, Expr,
+WRAPPER_PTR(clang_array_subscript_expr_get_base, Stmt, ArraySubscriptExpr, Expr,
             getBase)
 
-WRAPPER_PTR(clang_array_subscript_expr_get_idx, ArraySubscriptExpr, Expr,
+WRAPPER_PTR(clang_array_subscript_expr_get_idx, Stmt, ArraySubscriptExpr, Expr,
             getIdx)
 
-WRAPPER_PTR(clang_va_arg_expr_get_sub_expr, VAArgExpr, Expr, getSubExpr)
+WRAPPER_PTR(clang_va_arg_expr_get_sub_expr, Stmt, VAArgExpr, Expr, getSubExpr)
 
 WRAPPER_BOOL(clang_init_list_expr_is_syntactic_form, InitListExpr,
              isSyntacticForm)
 WRAPPER_BOOL(clang_init_list_expr_is_semantic_form, InitListExpr,
              isSemanticForm)
-WRAPPER_PTR_OPTION(clang_init_list_expr_get_syntactic_form, InitListExpr,
+WRAPPER_PTR_OPTION(clang_init_list_expr_get_syntactic_form, Stmt, InitListExpr,
                    InitListExpr, getSyntacticForm)
-WRAPPER_PTR_OPTION(clang_init_list_expr_get_semantic_form, InitListExpr,
+WRAPPER_PTR_OPTION(clang_init_list_expr_get_semantic_form, Stmt, InitListExpr,
                    InitListExpr, getSemanticForm)
-WRAPPER_LIST_WITH_IDX(clang_init_list_expr_get_inits, InitListExpr, Expr,
+WRAPPER_LIST_WITH_IDX(clang_init_list_expr_get_inits, Stmt, InitListExpr, Expr,
                       getNumInits, getInit)
 
 WRAPPER_INT(clang_attr_get_kind, Attr, getKind)
 
 WRAPPER_STR(clang_attr_get_spelling, Attr, getSpelling)
 
-WRAPPER_PTR(clang_compound_literal_expr_get_initializer, CompoundLiteralExpr,
-            Expr, getInitializer)
+WRAPPER_PTR(clang_compound_literal_expr_get_initializer, Stmt,
+            CompoundLiteralExpr, Expr, getInitializer)
 }

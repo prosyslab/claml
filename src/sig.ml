@@ -217,10 +217,6 @@ module type RECORD_DECL = sig
 
   val is_union : t -> bool
 
-  val field_begin : t -> t option
-
-  val field_list_internal : t -> t list
-
   val field_list : t -> Decl.t list
 
   val iter_field : (Decl.t -> unit) -> t -> unit

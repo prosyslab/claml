@@ -291,8 +291,6 @@ and RecordDecl :
 
   external is_union : t -> bool = "clang_record_decl_is_union"
 
-  external field_begin : t -> t option = "clang_record_decl_field_begin"
-
   external field_list_internal : t -> Decl.t list
     = "clang_record_decl_field_list_internal"
 
