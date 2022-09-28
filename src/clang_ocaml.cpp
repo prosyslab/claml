@@ -277,7 +277,7 @@ WRAPPER_PTR_OPTION(clang_while_stmt_get_condition_variable, Stmt, WhileStmt,
                    VarDecl, getConditionVariable)
 
 WRAPPER_PTR(clang_do_stmt_get_cond, Stmt, DoStmt, Expr, getCond)
-WRAPPER_PTR(clang_do_stmt_get_body, Stmt, DoStmt, Expr, getCond)
+WRAPPER_PTR(clang_do_stmt_get_body, Stmt, DoStmt, Stmt, getBody)
 
 WRAPPER_PTR_OPTION(clang_for_stmt_get_cond, Stmt, ForStmt, Expr, getCond)
 WRAPPER_PTR_OPTION(clang_for_stmt_get_inc, Stmt, ForStmt, Expr, getInc)
