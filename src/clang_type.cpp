@@ -31,6 +31,13 @@ value clang_qual_type_to_string(value QT) {
   CAMLreturn(clang_to_string(qt->getAsString().c_str()));
 }
 
+value clang_atomic_type_get_value_type(value T) {
+  CAMLparam1(T);
+  LOG(__FUNCTION__);
+  clang::AtomicType *AT = *((clang::AtomicType **)Data_abstract_val(T));
+  CAMLreturn(clang_to_qual_type(AT->getValueType()));
+}
+
 WRAPPER_BOOL(clang_qual_type_is_null, QualType, isNull)
 
 WRAPPER_INT(clang_type_get_kind, Type, getTypeClass)

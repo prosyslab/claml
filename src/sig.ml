@@ -705,6 +705,15 @@ module type PAREN_TYPE = sig
   val desugar : t -> QualType.t
 end
 
+module type ATOMIC_TYPE = sig
+  include NODE
+
+  module QualType : QUAL_TYPE
+
+  val get_value_type : t -> QualType.t
+
+end
+
 module type POINTER_TYPE = sig
   include NODE
 
