@@ -1395,6 +1395,18 @@ and ParenType :
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
 end
 
+and AtomicType : 
+(Sig.ATOMIC_TYPE 
+with type t = Type.t
+and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+     include Type
+  module QualType = QualType
+  external get_value_type : t -> QualType.t = "clang_atomic_type_get_value_type"
+
+  let pp fmt t = F.fprintf fmt "_Atomic(%a)" QualType.pp (get_value_type t)
+end
+
 and PointerType :
   (Sig.POINTER_TYPE
     with type t = Type.t
