@@ -82,7 +82,7 @@ module rec Decl :
     match get_kind decl with
     | VarDecl -> (
         match VarDecl.get_type decl with
-        | TypeKind.BuiltinType t -> (
+        | TypeKind.BuiltinType -> (
             match TypeKind.BuiltinType.get_kind t with
             | Vector -> true
             | _ -> false)
