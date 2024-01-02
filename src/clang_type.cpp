@@ -52,6 +52,13 @@ value clang_vector_type_get_num_elements(value T) {
   CAMLreturn(Val_int(VT->getNumElements()));
 }
 
+value clang_vector_type_desugar(value T) {
+  CAMLparam1(T);
+  LOG(__FUNCTION__);
+  clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
+  CAMLreturn(clang_to_qual_type(VT->desugar()));
+}
+
 WRAPPER_BOOL(clang_qual_type_is_null, QualType, isNull)
 
 WRAPPER_INT(clang_type_get_kind, Type, getTypeClass)

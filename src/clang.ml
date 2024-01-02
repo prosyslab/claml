@@ -241,12 +241,6 @@ and TypedefDecl :
   external get_underlying_type : t -> QualType.t
     = "clang_typedef_decl_get_underlying_type"
 
-  let is_vector_typedefdecl decl =
-    match get_kind decl with
-    | TypedefDecl -> (
-         get_underlying_type decl |> QualType.to_string |> print_endline)
-    | _ -> ()
-
   let pp fmt decl =
     if is_implicit decl then F.fprintf fmt "// implicit typedef"
     else
@@ -1422,6 +1416,7 @@ and type QualType.Type.t = QualType.Type.t
   module QualType = QualType
   external get_element_type : t -> QualType.t = "clang_vector_type_get_element_type"
   external get_num_elements : t -> int = "clang_vector_type_get_num_elements"
+  external desugar : t -> QualType.t = "clang_vector_type_desugar"
 
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (get_element_type t)
 end
