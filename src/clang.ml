@@ -78,6 +78,17 @@ module rec Decl :
 
   external is_implicit : t -> bool = "clang_decl_is_implicit"
 
+  let is_vector_decl decl =
+    match get_kind decl with
+    | VarDecl -> (
+        match VarDecl.get_type decl with
+        | BuiltinType t -> (
+            match BuiltinType.get_kind t with
+            | Vector -> true
+            | _ -> false)
+        | _ -> false)
+    | _ -> false
+
   let pp_storage_class fmt = function
     | NoneSC -> ()
     | Extern -> F.fprintf fmt "extern"
@@ -1405,6 +1416,18 @@ and type QualType.Type.t = QualType.Type.t
   external get_value_type : t -> QualType.t = "clang_atomic_type_get_value_type"
 
   let pp fmt t = F.fprintf fmt "_Atomic(%a)" QualType.pp (get_value_type t)
+end
+
+and VectorType:
+(Sig.VECTOR_TYPE
+with type t = Type.t
+and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+     include Type
+  module QualType = QualType
+  external get_element_type : t -> QualType.t = "clang_vector_type_get_element_type"
+
+  let pp fmt t = F.fprintf fmt "%a" QualType.pp (get_element_type t)
 end
 
 and PointerType :
