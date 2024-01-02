@@ -719,9 +719,9 @@ module type VECTOR_TYPE = sig
 
   module QualType : QUAL_TYPE
 
-  (* val get_element_type : t -> QualType.t
+  val get_element_type : t -> QualType.t
 
-  val get_num_elements : t -> int *)
+  (* val get_num_elements : t -> int *)
   val desugar : t -> QualType.t
 end
 
