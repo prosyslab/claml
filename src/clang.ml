@@ -241,16 +241,11 @@ and TypedefDecl :
   external get_underlying_type : t -> QualType.t
     = "clang_typedef_decl_get_underlying_type"
 
-  let is_vector_tpedefdecl decl =
+  let is_vector_typedefdecl decl =
     match get_kind decl with
     | TypedefDecl -> (
-        match get_underlying_type decl with
-        | BuiltinType bt -> (
-            match BuiltinType.get_kind bt with
-            | Vector -> true
-            | _ -> false)
-        | _ -> false)
-    | _ -> false
+         get_underlying_type decl |> QualType.to_string |> print_endline)
+    | _ -> ()
 
   let pp fmt decl =
     if is_implicit decl then F.fprintf fmt "// implicit typedef"
