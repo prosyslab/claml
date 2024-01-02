@@ -1426,6 +1426,7 @@ and type QualType.Type.t = QualType.Type.t
      include Type
   module QualType = QualType
   external get_element_type : t -> QualType.t = "clang_vector_type_get_element_type"
+  external get_num_elements : t -> int = "clang_vector_type_get_num_elements"
 
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (get_element_type t)
 end

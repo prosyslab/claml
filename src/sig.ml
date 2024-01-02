@@ -714,6 +714,16 @@ module type ATOMIC_TYPE = sig
 
 end
 
+module type VECTOR_TYPE = sig
+  include NODE
+
+  module QualType : QUAL_TYPE
+
+  val get_element_type : t -> QualType.t
+
+  val get_num_elements : t -> int
+end
+
 module type POINTER_TYPE = sig
   include NODE
 

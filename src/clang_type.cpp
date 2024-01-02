@@ -38,6 +38,20 @@ value clang_atomic_type_get_value_type(value T) {
   CAMLreturn(clang_to_qual_type(AT->getValueType()));
 }
 
+value clang_vector_type_get_element_type(value T) {
+  CAMLparam1(T);
+  LOG(__FUNCTION__);
+  clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
+  CAMLreturn(clang_to_qual_type(VT->getElementType()));
+}
+
+value clang_vector_type_get_num_elements(value T) {
+  CAMLparam1(T);
+  LOG(__FUNCTION__);
+  clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
+  CAMLreturn(Val_int(VT->getNumElements()));
+}
+
 WRAPPER_BOOL(clang_qual_type_is_null, QualType, isNull)
 
 WRAPPER_INT(clang_type_get_kind, Type, getTypeClass)
