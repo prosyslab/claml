@@ -78,17 +78,6 @@ module rec Decl :
 
   external is_implicit : t -> bool = "clang_decl_is_implicit"
 
-  let is_vector_tpedefdecl decl =
-    match get_kind decl with
-    | TypedefDecl -> (
-        match TypedefDecl.get_underlying_type decl with
-        | BuiltinType bt -> (
-            match BuiltinType.get_kind bt with
-            | Vector -> true
-            | _ -> false)
-        | _ -> false)
-    | _ -> false
-
   let pp_storage_class fmt = function
     | NoneSC -> ()
     | Extern -> F.fprintf fmt "extern"
@@ -251,6 +240,17 @@ and TypedefDecl :
 
   external get_underlying_type : t -> QualType.t
     = "clang_typedef_decl_get_underlying_type"
+
+  let is_vector_tpedefdecl decl =
+    match get_kind decl with
+    | TypedefDecl -> (
+        match get_underlying_type decl with
+        | BuiltinType bt -> (
+            match BuiltinType.get_kind bt with
+            | Vector -> true
+            | _ -> false)
+        | _ -> false)
+    | _ -> false
 
   let pp fmt decl =
     if is_implicit decl then F.fprintf fmt "// implicit typedef"
