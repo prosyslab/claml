@@ -78,17 +78,6 @@ module rec Decl :
 
   external is_implicit : t -> bool = "clang_decl_is_implicit"
 
-  let is_vector_decl decl =
-    match get_kind decl with
-    | VarDecl -> (
-        match VarDecl.get_type decl with
-        | TypeKind.BuiltinType -> (
-            match TypeKind.BuiltinType.get_kind t with
-            | Vector -> true
-            | _ -> false)
-        | _ -> false)
-    | _ -> false
-
   let pp_storage_class fmt = function
     | NoneSC -> ()
     | Extern -> F.fprintf fmt "extern"
