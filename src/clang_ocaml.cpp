@@ -57,6 +57,22 @@ value clang_parse_file(value args) {
   CAMLreturn(u);
 }
 
+value caml_clang_parse_args(value args) {
+  CAMLparam1(args);
+  CAMLlocal1(u);
+  int num_args = Wosize_val(args);
+  int i;
+  char const **clang_args =
+      (char const **)malloc(num_args * sizeof(const char *const));
+  for (i = 0; i < num_args; i++) {
+    clang_args[i] = String_val(Field(args, i));
+  }
+  clang::ASTUnit *Unit = parse_internal(num_args, clang_args);
+  u = caml_alloc(1, Abstract_tag);
+  *((clang::ASTUnit **)Data_abstract_val(u)) = Unit;
+  CAMLreturn(u);
+}
+
 value clang_get_translation_unit(value Unit) {
   CAMLparam1(Unit);
   CAMLlocal1(R);
