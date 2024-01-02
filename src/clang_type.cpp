@@ -45,19 +45,22 @@ value clang_vector_type_get_element_type(value T) {
   CAMLreturn(clang_to_qual_type(VT->getElementType()));
 }
 
-value clang_vector_type_get_num_elements(value T) {
-  CAMLparam1(T);
-  LOG(__FUNCTION__);
-  clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
-  CAMLreturn(Val_int(VT->getNumElements()));
-}
+// value clang_vector_type_get_num_elements(value T) {
+//   CAMLparam1(T);
+//   LOG(__FUNCTION__);
+//   clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
+//   CAMLreturn(Val_int(VT->getNumElements()));
+// }
 
-value clang_vector_type_desugar(value T) {
-  CAMLparam1(T);
-  LOG(__FUNCTION__);
-  clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
-  CAMLreturn(clang_to_qual_type(VT->desugar()));
-}
+// value clang_vector_type_desugar(value T) {
+//   CAMLparam1(T);
+//   LOG(__FUNCTION__);
+//   clang::VectorType *VT = *((clang::VectorType **)Data_abstract_val(T));
+//   CAMLreturn(clang_to_qual_type(VT->desugar()));
+// }
+
+
+WRAPPER_QUAL_TYPE(clang_vector_type_desugar, VectorType, desugar)
 
 WRAPPER_BOOL(clang_qual_type_is_null, QualType, isNull)
 
