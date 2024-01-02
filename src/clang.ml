@@ -1544,7 +1544,8 @@ module TranslationUnit = struct
   external decls_succ : Decl.t -> Decl.t option = "clang_decls_succ"
 
   external parse_args : argv:string array -> filenames:string array -> t = "caml_clang_parse_args"
-  let parse_file argv = parse_file_internal argv |> get_translation_unit
+  (* let parse_file argv = parse_file_internal argv |> get_translation_unit *)
+  let parse_file filenames = parse_args ~argv:[||] ~filenames 
 
   let rec fold_left_decls_range f init i =
     match i with
