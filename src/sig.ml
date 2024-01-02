@@ -722,6 +722,7 @@ module type VECTOR_TYPE = sig
   val get_element_type : t -> QualType.t
 
   val get_num_elements : t -> int
+  val desugar : t -> QualType.t
 end
 
 module type POINTER_TYPE = sig
