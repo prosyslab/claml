@@ -1407,6 +1407,20 @@ and type QualType.Type.t = QualType.Type.t
   let pp fmt t = F.fprintf fmt "_Atomic(%a)" QualType.pp (get_value_type t)
 end
 
+and VectorType:
+(Sig.VECTOR_TYPE
+with type t = Type.t
+and type QualType.Type.t = QualType.Type.t
+     and type QualType.t = QualType.t) = struct
+     include Type
+  module QualType = QualType
+  external get_element_type : t -> QualType.t = "clang_vector_type_get_element_type"
+  external get_num_elements : t -> int = "clang_vector_type_get_num_elements"
+  external desugar : t -> QualType.t = "clang_vector_type_desugar"
+
+  let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
+end
+
 and PointerType :
   (Sig.POINTER_TYPE
     with type t = Type.t
