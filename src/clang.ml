@@ -1415,7 +1415,7 @@ and type QualType.Type.t = QualType.Type.t
      include Type
   module QualType = QualType
   external get_element_type : t -> QualType.t = "clang_vector_type_get_element_type"
-  (* external get_num_elements : t -> int = "clang_vector_type_get_num_elements" *)
+  external get_num_elements : t -> int = "clang_vector_type_get_num_elements"
   external desugar : t -> QualType.t = "clang_vector_type_desugar"
 
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
@@ -1543,9 +1543,7 @@ module TranslationUnit = struct
 
   external decls_succ : Decl.t -> Decl.t option = "clang_decls_succ"
 
-  (* external parse_args : argv:string array -> filenames:string array -> t = "caml_clang_parse_args" *)
   let parse_file argv = parse_file_internal argv |> get_translation_unit
-  (* let parse_file filenames = parse_args ~argv:[||] ~filenames  *)
 
   let rec fold_left_decls_range f init i =
     match i with
