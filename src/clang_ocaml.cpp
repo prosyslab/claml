@@ -98,17 +98,14 @@ clang::ASTUnit *parse_internal(int argc, char const **argv) {
   Diags->setSuppressAllDiagnostics(true);
   clang::FileSystemOptions FileSystemOpts;
   llvm::SmallVector<const char *, 4> Args;
+  Args.push_back("clang");
+  Args.push_back("-cc1");
   Args.push_back("-fsyntax-only");
   Args.push_back(argv[0]);
   std::shared_ptr<clang::PCHContainerOperations> PCHContainerOps =
       std::make_shared<clang::PCHContainerOperations>();
-
-  std::shared_ptr<clang::CompilerInvocation> CI = std::make_shared<clang::CompilerInvocation>();
-  if (!clang::CompilerInvocation::CreateFromArgs(*CI, Args, *Diags)) {
-    return nullptr;
-  }
-  clang::ASTUnit *Unit =
-    clang::ASTUnit::LoadFromCompilerInvocationAction(CI, PCHContainerOps, Diags);
+  clang::ASTUnit *Unit(clang::ASTUnit::LoadFromCommandLine(
+    Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
   
   clang::SourceManager &SM = Unit->getSourceManager();
   assert (&SM != nullptr);
