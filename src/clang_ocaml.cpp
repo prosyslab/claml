@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include "clang/AST/DeclBase.h"
+#include "clang/Rewrite/Core/Rewriter.h"
 #include "clang/Frontend/ASTUnit.h"
 #include "clang/Frontend/CompilerInstance.h"
 
@@ -21,6 +24,72 @@ void clang_initialize(value args) {
 
 clang::ASTContext *AC;
 
+value clang_rewriter_emit_string(value rewriter) {
+  CAMLparam1(rewriter);
+  LOG(__FUNCTION__);
+
+  clang::Rewriter *Rewriter = *((clang::Rewriter **)Data_abstract_val(rewriter));
+  assert (Rewriter != nullptr);
+  assert (&Rewriter->getSourceMgr() != nullptr);
+
+  const clang::RewriteBuffer *RewriteBuf =
+    Rewriter->getRewriteBufferFor(Rewriter->getSourceMgr().getMainFileID());
+
+  std::string emit(RewriteBuf->begin(), RewriteBuf->end());
+
+  CAMLreturn(clang_to_string(emit.data()));
+}
+
+value clang_rewriter_insert_before_stmt(value stmt, value text, value rewriter) {
+  CAMLparam3(stmt, text, rewriter);
+  LOG(__FUNCTION__);
+
+  const char *Text = String_val(text);
+  clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(stmt));
+  clang::Rewriter *Rewriter = *((clang::Rewriter **)Data_abstract_val(rewriter));
+
+  clang::SourceLocation begin_loc = S->getBeginLoc();
+  Rewriter->InsertTextBefore(begin_loc, Text);
+
+  CAMLreturn(Val_unit);
+}
+
+value clang_rewriter_insert_before_decl(value decl, value text, value rewriter) {
+  CAMLparam3(decl, text, rewriter);
+  LOG(__FUNCTION__);
+  
+  clang::Rewriter *RW = *((clang::Rewriter **)Data_abstract_val(rewriter));
+  assert (RW != nullptr);
+  assert (&RW->getSourceMgr() != nullptr);
+
+  const char *Text = String_val(text);
+  clang::Decl *D = *((clang::Decl **)Data_abstract_val(decl));
+  clang::SourceLocation begin_loc = D->getBeginLoc();
+  begin_loc.dump(RW->getSourceMgr());
+
+  bool notRewritable = RW->InsertTextBefore(begin_loc, Text);
+
+  CAMLreturn(Val_bool(notRewritable));
+}
+
+value clang_get_rewriter(value Unit) {
+  CAMLparam1(Unit);
+  CAMLlocal1(rewriter);
+  LOG(__FUNCTION__);
+
+  clang::ASTUnit *U = *((clang::ASTUnit **)Data_abstract_val(Unit));
+
+  clang::SourceManager &SrcManager = U->getSourceManager();
+  assert (&SrcManager != nullptr);
+  const clang::LangOptions &LangOpts = U->getLangOpts();
+  clang::Rewriter *RW =
+    new clang::Rewriter(SrcManager, LangOpts);
+
+  rewriter = caml_alloc(1, Abstract_tag);
+  *((clang::Rewriter **)Data_abstract_val(rewriter)) = RW;
+  CAMLreturn(rewriter);
+}
+
 clang::ASTUnit *parse_internal(int argc, char const **argv) {
   clang::IntrusiveRefCntPtr<clang::DiagnosticsEngine> Diags =
       clang::CompilerInstance::createDiagnostics(
@@ -29,18 +98,26 @@ clang::ASTUnit *parse_internal(int argc, char const **argv) {
   Diags->setSuppressAllDiagnostics(true);
   clang::FileSystemOptions FileSystemOpts;
   llvm::SmallVector<const char *, 4> Args;
-  Args.push_back("clang");
-  Args.push_back("-cc1");
   Args.push_back("-fsyntax-only");
   Args.push_back(argv[0]);
   std::shared_ptr<clang::PCHContainerOperations> PCHContainerOps =
       std::make_shared<clang::PCHContainerOperations>();
-  clang::ASTUnit *Unit(clang::ASTUnit::LoadFromCommandLine(
-      Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
+
+  std::shared_ptr<clang::CompilerInvocation> CI = std::make_shared<clang::CompilerInvocation>();
+  if (!clang::CompilerInvocation::CreateFromArgs(*CI, Args, *Diags)) {
+    return nullptr;
+  }
+  clang::ASTUnit *Unit =
+    clang::ASTUnit::LoadFromCompilerInvocationAction(CI, PCHContainerOps, Diags);
+  
+  clang::SourceManager &SM = Unit->getSourceManager();
+  assert (&SM != nullptr);
+
   return Unit;
 }
 
 // https://github.com/llvm/llvm-project/blob/a2e2fbba17ace0958d9b188aef68f80bcf63332d/clang/tools/libclang/CIndex.cpp#L3572
+/// `string array` -> `TranslationUnit.ast`
 value clang_parse_file(value args) {
   CAMLparam1(args);
   CAMLlocal1(u);
@@ -57,6 +134,7 @@ value clang_parse_file(value args) {
   CAMLreturn(u);
 }
 
+/// `TranslationUnit.ast` -> `TranslationUnit.t`
 value clang_get_translation_unit(value Unit) {
   CAMLparam1(Unit);
   CAMLlocal1(R);
