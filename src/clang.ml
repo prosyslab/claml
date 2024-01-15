@@ -15,6 +15,8 @@ end
 
 let ast_context : ASTContext.t ref option = None
 
+
+(** OCaml record representation of [clang::PresumedLoc]  *)
 module SourceLocation : Sig.SOURCE_LOCATION = struct
   type t = { filename : string; line : int; column : int }
 end
@@ -1528,12 +1530,27 @@ and QualType : (Sig.QUAL_TYPE with type Type.t = Type.t) = struct
     F.fprintf fmt "%a" Type.pp ty
 end
 
+module Rewriter = struct
+  type t
+
+  (** Returns true if it did nothing *)
+  external insert_before_decl : Decl.t -> string -> t -> bool =
+    "clang_rewriter_insert_before_decl"
+
+  external insert_before_stmt : Stmt.t -> string -> t -> bool =
+    "clang_rewriter_insert_before_stmt"
+  
+  external emit_string : t -> string = "clang_rewriter_emit_string"
+end
+
 module TranslationUnit = struct
   type t
 
   type ast
 
   external parse_file_internal : string array -> ast = "clang_parse_file"
+
+  external get_rewriter : ast -> Rewriter.t = "clang_get_rewriter"
 
   external get_translation_unit : ast -> t = "clang_get_translation_unit"
 
