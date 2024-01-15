@@ -154,7 +154,7 @@ gen_test() {
  (flags -runtime-variant d -g)
  (libraries claml))
  " >$TARGET
-  for cfile in $(find test -name "*.c"); do
+  for cfile in $(find test -maxdepth 1 -name "*.c"); do
     cfile=$(basename $cfile)
     echo "(rule
  (deps $cfile)
