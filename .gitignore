@@ -11,3 +11,6 @@ src/declKind.ml
 src/attrKind.ml
 src/implicitCastKind.ml
 config
+
+.vscode
+rewriter-test-runner

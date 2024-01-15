@@ -1,0 +1,20 @@
+(executable
+ (name test)
+ (modules test)
+ (flags -runtime-variant d -g)
+ (libraries claml))
+
+(rule
+ (deps simple.c)
+ (targets simple.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (pipe-stdout
+    (ignore-stderr
+     (run ./test.exe %{deps}))
+    (run clang-format)))))
+
+(rule
+ (alias runtest)
+ (action (diff simple.output simple.expected)))
