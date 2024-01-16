@@ -1,5 +1,6 @@
 DUNE=@dune
 LN=@ln -sf
+CLANG-FORMAT=@clang-format
 
 all:
 	$(DUNE) build --auto-promote @fmt src
@@ -12,7 +13,8 @@ test: all
 	$(DUNE) test
 
 fmt:
-	$(DUNE) build @fmt --auto-promote
+	$(DUNE) build @fmt --auto-promote src
+	$(CLANG-FORMAT) -i src/*.cpp src/*.h
 
 promote:
 	$(DUNE) promote
