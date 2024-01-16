@@ -15,23 +15,19 @@ end
 
 let ast_context : ASTContext.t ref option = None
 
-
 (** OCaml record representation of [clang::PresumedLoc]  *)
 module SourceLocation : Sig.SOURCE_LOCATION = struct
   type t = { filename : string; line : int; column : int }
 end
 
 let pp_semicolon fmt = F.fprintf fmt ";"
-
 let pp_endline fmt = F.fprintf fmt "\n"
 
 module Attr : Sig.ATTR = struct
   type t
-
   type kind = AttrKind.t
 
   external get_kind : t -> kind = "clang_attr_get_kind"
-
   external get_spelling : t -> string = "clang_attr_get_spelling"
 
   let pp fmt a = F.fprintf fmt "%s" (get_spelling a)
@@ -42,7 +38,6 @@ module rec Decl :
     with type Attr.t = Attr.t
      and type SourceLocation.t = SourceLocation.t) = struct
   type t
-
   type kind = DeclKind.t [@@deriving show]
 
   module SourceLocation = SourceLocation
@@ -57,27 +52,21 @@ module rec Decl :
     | Register
 
   external get_kind : t -> kind = "clang_decl_get_kind"
-
   external get_kind_name : t -> string = "clang_decl_get_kind_name"
-
   external get_kind_enum : t -> int = "clang_decl_get_kind"
 
   external get_storage_class : t -> storage_class
     = "clang_decl_get_storage_class"
 
   external get_attrs : t -> Attr.t list = "clang_decl_get_attrs"
-
   external get_global_id : t -> int = "clang_decl_get_global_id"
-
   external hash : t -> int = "clang_decl_hash"
-
   external dump : t -> unit = "clang_decl_dump"
 
   external get_source_location : t -> SourceLocation.t option
     = "clang_decl_get_source_location"
 
   external is_value_decl : t -> bool = "clang_decl_is_value_decl"
-
   external is_implicit : t -> bool = "clang_decl_is_implicit"
 
   let pp_storage_class fmt = function
@@ -220,7 +209,6 @@ and VarDecl :
   module Expr = Expr
 
   external has_init : t -> bool = "clang_vardecl_has_init"
-
   external get_init : t -> Stmt.t option = "clang_vardecl_get_init"
 
   let pp fmt vdecl =
@@ -288,16 +276,13 @@ and RecordDecl :
   module Decl = Decl
 
   external is_anonymous : t -> bool = "clang_record_decl_is_anonymous"
-
   external is_struct : t -> bool = "clang_record_decl_is_struct"
-
   external is_union : t -> bool = "clang_record_decl_is_union"
 
   external field_list_internal : t -> Decl.t list
     = "clang_record_decl_field_list_internal"
 
   let field_list decl = field_list_internal decl |> List.rev
-
   let iter_field f decl = List.iter f (field_list decl)
 
   let pp fmt decl =
@@ -329,7 +314,6 @@ and IndirectFieldDecl :
     = "clang_indirect_field_decl_get_decl_list_internal"
 
   let get_decl_list fd = get_decl_list_internal fd |> List.rev
-
   let pp fmt decl = ()
 end
 
@@ -339,15 +323,12 @@ end
 
 and Stmt : (Sig.STMT with type SourceLocation.t = SourceLocation.t) = struct
   type t
-
   type kind = StmtKind.t [@@deriving show]
 
   module SourceLocation = SourceLocation
 
   external get_kind : t -> kind = "clang_stmt_get_kind"
-
   external get_kind_enum : t -> int = "clang_stmt_get_kind"
-
   external get_kind_name : t -> string = "clang_stmt_get_kind_name"
 
   external get_source_location : t -> SourceLocation.t option
@@ -416,7 +397,6 @@ and Expr :
   module QualType = QualType
 
   external get_type : t -> QualType.t = "clang_expr_get_type"
-
   external is_cast : t -> bool = "clang_expr_is_cast"
 end
 
@@ -494,11 +474,8 @@ and ImplicitCastExpr :
   module Expr = Expr
 
   external get_sub_expr : t -> Expr.t = "clang_cast_expr_get_sub_expr"
-
   external get_kind : t -> kind = "clang_cast_expr_get_kind"
-
   external get_kind_name : t -> string = "clang_cast_expr_get_kind_name"
-
   external get_kind_enum : t -> int = "clang_cast_expr_get_kind_enum"
 
   let pp fmt e =
@@ -522,7 +499,6 @@ and CharacterLiteral : (Sig.CHARACTER_LITERAL with type t = Stmt.t) = struct
   type kind = CharacterKind.t
 
   external get_kind : t -> kind = "clang_character_literal_get_kind"
-
   external get_value : t -> int = "clang_character_literal_get_value"
 
   let pp fmt e = F.fprintf fmt "%d" (get_value e)
@@ -739,9 +715,7 @@ and CaseStmt :
   module Expr = Expr
 
   external get_lhs : t -> Expr.t = "clang_case_stmt_get_lhs"
-
   external get_rhs : t -> Expr.t = "clang_case_stmt_get_rhs"
-
   external get_sub_stmt : t -> Stmt.t = "clang_case_stmt_get_sub_stmt"
 
   let pp fmt s =
@@ -794,7 +768,6 @@ and SwitchStmt :
     = "clang_switch_stmt_get_condition_variable"
 
   external get_cond : t -> Expr.t = "clang_switch_stmt_get_cond"
-
   external get_body : t -> Expr.t = "clang_switch_stmt_get_body"
 
   let pp fmt s =
@@ -806,7 +779,6 @@ and AttributedStmt : (Sig.ATTRIBUTED_STMT with type t = Stmt.t) = struct
   include Stmt
 
   external get_sub_stmt : t -> Stmt.t = "clang_attributed_stmt_get_sub_stmt"
-
   external get_attrs : t -> Attr.t list = "clang_attributed_stmt_get_attrs"
 
   let pp_attrs fmt al = List.iter (fun a -> F.fprintf fmt "%a, " Attr.pp a) al
@@ -863,7 +835,6 @@ struct
   type t = Stmt.t
 
   external get_base : t -> Stmt.t = "clang_array_subscript_expr_get_base"
-
   external get_idx : t -> Stmt.t = "clang_array_subscript_expr_get_idx"
 
   let pp fmt e = F.fprintf fmt "%a[%a]" Stmt.pp (get_base e) Stmt.pp (get_idx e)
@@ -878,13 +849,9 @@ and BinaryOperator :
   module Expr = Expr
 
   external get_kind : t -> kind = "clang_binary_operator_kind"
-
   external get_kind_enum : t -> int = "clang_binary_operator_kind"
-
   external get_kind_name : t -> string = "clang_binary_operator_kind_name"
-
   external get_lhs : t -> Expr.t = "clang_binary_operator_get_lhs"
-
   external get_rhs : t -> Expr.t = "clang_binary_operator_get_rhs"
 
   let has_side_effect i =
@@ -941,7 +908,6 @@ struct
   module Expr = Expr
 
   external get_callee : t -> Expr.t = "clang_call_expr_get_callee"
-
   external get_args : t -> Expr.t list = "clang_call_expr_get_args"
 
   let pp fmt t =
@@ -999,7 +965,6 @@ and UnaryOperator :
   module Expr = Expr
 
   external get_kind : t -> kind = "clang_unary_operator_kind"
-
   external get_sub_expr : t -> t = "clang_unary_operator_get_sub_expr"
 
   let has_side_effect i =
@@ -1045,16 +1010,13 @@ and IfStmt :
   module VarDecl = VarDecl
 
   external get_init : t -> Stmt.t option = "clang_if_stmt_get_init"
-
   external get_cond : t -> Stmt.t = "clang_if_stmt_get_cond"
 
   external get_condition_variable : t -> VarDecl.t option
     = "clang_if_stmt_get_condition_variable"
 
   external get_then : t -> Stmt.t = "clang_if_stmt_get_then"
-
   external get_else : t -> Stmt.t option = "clang_if_stmt_get_else"
-
   external has_else_storage : t -> bool = "clang_if_stmt_has_else_storage"
 
   let pp fmt d =
@@ -1082,7 +1044,6 @@ struct
   module Stmt = Stmt
 
   external get_name : t -> string = "clang_label_stmt_get_name"
-
   external get_sub_stmt : t -> Stmt.t = "clang_label_stmt_get_sub_stmt"
 
   let pp fmt s =
@@ -1108,7 +1069,6 @@ and WhileStmt :
   module VarDecl = VarDecl
 
   external get_cond : t -> Stmt.t = "clang_while_stmt_get_cond"
-
   external get_body : t -> Stmt.t = "clang_while_stmt_get_body"
 
   external get_condition_variable : t -> VarDecl.t option
@@ -1124,7 +1084,6 @@ struct
   module Stmt = Stmt
 
   external get_cond : t -> Stmt.t = "clang_do_stmt_get_cond"
-
   external get_body : t -> Stmt.t = "clang_do_stmt_get_body"
 
   let pp fmt d =
@@ -1143,11 +1102,8 @@ and ForStmt :
   module VarDecl = VarDecl
 
   external get_cond : t -> Expr.t option = "clang_for_stmt_get_cond"
-
   external get_inc : t -> Expr.t option = "clang_for_stmt_get_inc"
-
   external get_body : t -> Stmt.t = "clang_for_stmt_get_body"
-
   external get_init : t -> Stmt.t option = "clang_for_stmt_get_init"
 
   external get_condition_variable : t -> VarDecl.t option
@@ -1202,13 +1158,10 @@ end
 
 and Type : Sig.TYPE = struct
   type t
-
   type kind = TypeKind.t [@@deriving show]
 
   external get_kind : t -> kind = "clang_type_get_kind"
-
   external get_kind_name : t -> string = "clang_type_get_kind_name"
-
   external get_kind_enum : t -> int = "clang_type_get_kind_enum"
 
   let pp fmt t =
@@ -1323,7 +1276,6 @@ end
 
 and BuiltinType : (Sig.BUILTIN_TYPE with type t = Type.t) = struct
   type t = Type.t
-
   type kind = BuiltinTypeKind.t [@@deriving show]
 
   external get_kind : t -> kind = "clang_builtin_type_get_kind"
@@ -1397,26 +1349,30 @@ and ParenType :
   let pp fmt t = F.fprintf fmt "%a" QualType.pp (desugar t)
 end
 
-and AtomicType : 
-(Sig.ATOMIC_TYPE 
-with type t = Type.t
-and type QualType.Type.t = QualType.Type.t
+and AtomicType :
+  (Sig.ATOMIC_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
      and type QualType.t = QualType.t) = struct
-     include Type
+  include Type
   module QualType = QualType
+
   external get_value_type : t -> QualType.t = "clang_atomic_type_get_value_type"
 
   let pp fmt t = F.fprintf fmt "_Atomic(%a)" QualType.pp (get_value_type t)
 end
 
-and VectorType:
-(Sig.VECTOR_TYPE
-with type t = Type.t
-and type QualType.Type.t = QualType.Type.t
+and VectorType :
+  (Sig.VECTOR_TYPE
+    with type t = Type.t
+     and type QualType.Type.t = QualType.Type.t
      and type QualType.t = QualType.t) = struct
-     include Type
+  include Type
   module QualType = QualType
-  external get_element_type : t -> QualType.t = "clang_vector_type_get_element_type"
+
+  external get_element_type : t -> QualType.t
+    = "clang_vector_type_get_element_type"
+
   external get_num_elements : t -> int = "clang_vector_type_get_num_elements"
   external desugar : t -> QualType.t = "clang_vector_type_desugar"
 
@@ -1522,7 +1478,6 @@ and QualType : (Sig.QUAL_TYPE with type Type.t = Type.t) = struct
   type t = { ty : Type.t; const : bool }
 
   external is_null : t -> bool = "clang_qual_type_is_null"
-
   external to_string : t -> string = "clang_qual_type_to_string"
 
   let pp fmt { ty; const } =
@@ -1533,31 +1488,25 @@ end
 module Rewriter = struct
   type t
 
+  external insert_before_decl : Decl.t -> string -> t -> bool
+    = "clang_rewriter_insert_before_decl"
   (** Returns true if it did nothing *)
-  external insert_before_decl : Decl.t -> string -> t -> bool =
-    "clang_rewriter_insert_before_decl"
 
-  external insert_before_stmt : Stmt.t -> string -> t -> bool =
-    "clang_rewriter_insert_before_stmt"
-  
+  external insert_before_stmt : Stmt.t -> string -> t -> bool
+    = "clang_rewriter_insert_before_stmt"
+
   external emit_string : t -> string = "clang_rewriter_emit_string"
 end
 
 module TranslationUnit = struct
   type t
-
   type ast
 
   external parse_file_internal : string array -> ast = "clang_parse_file"
-
   external get_rewriter : ast -> Rewriter.t = "clang_get_rewriter"
-
   external get_translation_unit : ast -> t = "clang_get_translation_unit"
-
   external dump_translation_unit : t -> unit = "clang_dump_translation_unit"
-
   external decls_begin : t -> Decl.t option = "clang_decls_begin"
-
   external decls_succ : Decl.t -> Decl.t option = "clang_decls_succ"
 
   let parse_file argv = parse_file_internal argv |> get_translation_unit
@@ -1577,7 +1526,6 @@ module TranslationUnit = struct
         iter_decls_range f (decls_succ decl)
 
   let iter_decls f tu = iter_decls_range f (decls_begin tu)
-
   let pp fmt tu = iter_decls (fun decl -> F.fprintf fmt "%a\n" Decl.pp decl) tu
 end
 

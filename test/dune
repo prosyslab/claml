@@ -3,7 +3,7 @@
  (modules test)
  (flags -runtime-variant d -g)
  (libraries claml))
- 
+
 (rule
  (deps usertype-in-local2.c)
  (targets usertype-in-local2.output)
@@ -1923,4 +1923,3 @@
  (alias runtest)
  (action
   (diff __int128_t0.expected __int128_t0.output)))
-

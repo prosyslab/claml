@@ -1,11 +1,7 @@
 let debug = ref false
-
 let options = [ ("-debug", Arg.Set debug, "Debug") ]
-
 let files = ref []
-
 let parse f = files := f :: !files
-
 let usage = "Usage: ./test-runner.exe [options] [files]"
 
 let _ =

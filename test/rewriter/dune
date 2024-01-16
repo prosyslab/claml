@@ -17,4 +17,5 @@
 
 (rule
  (alias runtest)
- (action (diff simple.output simple.expected)))
+ (action
+  (diff simple.output simple.expected)))
