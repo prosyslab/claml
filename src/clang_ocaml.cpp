@@ -1,9 +1,9 @@
 #include <iostream>
 
 #include "clang/AST/DeclBase.h"
-#include "clang/Rewrite/Core/Rewriter.h"
 #include "clang/Frontend/ASTUnit.h"
 #include "clang/Frontend/CompilerInstance.h"
+#include "clang/Rewrite/Core/Rewriter.h"
 
 #include "caml/alloc.h"
 #include "caml/callback.h"
@@ -28,25 +28,28 @@ value clang_rewriter_emit_string(value rewriter) {
   CAMLparam1(rewriter);
   LOG(__FUNCTION__);
 
-  clang::Rewriter *Rewriter = *((clang::Rewriter **)Data_abstract_val(rewriter));
-  assert (Rewriter != nullptr);
-  assert (&Rewriter->getSourceMgr() != nullptr);
+  clang::Rewriter *Rewriter =
+      *((clang::Rewriter **)Data_abstract_val(rewriter));
+  assert(Rewriter != nullptr);
+  assert(&Rewriter->getSourceMgr() != nullptr);
 
   const clang::RewriteBuffer *RewriteBuf =
-    Rewriter->getRewriteBufferFor(Rewriter->getSourceMgr().getMainFileID());
+      Rewriter->getRewriteBufferFor(Rewriter->getSourceMgr().getMainFileID());
 
   std::string emit(RewriteBuf->begin(), RewriteBuf->end());
 
   CAMLreturn(clang_to_string(emit.data()));
 }
 
-value clang_rewriter_insert_before_stmt(value stmt, value text, value rewriter) {
+value clang_rewriter_insert_before_stmt(value stmt, value text,
+                                        value rewriter) {
   CAMLparam3(stmt, text, rewriter);
   LOG(__FUNCTION__);
 
   const char *Text = String_val(text);
   clang::Stmt *S = *((clang::Stmt **)Data_abstract_val(stmt));
-  clang::Rewriter *Rewriter = *((clang::Rewriter **)Data_abstract_val(rewriter));
+  clang::Rewriter *Rewriter =
+      *((clang::Rewriter **)Data_abstract_val(rewriter));
 
   clang::SourceLocation begin_loc = S->getBeginLoc();
   Rewriter->InsertTextBefore(begin_loc, Text);
@@ -54,13 +57,14 @@ value clang_rewriter_insert_before_stmt(value stmt, value text, value rewriter) 
   CAMLreturn(Val_unit);
 }
 
-value clang_rewriter_insert_before_decl(value decl, value text, value rewriter) {
+value clang_rewriter_insert_before_decl(value decl, value text,
+                                        value rewriter) {
   CAMLparam3(decl, text, rewriter);
   LOG(__FUNCTION__);
-  
+
   clang::Rewriter *RW = *((clang::Rewriter **)Data_abstract_val(rewriter));
-  assert (RW != nullptr);
-  assert (&RW->getSourceMgr() != nullptr);
+  assert(RW != nullptr);
+  assert(&RW->getSourceMgr() != nullptr);
 
   const char *Text = String_val(text);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(decl));
@@ -80,10 +84,9 @@ value clang_get_rewriter(value Unit) {
   clang::ASTUnit *U = *((clang::ASTUnit **)Data_abstract_val(Unit));
 
   clang::SourceManager &SrcManager = U->getSourceManager();
-  assert (&SrcManager != nullptr);
+  assert(&SrcManager != nullptr);
   const clang::LangOptions &LangOpts = U->getLangOpts();
-  clang::Rewriter *RW =
-    new clang::Rewriter(SrcManager, LangOpts);
+  clang::Rewriter *RW = new clang::Rewriter(SrcManager, LangOpts);
 
   rewriter = caml_alloc(1, Abstract_tag);
   *((clang::Rewriter **)Data_abstract_val(rewriter)) = RW;
@@ -105,10 +108,10 @@ clang::ASTUnit *parse_internal(int argc, char const **argv) {
   std::shared_ptr<clang::PCHContainerOperations> PCHContainerOps =
       std::make_shared<clang::PCHContainerOperations>();
   clang::ASTUnit *Unit(clang::ASTUnit::LoadFromCommandLine(
-    Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
-  
+      Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
+
   clang::SourceManager &SM = Unit->getSourceManager();
-  assert (&SM != nullptr);
+  assert(&SM != nullptr);
 
   return Unit;
 }
