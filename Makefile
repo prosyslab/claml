@@ -3,6 +3,7 @@ LN=@ln -sf
 CLANG-FORMAT=@clang-format
 
 all:
+	$(CLANG-FORMAT) --dry-run -Werror -i src/*.cpp src/*.h # check that the code is formatted
 	$(DUNE) build --auto-promote @fmt src
 	$(DUNE) build test/test.exe
 	$(DUNE) build test/rewriter/test.exe
