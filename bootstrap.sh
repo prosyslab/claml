@@ -153,7 +153,7 @@ gen_test() {
  (modules test)
  (flags -runtime-variant d -g)
  (libraries claml))
- " >$TARGET
+" >$TARGET
   for cfile in $(find test -maxdepth 1 -name "*.c"); do
     cfile=$(basename $cfile)
     echo "(rule
@@ -173,6 +173,8 @@ gen_test() {
   (diff ${cfile%%.*}.expected ${cfile%%.*}.output)))
 " >>$TARGET
   done
+  
+  sed -i '$d' $TARGET
 }
 
 gen_config

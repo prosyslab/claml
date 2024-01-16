@@ -1,5 +1,6 @@
 DUNE=@dune
 LN=@ln -sf
+RM=@rm -f
 CLANG-FORMAT=@clang-format
 
 all:
@@ -22,4 +23,4 @@ promote:
 
 clean:
 	$(DUNE) clean
-	rm -f test-runner rewriter-test-runner
+	$(RM) -f test-runner rewriter-test-runner
