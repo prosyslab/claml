@@ -1,16 +1,22 @@
+DUNE=@dune
+LN=@ln -sf
+
 all:
-	dune build src
-	dune build test/test.exe
-	dune build test/rewriter/test.exe
-	ln -sf _build/default/test/test.exe test-runner
-	ln -sf _build/default/test/rewriter/test.exe rewriter-test-runner
+	$(DUNE) build --auto-promote @fmt src
+	$(DUNE) build test/test.exe
+	$(DUNE) build test/rewriter/test.exe
+	$(LN) _build/default/test/test.exe test-runner
+	$(LN) _build/default/test/rewriter/test.exe rewriter-test-runner
 
 test: all
-	dune test
+	$(DUNE) test
+
+fmt:
+	$(DUNE) build @fmt --auto-promote
 
 promote:
-	dune promote
+	$(DUNE) promote
 
 clean:
-	dune clean
-	rm -f test-runner
+	$(DUNE) clean
+	rm -f test-runner rewriter-test-runner
