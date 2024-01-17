@@ -1,0 +1,15 @@
+(executable
+ (name test)
+ (modules test)
+ (flags -runtime-variant d -g)
+ (libraries claml))
+
+(rule
+ (alias runtest)
+ (deps InstCombineAddSub.cpp)
+ (targets InstCombineAddSub.cpp.output)
+ (action
+  (with-stdout-to
+   %{targets}
+   (ignore-stderr
+    (run ./test.exe %{deps})))))
