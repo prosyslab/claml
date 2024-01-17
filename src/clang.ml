@@ -542,6 +542,15 @@ and StmtExpr : (Sig.STMT_EXPR with type t = Stmt.t) = struct
   let pp fmt s = F.fprintf fmt "(%a)" Stmt.pp (get_sub_stmt s)
 end
 
+(** https://clang.llvm.org/doxygen/classclang_1_1FullExpr.html *)
+and FullExpr : (Sig.FULL_EXPR with type t = Stmt.t) = struct
+  include Expr
+
+  external get_sub_expr : t -> t = "clang_full_expr_get_sub_expr"
+
+  let pp fmt s = F.fprintf fmt "(%a)" Stmt.pp (get_sub_expr s)
+end
+
 and StringLiteral : (Sig.STRING_LITERAL with type t = Stmt.t) = struct
   include Expr
 
