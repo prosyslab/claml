@@ -271,7 +271,7 @@ value clang_decl_get_name(value Decl) {
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(Decl));
   LOG(__FUNCTION__);
   if (clang::NamedDecl *VD = llvm::dyn_cast<clang::NamedDecl>(D)) {
-    CAMLreturn(clang_to_string(VD->getName().data()));
+    CAMLreturn(clang_to_string(VD->getNameAsString().data()));
   } else {
     assert(false);
   }
