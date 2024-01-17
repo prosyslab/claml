@@ -267,6 +267,12 @@ module type STMT_EXPR = sig
   val get_sub_stmt : t -> t
 end
 
+module type FULL_EXPR = sig
+  include EXPR
+
+  val get_sub_expr : t -> t
+end
+
 module type STRING_LITERAL = sig
   include EXPR
 

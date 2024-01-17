@@ -470,6 +470,8 @@ WRAPPER_PTR(clang_constant_expr_get_sub_expr, Stmt, ConstantExpr, Expr,
 WRAPPER_PTR(clang_stmt_expr_get_sub_stmt, Stmt, StmtExpr, CompoundStmt,
             getSubStmt)
 
+WRAPPER_PTR(clang_full_expr_get_sub_expr, Expr, FullExpr, Expr, getSubExpr)
+
 WRAPPER_INT(clang_cast_expr_get_kind, CastExpr, getCastKind)
 
 WRAPPER_INT(clang_cast_expr_get_kind_enum, CastExpr, getCastKind)
