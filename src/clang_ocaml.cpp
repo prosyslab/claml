@@ -69,7 +69,6 @@ value clang_rewriter_insert_before_decl(value decl, value text,
   const char *Text = String_val(text);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(decl));
   clang::SourceLocation begin_loc = D->getBeginLoc();
-  begin_loc.dump(RW->getSourceMgr());
 
   bool notRewritable = RW->InsertTextBefore(begin_loc, Text);
 
