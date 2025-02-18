@@ -22,7 +22,7 @@ jobs:
 
       - name: Build Claml
         run: |
-          ./build.sh
+          opam exec -- ./build.sh --user-opam-switch
 
-      - name: Run test (regression)
-        run: eval $(opam env) && make test
+      - name: Run test
+        run: opam exec -- make test
