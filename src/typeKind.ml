@@ -8,6 +8,8 @@ type t =
   | VariableArrayType
   | AtomicType
   | AttributedType
+  | BTFTagAttributedType
+  | BitIntType
   | BlockPointerType
   | BuiltinType
   | ComplexType
@@ -15,13 +17,12 @@ type t =
   | AutoType
   | DeducedTemplateSpecializationType
   | DependentAddressSpaceType
-  | DependentExtIntType
+  | DependentBitIntType
   | DependentNameType
   | DependentSizedExtVectorType
   | DependentTemplateSpecializationType
   | DependentVectorType
   | ElaboratedType
-  | ExtIntType
   | FunctionNoProtoType
   | FunctionProtoType
   | InjectedClassNameType
@@ -50,6 +51,7 @@ type t =
   | TypedefType
   | UnaryTransformType
   | UnresolvedUsingType
+  | UsingType
   | VectorType
   | ExtVectorType
 [@@deriving show]

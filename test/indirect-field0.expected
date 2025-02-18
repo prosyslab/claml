@@ -28,6 +28,6 @@ struct {
   };
 #line 3 "indirect-field0.c"
   ;
-} * b;
+} *b;
 #line 6 "indirect-field0.c"
 int c() { return b->.a; }

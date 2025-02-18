@@ -5,8 +5,8 @@ set -e
 export OPAMYES=1
 
 NCPU="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)"
-OCAML_VERSION="4.13.1"
-CLAML_OPAM_SWITCH=claml-"$OCAML_VERSION"
+OCAML_VERSION="5.1.0"
+CLAML_OPAM_SWITCH=claml-"$OCAML_VERSION+flambda"
 opam init --compiler=$OCAML_VERSION -j $NCPU --no-setup
 
 switch_exists=no

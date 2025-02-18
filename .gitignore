@@ -11,6 +11,7 @@ src/declKind.ml
 src/attrKind.ml
 src/implicitCastKind.ml
 config
+test/dune
 
 .vscode
 rewriter-test-runner
