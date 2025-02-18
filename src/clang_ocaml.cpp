@@ -31,7 +31,6 @@ value clang_rewriter_emit_string(value rewriter) {
   clang::Rewriter *Rewriter =
       *((clang::Rewriter **)Data_abstract_val(rewriter));
   assert(Rewriter != nullptr);
-  assert(&Rewriter->getSourceMgr() != nullptr);
 
   const clang::RewriteBuffer *RewriteBuf =
       Rewriter->getRewriteBufferFor(Rewriter->getSourceMgr().getMainFileID());
@@ -64,7 +63,6 @@ value clang_rewriter_insert_before_decl(value decl, value text,
 
   clang::Rewriter *RW = *((clang::Rewriter **)Data_abstract_val(rewriter));
   assert(RW != nullptr);
-  assert(&RW->getSourceMgr() != nullptr);
 
   const char *Text = String_val(text);
   clang::Decl *D = *((clang::Decl **)Data_abstract_val(decl));
@@ -83,7 +81,6 @@ value clang_get_rewriter(value Unit) {
   clang::ASTUnit *U = *((clang::ASTUnit **)Data_abstract_val(Unit));
 
   clang::SourceManager &SrcManager = U->getSourceManager();
-  assert(&SrcManager != nullptr);
   const clang::LangOptions &LangOpts = U->getLangOpts();
   clang::Rewriter *RW = new clang::Rewriter(SrcManager, LangOpts);
 
@@ -110,7 +107,6 @@ clang::ASTUnit *parse_internal(int argc, char const **argv) {
       Args.data(), Args.data() + Args.size(), PCHContainerOps, Diags, ""));
 
   clang::SourceManager &SM = Unit->getSourceManager();
-  assert(&SM != nullptr);
 
   return Unit;
 }
