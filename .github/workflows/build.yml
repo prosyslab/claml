@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   check:
     name: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -13,16 +13,16 @@ jobs:
       - name: Set up OCaml
         uses: ocaml/setup-ocaml@v2
         with:
-          ocaml-compiler: 4.13.0
+          ocaml-compiler: 5.1.0
 
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y llvm-12-dev pkg-config libclang-12-dev
+          sudo apt-get install -y llvm-15-dev pkg-config libclang-15-dev
 
       - name: Build Claml
         run: |
-          ./build.sh || eval $(opam env) && make -j
+          ./build.sh
 
       - name: Run test (regression)
         run: eval $(opam env) && make test
